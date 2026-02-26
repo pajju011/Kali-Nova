@@ -8,11 +8,14 @@ class SuggestionEngine:
 
         suggestions = []
 
+        # ========================
         # Port Based Suggestions + Workflow Hook
+        # ========================
+
         for port in app_state.open_ports:
 
-             if port == 22:
-                 suggestions.append("SSH detected → Consider Hydra brute-force test.")
+            if port == 22:
+                suggestions.append("SSH detected → Consider Hydra brute-force test.")
                 app_state.set_next_action("Hydra")
 
             if port in [80, 443]:
