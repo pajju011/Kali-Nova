@@ -14,35 +14,32 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        # Connect mode change to Recon page
-        self.topbar.mode_changed.connect(
-        self.workspace.pages["Recon"].update_mode)
+
         self.setWindowTitle("Kalinova OS")
         self.setGeometry(100, 100, 1300, 800)
-        self.topbar = TopBar()
-        main_layout.addWidget(self.topbar)
 
         # =========================
         # Central Layout
         # =========================
         central_widget = QWidget()
         main_layout = QVBoxLayout()
-
         middle_layout = QHBoxLayout()
 
-        # Sidebar
+        # Create Components FIRST
+        self.topbar = TopBar()
         self.sidebar = Sidebar()
-
-        # Workspace (Pages)
         self.workspace = Workspace()
+        self.console = Console()
+
+        # =========================
+        # Layout Structure
+        # =========================
+        main_layout.addWidget(self.topbar)
 
         middle_layout.addWidget(self.sidebar, 1)
         middle_layout.addWidget(self.workspace, 4)
 
         main_layout.addLayout(middle_layout)
-
-        # Console
-        self.console = Console()
         main_layout.addWidget(self.console)
 
         central_widget.setLayout(main_layout)
@@ -54,22 +51,25 @@ class MainWindow(QMainWindow):
         self.sidebar.navigate.connect(self.workspace.switch_page)
 
         # =========================
+        # Mode Change Connection
+        # =========================
+        self.topbar.mode_changed.connect(
+            self.workspace.pages["Recon"].update_mode
+        )
+
+        # =========================
         # Tool Execution Connections
         # =========================
 
-        # Recon Page
         recon = self.workspace.pages["Recon"]
         recon.run_command.connect(self.execute)
 
-        # Web Page
         web = self.workspace.pages["Web"]
         web.run_command.connect(self.execute)
 
-        #Auth page
         auth = self.workspace.pages["Auth"]
         auth.run_command.connect(self.execute)
 
-        #network
         network = self.workspace.pages["Network"]
         network.run_command.connect(self.execute)
 
@@ -79,7 +79,5 @@ class MainWindow(QMainWindow):
     def execute(self, command):
 
         self.thread = CommandThread(command)
-
         self.thread.output_signal.connect(self.console.log)
-
         self.thread.start()
