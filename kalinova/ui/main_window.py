@@ -80,4 +80,4 @@ class MainWindow(QMainWindow):
 
         self.thread = CommandThread(command)
         self.thread.output_signal.connect(self.console.log)
-        self.thread.start() 
+        self.thread.start()  
