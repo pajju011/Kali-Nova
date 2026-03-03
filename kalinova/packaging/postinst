@@ -1,0 +1,20 @@
+#!/bin/bash
+# Post-installation script for Kalinova
+
+set -e
+
+echo "Setting up Kalinova..."
+
+# Create config directory
+mkdir -p /root/.kalinova/logs
+
+# Set permissions
+chmod -R 755 /opt/kalinova
+
+# Install Python dependencies if pip is available
+if command -v pip3 &> /dev/null; then
+    pip3 install PyQt6 scikit-learn joblib jinja2 pyyaml 2>/dev/null || true
+fi
+
+echo "Kalinova installed successfully!"
+echo "Launch from: Applications menu or run 'kalinova' from terminal"

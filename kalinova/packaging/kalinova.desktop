@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Kalinova
+Comment=Intelligent GUI Security Suite for Kali Linux
+Exec=python3 -m kalinova.main
+Icon=/opt/kalinova/assets/icon.png
+Terminal=false
+Type=Application
+Categories=System;Security;
+Keywords=security;hacking;pentesting;nmap;nikto;kali;

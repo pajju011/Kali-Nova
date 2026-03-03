@@ -1,0 +1,12 @@
+Package: kalinova
+Version: 1.0.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Depends: python3 (>= 3.10), python3-pyqt6, python3-sklearn, python3-jinja2, python3-yaml, nmap, nikto, john, hydra
+Maintainer: Kalinova Team <kalinova@example.com>
+Description: Intelligent GUI Security Suite for Kali Linux
+ Kalinova provides terminal-free GUI wrappers for Kali Linux
+ security tools with ML-powered next-step suggestions.
+ Designed for cybersecurity students and beginners.
+Homepage: https://github.com/kalinova/kalinova

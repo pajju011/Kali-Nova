@@ -1,0 +1,11 @@
+#!/bin/bash
+# Pre-removal script for Kalinova
+
+set -e
+
+echo "Removing Kalinova..."
+
+# Clean up config and logs (optional — keep user data)
+# rm -rf /root/.kalinova
+
+echo "Kalinova removed."
