@@ -4,8 +4,8 @@ class AppState:
     """
 
     def __init__(self):
-        self.mode = "Beginner"
-        self.global_risk = "LOW"
+        self.mode = "Beginner"   
+        self.global_risk = "LOW"    
         self.current_session = "Session-1"
         self.logs = []
         self.suggestion = "No suggestions yet."
