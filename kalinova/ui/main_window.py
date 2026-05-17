@@ -77,7 +77,11 @@ class MainWindow(QMainWindow):
     # Command Execution
     # =========================
     def execute(self, command):
+        # Clear console before new execution
+        self.console.clear()
+        self.console.set_status("🔄 Preparing to execute...", "running")
 
         self.thread = CommandThread(command)
         self.thread.output_signal.connect(self.console.log)
-        self.thread.start()  
+        self.thread.status_signal.connect(self.console.set_status)
+        self.thread.start()

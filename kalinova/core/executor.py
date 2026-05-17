@@ -1,5 +1,7 @@
 import subprocess
 from PyQt6.QtCore import QThread, pyqtSignal
+from datetime import datetime
+import time
 
 from core.log_manager import LogManager
 from core.port_parser import PortParser
@@ -12,15 +14,26 @@ class CommandThread(QThread):
 
     output_signal = pyqtSignal(str)
     finished_signal = pyqtSignal()
+    status_signal = pyqtSignal(str, str)  # (status_text, status_type)
 
     def __init__(self, command):
         super().__init__()
         self.command = command
+        self.start_time = None
+        self.line_count = 0
 
     def run(self):
         try:
             # Log command
             LogManager.log_command(self.command)
+            self.start_time = time.time()
+
+            # Extract tool name from command
+            tool_name = self.command.split()[0].upper()
+            self.status_signal.emit(f"⚙️  Running {tool_name}...", "running")
+            self.output_signal.emit(f"\n{'='*60}")
+            self.output_signal.emit(f"🚀 Starting: {self.command}")
+            self.output_signal.emit(f"{'='*60}\n")
 
             process = subprocess.Popen(
                 self.command,
@@ -32,7 +45,9 @@ class CommandThread(QThread):
 
             for line in process.stdout:
                 clean = line.strip()
-                self.output_signal.emit(clean)
+                if clean:  # Only emit non-empty lines
+                    self.output_signal.emit(clean)
+                    self.line_count += 1
 
                 LogManager.log_output(clean)
                 PortParser.extract_ports(clean)
@@ -46,20 +61,35 @@ class CommandThread(QThread):
                 # SQL Injection Detection
                 if "sql injection" in lower_line:
                     app_state.add_event("SQL_INJECTION")
+                    self.output_signal.emit("⚠️  [ALERT] SQL Injection vulnerability detected!")
 
                 # Hydra / Brute Force Detection
                 if "hydra" in lower_line or "login:" in lower_line:
                     app_state.add_event("BRUTE_FORCE")
+                    self.output_signal.emit("⚠️  [ALERT] Brute force attempt detected!")
 
                 # Gobuster Directory Enumeration
                 if "found:" in lower_line:
                     app_state.add_event("DIR_ENUM")
 
                 # Email Enumeration (Harvester)
-                if "@" in clean and "." in clean:
+                if "@" in clean and "." in clean and len(clean) > 5:
                     app_state.add_event("EMAIL_ENUM")
 
             process.wait()
+            
+            # Calculate execution time
+            elapsed_time = time.time() - self.start_time
+            
+            self.output_signal.emit(f"\n{'='*60}")
+            if process.returncode == 0:
+                self.output_signal.emit(f"✅ Tool completed successfully!")
+                self.output_signal.emit(f"⏱️  Execution time: {elapsed_time:.2f}s | Lines: {self.line_count}")
+                self.status_signal.emit(f"✅ {tool_name} completed ({elapsed_time:.1f}s)", "success")
+            else:
+                self.output_signal.emit(f"❌ Tool exited with code: {process.returncode}")
+                self.status_signal.emit(f"❌ {tool_name} failed", "error")
+            self.output_signal.emit(f"{'='*60}\n")
 
             # Calculate risk after execution
             RiskEngine.calculate()
@@ -68,7 +98,8 @@ class CommandThread(QThread):
             SuggestionEngine.generate()
 
         except Exception as e:
-            self.output_signal.emit(str(e))
+            self.output_signal.emit(f"\n❌ ERROR: {str(e)}")
+            self.status_signal.emit(f"❌ Error executing tool", "error")
             LogManager.log_output(str(e))
 
         self.finished_signal.emit()
