@@ -10,17 +10,23 @@ class TopBar(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.setObjectName("topBar")
+
         layout = QHBoxLayout()
+        layout.setContentsMargins(16, 10, 16, 10)
+        layout.setSpacing(10)
 
         self.title = QLabel("KALINOVA OS")
-        self.title.setStyleSheet("font-size:18px; font-weight:bold;")
+        self.title.setObjectName("topTitle")
 
         self.mode_selector = QComboBox()
+        self.mode_selector.setObjectName("modeSelector")
         self.mode_selector.addItems(["Beginner", "Expert"])
         self.mode_selector.currentTextChanged.connect(self.change_mode)
 
         self.risk_label = QLabel("Risk: LOW")
-        self.risk_label.setStyleSheet("font-weight:bold;")
+        self.risk_label.setObjectName("riskLabel")
+        self.risk_label.setProperty("riskLevel", "low")
 
         layout.addWidget(self.title)
         layout.addStretch()
@@ -50,14 +56,8 @@ class TopBar(QWidget):
 
         risk = app_state.global_risk
 
-        color = "green"
-
-        if risk == "MEDIUM":
-            color = "orange"
-        elif risk == "HIGH":
-            color = "red"
-
         self.risk_label.setText(f"Risk: {risk}")
-        self.risk_label.setStyleSheet(
-            f"font-weight:bold; color:{color};"
-        )
+
+        self.risk_label.setProperty("riskLevel", risk.lower())
+        self.risk_label.style().unpolish(self.risk_label)
+        self.risk_label.style().polish(self.risk_label)

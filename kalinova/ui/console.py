@@ -7,16 +7,22 @@ class Console(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.setObjectName("consolePanel")
+
         layout = QVBoxLayout()
+        layout.setContentsMargins(12, 8, 12, 10)
+        layout.setSpacing(6)
 
         # Status bar
         self.status_label = QLabel("Ready")
+        self.status_label.setObjectName("consoleStatus")
         self.status_label.setStyleSheet(
             "color: #2ecc71; font-weight: bold; padding: 5px;"
         )
 
         # Output console
         self.output = QTextEdit()
+        self.output.setObjectName("consoleOutput")
         self.output.setReadOnly(True)
         self.output.setFixedHeight(150)
         self.output.setStyleSheet("""
