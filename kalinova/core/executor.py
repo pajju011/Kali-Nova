@@ -46,9 +46,9 @@ class CommandThread(QThread):
 
             # Extract tool name from command
             tool_name = command_args[0].upper()
-            self.status_signal.emit(f"⚙️  Running {tool_name}...", "running")
+            self.status_signal.emit(f"Running {tool_name}...", "running")
             self.output_signal.emit(f"\n{'='*60}")
-            self.output_signal.emit(f"🚀 Starting: {self.command}")
+            self.output_signal.emit(f"Starting: {self.command}")
             self.output_signal.emit(f"{'='*60}\n")
 
             startupinfo = None
@@ -87,12 +87,12 @@ class CommandThread(QThread):
                 # SQL Injection Detection
                 if "sql injection" in lower_line:
                     app_state.add_event("SQL_INJECTION")
-                    self.output_signal.emit("⚠️  [ALERT] SQL Injection vulnerability detected!")
+                    self.output_signal.emit("[ALERT] SQL Injection vulnerability detected!")
 
                 # Hydra / Brute Force Detection
                 if "hydra" in lower_line or "login:" in lower_line:
                     app_state.add_event("BRUTE_FORCE")
-                    self.output_signal.emit("⚠️  [ALERT] Brute force attempt detected!")
+                    self.output_signal.emit("[ALERT] Brute force attempt detected!")
 
                 # Gobuster Directory Enumeration
                 if "found:" in lower_line:
@@ -109,15 +109,15 @@ class CommandThread(QThread):
             
             self.output_signal.emit(f"\n{'='*60}")
             if self._stop_requested:
-                self.output_signal.emit("⏹️  Tool execution stopped by user.")
-                self.status_signal.emit(f"⏹️  {tool_name} stopped", "info")
+                self.output_signal.emit("Tool execution stopped by user.")
+                self.status_signal.emit(f"{tool_name} stopped", "info")
             elif process.returncode == 0:
-                self.output_signal.emit(f"✅ Tool completed successfully!")
-                self.output_signal.emit(f"⏱️  Execution time: {elapsed_time:.2f}s | Lines: {self.line_count}")
-                self.status_signal.emit(f"✅ {tool_name} completed ({elapsed_time:.1f}s)", "success")
+                self.output_signal.emit("Tool completed successfully!")
+                self.output_signal.emit(f"Execution time: {elapsed_time:.2f}s | Lines: {self.line_count}")
+                self.status_signal.emit(f"{tool_name} completed ({elapsed_time:.1f}s)", "success")
             else:
-                self.output_signal.emit(f"❌ Tool exited with code: {process.returncode}")
-                self.status_signal.emit(f"❌ {tool_name} failed", "error")
+                self.output_signal.emit(f"Tool exited with code: {process.returncode}")
+                self.status_signal.emit(f"{tool_name} failed", "error")
             self.output_signal.emit(f"{'='*60}\n")
 
             # Calculate risk after execution
@@ -127,8 +127,8 @@ class CommandThread(QThread):
             SuggestionEngine.generate()
 
         except Exception as e:
-            self.output_signal.emit(f"\n❌ ERROR: {str(e)}")
-            self.status_signal.emit(f"❌ Error executing tool", "error")
+            self.output_signal.emit(f"\nERROR: {str(e)}")
+            self.status_signal.emit("Error executing tool", "error")
             LogManager.log_output(str(e))
         finally:
             self._process = None
