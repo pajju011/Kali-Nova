@@ -21,6 +21,8 @@ class CommandThreadBehaviorTests(unittest.TestCase):
             "core.executor.RiskEngine.calculate"
         ), patch(
             "core.executor.SuggestionEngine.generate"
+        ), patch(
+            "core.executor.shutil.which", return_value="sqlmap"
         ):
             thread.run()
 

@@ -19,6 +19,7 @@ class MainWindow(QMainWindow):
         self.setObjectName("mainWindow")
         self.setWindowTitle("Kalinova OS")
         self.setGeometry(100, 100, 1300, 800)
+        self.showMaximized()
         self.thread = None
         self._threads = []
         self._thread_consoles = {}
