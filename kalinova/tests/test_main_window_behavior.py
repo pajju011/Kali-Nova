@@ -19,9 +19,13 @@ class DummyCommandThread(QObject):
     def __init__(self, command):
         super().__init__()
         self.command = command
+        self._running = True
 
     def start(self):
         return
+
+    def isRunning(self):
+        return self._running
 
 
 class MainWindowBehaviorTests(unittest.TestCase):
@@ -53,7 +57,7 @@ class MainWindowBehaviorTests(unittest.TestCase):
         self.assertIs(current_page, web_page)
         self.assertEqual(web_page._selected_tool, "gobuster")
 
-    def test_side_console_visible_only_during_command_execution(self):
+    def test_side_console_stays_visible_after_command_execution(self):
         window = MainWindow()
         window.show()
 
@@ -68,7 +72,53 @@ class MainWindowBehaviorTests(unittest.TestCase):
             window.thread.finished_signal.emit()
             self.app.processEvents()
 
-        self.assertFalse(window.side_console.isVisible())
+        self.assertTrue(window.side_console.isVisible())
+
+    def test_execute_is_blocked_when_previous_thread_is_running(self):
+        class RunningThread:
+            def isRunning(self):
+                return True
+
+        window = MainWindow()
+        window.show()
+        window.thread = RunningThread()
+
+        with patch("ui.main_window.CommandThread") as command_thread_cls:
+            window.execute("echo test")
+
+        self.assertFalse(command_thread_cls.called)
+        self.assertIn("already running", window.console.status_label.text().lower())
+
+    def test_close_event_stops_running_thread_before_exit(self):
+        class StoppableThread:
+            def __init__(self):
+                self.stopped = False
+                self.waited = False
+                self.terminated = False
+
+            def isRunning(self):
+                return not self.stopped
+
+            def stop(self):
+                self.stopped = True
+
+            def wait(self, _timeout):
+                self.waited = True
+                return True
+
+            def terminate(self):
+                self.terminated = True
+
+        window = MainWindow()
+        window.show()
+        stub_thread = StoppableThread()
+        window.thread = stub_thread
+
+        window.close()
+        self.app.processEvents()
+
+        self.assertTrue(stub_thread.stopped)
+        self.assertTrue(stub_thread.waited)
 
 
 if __name__ == "__main__":

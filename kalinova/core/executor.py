@@ -23,6 +23,16 @@ class CommandThread(QThread):
         self.command = command
         self.start_time = None
         self.line_count = 0
+        self._process = None
+        self._stop_requested = False
+
+    def stop(self):
+        self._stop_requested = True
+        if self._process is not None and self._process.poll() is None:
+            try:
+                self._process.terminate()
+            except Exception:
+                pass
 
     def run(self):
         try:
@@ -57,6 +67,7 @@ class CommandThread(QThread):
                 startupinfo=startupinfo,
                 creationflags=creationflags,
             )
+            self._process = process
 
             for line in process.stdout:
                 clean = line.strip()
@@ -97,7 +108,10 @@ class CommandThread(QThread):
             elapsed_time = time.time() - self.start_time
             
             self.output_signal.emit(f"\n{'='*60}")
-            if process.returncode == 0:
+            if self._stop_requested:
+                self.output_signal.emit("⏹️  Tool execution stopped by user.")
+                self.status_signal.emit(f"⏹️  {tool_name} stopped", "info")
+            elif process.returncode == 0:
                 self.output_signal.emit(f"✅ Tool completed successfully!")
                 self.output_signal.emit(f"⏱️  Execution time: {elapsed_time:.2f}s | Lines: {self.line_count}")
                 self.status_signal.emit(f"✅ {tool_name} completed ({elapsed_time:.1f}s)", "success")
@@ -116,5 +130,7 @@ class CommandThread(QThread):
             self.output_signal.emit(f"\n❌ ERROR: {str(e)}")
             self.status_signal.emit(f"❌ Error executing tool", "error")
             LogManager.log_output(str(e))
+        finally:
+            self._process = None
 
         self.finished_signal.emit()

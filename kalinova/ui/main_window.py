@@ -18,6 +18,7 @@ class MainWindow(QMainWindow):
         self.setObjectName("mainWindow")
         self.setWindowTitle("Kalinova OS")
         self.setGeometry(100, 100, 1300, 800)
+        self.thread = None
 
         # =========================
         # Central Layout
@@ -94,6 +95,13 @@ class MainWindow(QMainWindow):
     # Command Execution
     # =========================
     def execute(self, command):
+        if self.thread is not None and self.thread.isRunning():
+            self._broadcast_status("⚠️ Command already running", "error")
+            self._broadcast_log(
+                "A command is already running. Wait for it to finish before starting another."
+            )
+            return
+
         # Clear console before new execution
         self._clear_consoles()
         self._show_side_output_panel()
@@ -102,7 +110,7 @@ class MainWindow(QMainWindow):
         self.thread = CommandThread(command)
         self.thread.output_signal.connect(self._broadcast_log)
         self.thread.status_signal.connect(self._broadcast_status)
-        self.thread.finished_signal.connect(self._hide_side_output_panel)
+        self.thread.finished_signal.connect(self._on_thread_finished)
         self.thread.start()
 
     def handle_suggested_tool(self, suggested_tool):
@@ -233,6 +241,21 @@ class MainWindow(QMainWindow):
 
     def _hide_side_output_panel(self):
         self.side_console.hide()
+
+    def _on_thread_finished(self):
+        self.thread = None
+
+    def closeEvent(self, event):
+        if self.thread is not None and self.thread.isRunning():
+            self._broadcast_status("Stopping running command before exit...", "running")
+            self._broadcast_log("Stopping running command before exit...")
+            self.thread.stop()
+            self.thread.wait(3000)
+            if self.thread.isRunning():
+                self.thread.terminate()
+                self.thread.wait(1000)
+            self.thread = None
+        super().closeEvent(event)
 
     def _apply_theme(self):
         self.setStyleSheet(
