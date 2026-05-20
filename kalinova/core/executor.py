@@ -1,4 +1,5 @@
 import os
+import shlex
 import subprocess
 from PyQt6.QtCore import QThread, pyqtSignal
 from datetime import datetime
@@ -25,12 +26,16 @@ class CommandThread(QThread):
 
     def run(self):
         try:
+            command_args = shlex.split(self.command, posix=os.name != "nt")
+            if not command_args:
+                raise ValueError("No command provided.")
+
             # Log command
             LogManager.log_command(self.command)
             self.start_time = time.time()
 
             # Extract tool name from command
-            tool_name = self.command.split()[0].upper()
+            tool_name = command_args[0].upper()
             self.status_signal.emit(f"⚙️  Running {tool_name}...", "running")
             self.output_signal.emit(f"\n{'='*60}")
             self.output_signal.emit(f"🚀 Starting: {self.command}")
@@ -44,8 +49,8 @@ class CommandThread(QThread):
                 creationflags = subprocess.CREATE_NO_WINDOW
 
             process = subprocess.Popen(
-                self.command,
-                shell=True,
+                command_args,
+                shell=False,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,

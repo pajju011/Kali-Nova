@@ -130,6 +130,7 @@ class WebPage(ToolModulePage):
     def build_nikto(self):
         url = self.nikto_url.text().strip()
         if not url:
+            self.emit_validation_error("Nikto target URL is required before running.")
             return
 
         command = f"nikto -h {url}"
@@ -141,6 +142,7 @@ class WebPage(ToolModulePage):
     def build_sqlmap(self):
         url = self.sqlmap_url.text().strip()
         if not url:
+            self.emit_validation_error("SQLmap target URL is required before running.")
             return
 
         command = f"sqlmap -u \"{url}\""
@@ -162,10 +164,15 @@ class WebPage(ToolModulePage):
         url = self.gobuster_url.text().strip()
         wordlist = self.wordlist_path.text().strip()
 
-        if not url or not wordlist:
+        if not url:
+            self.emit_validation_error("Gobuster target URL is required before running.")
             return
 
-        self.run_command.emit(f"gobuster dir -u {url} -w {wordlist}")
+        if not wordlist:
+            self.emit_validation_error("Gobuster wordlist path is required before running.")
+            return
+
+        self.run_command.emit(f"gobuster dir -u \"{url}\" -w \"{wordlist}\"")
 
     def select_wordlist(self):
         file_path, _ = QFileDialog.getOpenFileName(

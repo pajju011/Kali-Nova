@@ -1,0 +1,14 @@
+# Python bytecode/cache artifacts
+__pycache__/
+*.py[cod]
+*.pyc.*
+
+# Local virtual environments
+venv/
+kalinova/venv/
+
+# Runtime output directories
+logs/
+reports/
+kalinova/logs/
+kalinova/reports/

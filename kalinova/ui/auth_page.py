@@ -146,20 +146,32 @@ class AuthPage(ToolModulePage):
         username = self.username_input.text().strip()
         wordlist = self.password_file.text().strip()
 
-        if not target or not username or not wordlist:
+        if not target:
+            self.emit_validation_error("Hydra target IP is required before running.")
             return
 
-        self.run_command.emit(f"hydra -l {username} -P {wordlist} {target} {service}")
+        if not username:
+            self.emit_validation_error("Hydra username is required before running.")
+            return
+
+        if not wordlist:
+            self.emit_validation_error("Hydra wordlist path is required before running.")
+            return
+
+        self.run_command.emit(
+            f"hydra -l \"{username}\" -P \"{wordlist}\" {target} {service}"
+        )
 
     def build_john(self):
         hash_file = self.hash_file.text().strip()
         wordlist = self.john_wordlist.text().strip()
 
         if not hash_file:
+            self.emit_validation_error("John hash file is required before running.")
             return
 
-        command = f"john {hash_file}"
+        command = f"john \"{hash_file}\""
         if wordlist:
-            command += f" --wordlist={wordlist}"
+            command += f" --wordlist=\"{wordlist}\""
 
         self.run_command.emit(command)

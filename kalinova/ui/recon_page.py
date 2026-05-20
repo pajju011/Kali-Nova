@@ -146,12 +146,14 @@ class ReconPage(ToolModulePage):
     def build_nmap(self):
         target = self.nmap_target.text().strip()
         if not target:
+            self.emit_validation_error("Nmap target is required before running.")
             return
 
         app_state.reset_scan()
         scan = self.scan_type.currentText()
 
         if scan == "Aggressive Scan" and app_state.mode == "Beginner":
+            self.emit_validation_error("Aggressive scan is disabled in Beginner mode.")
             return
 
         command = "nmap "
@@ -171,6 +173,7 @@ class ReconPage(ToolModulePage):
     def build_whois(self):
         target = self.whois_target.text().strip()
         if not target:
+            self.emit_validation_error("Whois domain is required before running.")
             return
 
         self.run_command.emit(f"whois {target}")
@@ -178,6 +181,7 @@ class ReconPage(ToolModulePage):
     def build_harvester(self):
         domain = self.harvester_domain.text().strip()
         if not domain:
+            self.emit_validation_error("Harvester domain is required before running.")
             return
 
         source = self.harvester_source.currentText()

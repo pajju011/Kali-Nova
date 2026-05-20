@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import (
     QGroupBox,
     QPushButton,
 )
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QFont
 
 from ui.tool_icon_button import ToolIconButton
@@ -21,6 +21,8 @@ class ToolModulePage(QWidget):
     - Horizontal tool cards
     - Empty state + stacked tool panels
     """
+
+    validation_error = pyqtSignal(str)
 
     def __init__(self, title, accent_color, subtitle):
         super().__init__()
@@ -144,11 +146,6 @@ class ToolModulePage(QWidget):
         if tool_id not in self._tool_panel_index:
             return
 
-        # Clicking the active tool collapses back to empty state
-        if self._selected_tool == tool_id:
-            self.clear_tool_selection()
-            return
-
         self._selected_tool = tool_id
         self.panel_stack.setCurrentIndex(self._tool_panel_index[tool_id])
 
@@ -160,6 +157,9 @@ class ToolModulePage(QWidget):
             focus_widget.setFocus()
             if hasattr(focus_widget, "selectAll"):
                 focus_widget.selectAll()
+
+    def emit_validation_error(self, message):
+        self.validation_error.emit(message)
 
     def clear_tool_selection(self):
         self._selected_tool = None

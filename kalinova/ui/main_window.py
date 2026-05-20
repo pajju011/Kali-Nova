@@ -65,15 +65,19 @@ class MainWindow(QMainWindow):
 
         recon = self.workspace.pages["Recon"]
         recon.run_command.connect(self.execute)
+        recon.validation_error.connect(self.handle_validation_error)
 
         web = self.workspace.pages["Web"]
         web.run_command.connect(self.execute)
+        web.validation_error.connect(self.handle_validation_error)
 
         auth = self.workspace.pages["Auth"]
         auth.run_command.connect(self.execute)
+        auth.validation_error.connect(self.handle_validation_error)
 
         network = self.workspace.pages["Network"]
         network.run_command.connect(self.execute)
+        network.validation_error.connect(self.handle_validation_error)
 
         dashboard = self.workspace.pages["Dashboard"]
         dashboard.run_suggested_signal.connect(self.handle_suggested_tool)
@@ -131,6 +135,10 @@ class MainWindow(QMainWindow):
 
         self.console.log(f"Suggested action: {suggested_tool}. Please open the appropriate tool page.")
         self.console.set_status("Suggestion ready", "info")
+
+    def handle_validation_error(self, message):
+        self.console.log(f"⚠️  {message}")
+        self.console.set_status(f"⚠️  {message}", "error")
 
     def _apply_theme(self):
         self.setStyleSheet(

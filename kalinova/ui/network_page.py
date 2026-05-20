@@ -92,10 +92,12 @@ class NetworkPage(ToolModulePage):
         mode = self.mode_dropdown.currentText()
 
         if not port:
+            self.emit_validation_error("Netcat port is required before running.")
             return
 
         if mode == "Connect to Target":
             if not target:
+                self.emit_validation_error("Netcat target IP is required in connect mode.")
                 return
             command = f"nc {target} {port}"
         else:
