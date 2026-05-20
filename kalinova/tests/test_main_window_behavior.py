@@ -176,6 +176,33 @@ class MainWindowBehaviorTests(unittest.TestCase):
             self.assertEqual(window.side_tabs.count(), 0)
             self.assertFalse(window.side_console.isVisible())
 
+    def test_f11_key_press_toggles_fullscreen(self):
+        from PyQt6.QtGui import QKeyEvent
+        from PyQt6.QtCore import QEvent, Qt
+        window = MainWindow()
+        window.show()
+
+        # By default the window starts maximized (if initialized offscreen it might not set isFullScreen)
+        self.assertFalse(window.isFullScreen())
+
+        # Simulate pressing F11 to go FullScreen
+        event_f11 = QKeyEvent(QEvent.Type.KeyPress, Qt.Key.Key_F11, Qt.KeyboardModifier.NoModifier)
+        window.keyPressEvent(event_f11)
+        self.assertTrue(window.isFullScreen())
+
+        # Simulate pressing F11 again to restore maximized
+        window.keyPressEvent(event_f11)
+        self.assertFalse(window.isFullScreen())
+
+        # Go back to fullscreen
+        window.keyPressEvent(event_f11)
+        self.assertTrue(window.isFullScreen())
+
+        # Press Escape to restore maximized
+        event_esc = QKeyEvent(QEvent.Type.KeyPress, Qt.Key.Key_Escape, Qt.KeyboardModifier.NoModifier)
+        window.keyPressEvent(event_esc)
+        self.assertFalse(window.isFullScreen())
+
 
 if __name__ == "__main__":
     unittest.main()

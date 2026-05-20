@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout, QHBoxLayout,
     QLabel, QTabWidget
 )
+from PyQt6.QtCore import Qt
 
 from ui.sidebar import Sidebar
 from ui.topbar import TopBar
@@ -345,6 +346,20 @@ class MainWindow(QMainWindow):
         self._thread_tab_base_titles.clear()
         self.thread = None
         super().closeEvent(event)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_F11:
+            if self.isFullScreen():
+                self.showMaximized()
+                self._log_main("Switched to Maximized window mode.")
+            else:
+                self.showFullScreen()
+                self._log_main("Switched to Full Screen mode (Press F11 or Esc to exit).")
+        elif event.key() == Qt.Key.Key_Escape and self.isFullScreen():
+            self.showMaximized()
+            self._log_main("Switched to Maximized window mode.")
+        else:
+            super().keyPressEvent(event)
 
     def _apply_theme(self):
         self.setStyleSheet(
