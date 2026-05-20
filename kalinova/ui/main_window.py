@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget,
-    QVBoxLayout, QHBoxLayout
+    QVBoxLayout, QHBoxLayout,
+    QLabel, QTabWidget
 )
 
 from ui.sidebar import Sidebar
@@ -19,6 +20,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Kalinova OS")
         self.setGeometry(100, 100, 1300, 800)
         self.thread = None
+        self._threads = []
+        self._thread_consoles = {}
+        self._thread_tab_base_titles = {}
+        self._tool_run_counts = {}
 
         # =========================
         # Central Layout
@@ -32,10 +37,21 @@ class MainWindow(QMainWindow):
         self.sidebar = Sidebar()
         self.workspace = Workspace()
         self.console = Console(panel_title="Bottom Console", output_height=150)
-        self.side_console = Console(panel_title="Live Output", output_height=None)
+        self.side_console = QWidget()
         self.side_console.setObjectName("sideConsolePanel")
+        side_layout = QVBoxLayout(self.side_console)
+        side_layout.setContentsMargins(8, 8, 8, 8)
+        side_layout.setSpacing(6)
+        self.side_console_title = QLabel("Tool Output")
+        self.side_console_title.setObjectName("sideConsoleTitle")
+        self.side_tabs = QTabWidget()
+        self.side_tabs.setObjectName("sideOutputTabs")
+        self.side_tabs.setTabsClosable(True)
+        self.side_tabs.tabCloseRequested.connect(self._close_output_tab)
+        side_layout.addWidget(self.side_console_title)
+        side_layout.addWidget(self.side_tabs)
         self.side_console.setMinimumWidth(340)
-        self.side_console.setMaximumWidth(440)
+        self.side_console.setMaximumWidth(520)
         self.side_console.hide()
         self.workspace.setObjectName("workspace")
 
@@ -95,23 +111,29 @@ class MainWindow(QMainWindow):
     # Command Execution
     # =========================
     def execute(self, command):
-        if self.thread is not None and self.thread.isRunning():
-            self._broadcast_status("⚠️ Command already running", "error")
-            self._broadcast_log(
-                "A command is already running. Wait for it to finish before starting another."
-            )
-            return
-
-        # Clear console before new execution
-        self._clear_consoles()
         self._show_side_output_panel()
-        self._broadcast_status("🔄 Preparing to execute...", "running")
+        tool_name = self._extract_tool_name(command)
+        tab_console, base_title = self._create_output_tab(tool_name)
+        self._log_main(f"Starting {base_title}...")
+        self._set_main_status("🔄 Preparing to execute...", "running")
 
-        self.thread = CommandThread(command)
-        self.thread.output_signal.connect(self._broadcast_log)
-        self.thread.status_signal.connect(self._broadcast_status)
-        self.thread.finished_signal.connect(self._on_thread_finished)
-        self.thread.start()
+        thread = CommandThread(command)
+        thread.output_signal.connect(
+            lambda message, t=thread: self._handle_thread_output(t, message)
+        )
+        thread.status_signal.connect(
+            lambda status, status_type, t=thread: self._handle_thread_status(
+                t, status, status_type
+            )
+        )
+        thread.finished_signal.connect(lambda t=thread: self._on_thread_finished(t))
+
+        self.thread = thread
+        self._threads.append(thread)
+        self._thread_consoles[thread] = tab_console
+        self._thread_tab_base_titles[thread] = base_title
+        self._set_thread_tab_running(thread, True)
+        thread.start()
 
     def handle_suggested_tool(self, suggested_tool):
         lower_tool = suggested_tool.lower()
@@ -206,55 +228,121 @@ class MainWindow(QMainWindow):
             )
             return
 
-        self._broadcast_log(
+        self._log_main(
             f"Suggested action: {suggested_tool}. Please open the appropriate tool page."
         )
-        self._broadcast_status("Suggestion ready", "info")
+        self._set_main_status("Suggestion ready", "info")
 
     def handle_validation_error(self, message):
-        self._broadcast_log(f"⚠️  {message}")
-        self._broadcast_status(f"⚠️  {message}", "error")
+        self._log_main(f"⚠️  {message}")
+        self._set_main_status(f"⚠️  {message}", "error")
 
-    def _clear_consoles(self):
-        self.console.clear()
-        self.side_console.clear()
+    def _extract_tool_name(self, command):
+        parts = command.strip().split()
+        if not parts:
+            return "COMMAND"
+        return parts[0].upper()
 
-    def _broadcast_log(self, message):
+    def _create_output_tab(self, tool_name):
+        run_count = self._tool_run_counts.get(tool_name, 0) + 1
+        self._tool_run_counts[tool_name] = run_count
+        base_title = f"{tool_name} #{run_count}"
+        tab_console = Console(panel_title=base_title, output_height=None)
+        tab_console.setObjectName("toolOutputConsole")
+        tab_index = self.side_tabs.addTab(tab_console, base_title)
+        self.side_tabs.setCurrentIndex(tab_index)
+        return tab_console, base_title
+
+    def _log_main(self, message):
         self.console.log(message)
-        self.side_console.log(message)
 
-    def _broadcast_status(self, status, status_type="info"):
+    def _set_main_status(self, status, status_type="info"):
         self.console.set_status(status, status_type)
-        self.side_console.set_status(status, status_type)
+
+    def _handle_thread_output(self, thread, message):
+        self._log_main(message)
+        tab_console = self._thread_consoles.get(thread)
+        if tab_console is not None:
+            tab_console.log(message)
+
+    def _handle_thread_status(self, thread, status, status_type):
+        self._set_main_status(status, status_type)
+        tab_console = self._thread_consoles.get(thread)
+        if tab_console is not None:
+            tab_console.set_status(status, status_type)
 
     def _open_tool_panel(self, page_name, panel_method, tool_name, instruction):
         self.workspace.switch_page(page_name)
         page = self.workspace.pages[page_name]
         getattr(page, panel_method)()
-        self._broadcast_log(
+        self._log_main(
             f"Suggestion: {tool_name} selected. {instruction}"
         )
-        self._broadcast_status(f"Suggestion ready: {tool_name}", "info")
+        self._set_main_status(f"Suggestion ready: {tool_name}", "info")
 
     def _show_side_output_panel(self):
         self.side_console.show()
 
-    def _hide_side_output_panel(self):
-        self.side_console.hide()
+    def _set_thread_tab_running(self, thread, is_running):
+        tab_console = self._thread_consoles.get(thread)
+        base_title = self._thread_tab_base_titles.get(thread, "Command")
+        if tab_console is None:
+            return
+        tab_index = self.side_tabs.indexOf(tab_console)
+        if tab_index == -1:
+            return
+        if is_running:
+            self.side_tabs.setTabText(tab_index, f"{base_title} [RUN]")
+        else:
+            self.side_tabs.setTabText(tab_index, f"{base_title} [DONE]")
 
-    def _on_thread_finished(self):
-        self.thread = None
+    def _on_thread_finished(self, thread):
+        self._set_thread_tab_running(thread, False)
+        if thread in self._threads:
+            self._threads.remove(thread)
+        if self.thread is thread:
+            self.thread = None
+
+    def _close_output_tab(self, tab_index):
+        tab_widget = self.side_tabs.widget(tab_index)
+        if tab_widget is None:
+            return
+
+        for thread, console_widget in list(self._thread_consoles.items()):
+            if console_widget is tab_widget:
+                if thread.isRunning():
+                    thread.stop()
+                    thread.wait(1000)
+                self._thread_consoles.pop(thread, None)
+                self._thread_tab_base_titles.pop(thread, None)
+                if thread in self._threads:
+                    self._threads.remove(thread)
+                if self.thread is thread:
+                    self.thread = None
+                break
+
+        self.side_tabs.removeTab(tab_index)
+        tab_widget.deleteLater()
+        if self.side_tabs.count() == 0:
+            self.side_console.hide()
 
     def closeEvent(self, event):
-        if self.thread is not None and self.thread.isRunning():
-            self._broadcast_status("Stopping running command before exit...", "running")
-            self._broadcast_log("Stopping running command before exit...")
-            self.thread.stop()
-            self.thread.wait(3000)
-            if self.thread.isRunning():
-                self.thread.terminate()
-                self.thread.wait(1000)
-            self.thread = None
+        running_threads = list(self._threads)
+        if running_threads:
+            self._set_main_status("Stopping running commands before exit...", "running")
+            self._log_main("Stopping running commands before exit...")
+        for thread in running_threads:
+            if thread.isRunning():
+                thread.stop()
+                thread.wait(3000)
+                if thread.isRunning():
+                    thread.terminate()
+                    thread.wait(1000)
+
+        self._threads.clear()
+        self._thread_consoles.clear()
+        self._thread_tab_base_titles.clear()
+        self.thread = None
         super().closeEvent(event)
 
     def _apply_theme(self):
@@ -443,11 +531,34 @@ class MainWindow(QMainWindow):
                 border-radius: 10px;
             }
 
-            QLabel#consoleTitle {
+            QLabel#consoleTitle,
+            QLabel#sideConsoleTitle {
                 font-size: 12px;
                 font-weight: 700;
                 color: #bcd0f5;
                 padding: 0 4px;
+            }
+
+            QTabWidget#sideOutputTabs::pane {
+                border: 1px solid #2b3a57;
+                border-radius: 8px;
+                background-color: #0e1728;
+            }
+
+            QTabWidget#sideOutputTabs QTabBar::tab {
+                background-color: #192741;
+                color: #cfe0ff;
+                border: 1px solid #2f4568;
+                padding: 6px 10px;
+                margin-right: 2px;
+                border-top-left-radius: 6px;
+                border-top-right-radius: 6px;
+            }
+
+            QTabWidget#sideOutputTabs QTabBar::tab:selected {
+                background-color: #24406e;
+                border-color: #3d78d8;
+                color: #f4f8ff;
             }
 
             QTextEdit#consoleOutput {
