@@ -124,7 +124,7 @@ class NetworkTopologyWidget(QWidget):
             else:
                 # Dim un-scanned hollow node
                 node_pen = QPen(QColor(74, 92, 122))
-                node_pen.setWidth(1.5)
+                node_pen.setWidthF(1.5)
                 painter.setPen(node_pen)
                 painter.setBrush(QBrush(QColor(15, 22, 36)))
                 painter.drawEllipse(QPointF(nx, ny), 5, 5)
