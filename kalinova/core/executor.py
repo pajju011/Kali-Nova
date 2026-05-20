@@ -12,6 +12,8 @@ from core.port_parser import PortParser
 from core.risk_engine import RiskEngine
 from core.suggestion_engine import SuggestionEngine
 from core.app_state import app_state
+from core.database import DatabaseManager
+
 
 
 class CommandThread(QThread):
@@ -27,6 +29,7 @@ class CommandThread(QThread):
         self.line_count = 0
         self._process = None
         self._stop_requested = False
+        self.stdout_lines = []
 
     def stop(self):
         self._stop_requested = True
@@ -115,6 +118,26 @@ class CommandThread(QThread):
             # Generate suggestions
             SuggestionEngine.generate()
 
+            # Save scan to database
+            target = "unknown"
+            if len(command_args) > 1:
+                # Find target by filtering out flags/options
+                for arg in command_args[1:]:
+                    if not arg.startswith("-"):
+                        target = arg
+                        break
+            
+            parsed_ports_str = ",".join(map(str, app_state.open_ports))
+            DatabaseManager.save_scan(
+                target=target,
+                tool_name=tool_name,
+                command=self.command,
+                stdout="\n".join(self.stdout_lines),
+                parsed_ports=parsed_ports_str,
+                risk_score=app_state.risk_score,
+                threat_level=app_state.global_risk
+            )
+
         except Exception as e:
             self.output_signal.emit(f"\nERROR: {str(e)}")
             self.status_signal.emit("Error executing tool", "error")
@@ -127,6 +150,7 @@ class CommandThread(QThread):
     def process_output_line(self, clean):
         self.output_signal.emit(clean)
         self.line_count += 1
+        self.stdout_lines.append(clean)
 
         LogManager.log_output(clean)
         PortParser.extract_ports(clean)
