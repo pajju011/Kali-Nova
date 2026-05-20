@@ -12,7 +12,7 @@ class AuthPage(ToolModulePage):
         super().__init__(
             title="Authentication Testing",
             accent_color="#f59e0b",
-            subtitle="Choose a credential testing tool and the required fields will appear.",
+            subtitle="Choose a credential testing tool and the required fields will appear .",
         )
 
         self.hydra_panel = self._create_hydra_panel()
