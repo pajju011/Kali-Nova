@@ -75,6 +75,9 @@ class MainWindow(QMainWindow):
         network = self.workspace.pages["Network"]
         network.run_command.connect(self.execute)
 
+        dashboard = self.workspace.pages["Dashboard"]
+        dashboard.run_suggested_signal.connect(self.handle_suggested_tool)
+
         self._apply_theme()
 
     # =========================
@@ -89,6 +92,45 @@ class MainWindow(QMainWindow):
         self.thread.output_signal.connect(self.console.log)
         self.thread.status_signal.connect(self.console.set_status)
         self.thread.start()
+
+    def handle_suggested_tool(self, suggested_tool):
+        lower_tool = suggested_tool.lower()
+
+        if "hydra" in lower_tool:
+            self.workspace.switch_page("Auth")
+            self.workspace.pages["Auth"].show_hydra_panel()
+            self.console.log("Suggestion: Hydra selected. Configure the form and run it from the Auth page.")
+            self.console.set_status("Suggestion ready: Hydra", "info")
+            return
+
+        if "nikto" in lower_tool:
+            self.workspace.switch_page("Web")
+            self.workspace.pages["Web"].show_nikto_panel()
+            self.console.log("Suggestion: Nikto selected. Configure the target URL and run it from the Web page.")
+            self.console.set_status("Suggestion ready: Nikto", "info")
+            return
+
+        if "sqlmap" in lower_tool:
+            self.workspace.switch_page("Web")
+            self.workspace.pages["Web"].show_sqlmap_panel()
+            self.console.log("Suggestion: SQLmap selected. Configure the target URL and run it from the Web page.")
+            self.console.set_status("Suggestion ready: SQLmap", "info")
+            return
+
+        if "nmap" in lower_tool or "whois" in lower_tool:
+            self.workspace.switch_page("Recon")
+            if "nmap" in lower_tool:
+                self.workspace.pages["Recon"].show_nmap_panel()
+                self.console.log("Suggestion: Nmap selected. Configure the target and run it from the Recon page.")
+                self.console.set_status("Suggestion ready: Nmap", "info")
+            else:
+                self.workspace.pages["Recon"].show_whois_panel()
+                self.console.log("Suggestion: Whois selected. Configure the domain and run it from the Recon page.")
+                self.console.set_status("Suggestion ready: Whois", "info")
+            return
+
+        self.console.log(f"Suggested action: {suggested_tool}. Please open the appropriate tool page.")
+        self.console.set_status("Suggestion ready", "info")
 
     def _apply_theme(self):
         self.setStyleSheet(

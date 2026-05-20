@@ -1,3 +1,4 @@
+import os
 import subprocess
 from PyQt6.QtCore import QThread, pyqtSignal
 from datetime import datetime
@@ -35,12 +36,21 @@ class CommandThread(QThread):
             self.output_signal.emit(f"🚀 Starting: {self.command}")
             self.output_signal.emit(f"{'='*60}\n")
 
+            startupinfo = None
+            creationflags = 0
+            if os.name == "nt":
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                creationflags = subprocess.CREATE_NO_WINDOW
+
             process = subprocess.Popen(
                 self.command,
                 shell=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                text=True
+                text=True,
+                startupinfo=startupinfo,
+                creationflags=creationflags,
             )
 
             for line in process.stdout:
