@@ -1,10 +1,9 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTextEdit, QLabel
-from PyQt6.QtCore import Qt
 from datetime import datetime
 
 
 class Console(QWidget):
-    def __init__(self):
+    def __init__(self, panel_title="Console", output_height=150):
         super().__init__()
 
         self.setObjectName("consolePanel")
@@ -12,6 +11,9 @@ class Console(QWidget):
         layout = QVBoxLayout()
         layout.setContentsMargins(12, 8, 12, 10)
         layout.setSpacing(6)
+
+        self.title_label = QLabel(panel_title)
+        self.title_label.setObjectName("consoleTitle")
 
         # Status bar
         self.status_label = QLabel("Ready")
@@ -24,7 +26,8 @@ class Console(QWidget):
         self.output = QTextEdit()
         self.output.setObjectName("consoleOutput")
         self.output.setReadOnly(True)
-        self.output.setFixedHeight(150)
+        if output_height is not None:
+            self.output.setFixedHeight(output_height)
         self.output.setStyleSheet("""
             QTextEdit {
                 background-color: #1e1e1e;
@@ -34,6 +37,7 @@ class Console(QWidget):
             }
         """)
 
+        layout.addWidget(self.title_label)
         layout.addWidget(self.status_label)
         layout.addWidget(self.output)
         self.setLayout(layout)

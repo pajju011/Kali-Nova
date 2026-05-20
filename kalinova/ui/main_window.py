@@ -30,7 +30,11 @@ class MainWindow(QMainWindow):
         self.topbar = TopBar()
         self.sidebar = Sidebar()
         self.workspace = Workspace()
-        self.console = Console()
+        self.console = Console(panel_title="Bottom Console", output_height=150)
+        self.side_console = Console(panel_title="Live Output", output_height=None)
+        self.side_console.setObjectName("sideConsolePanel")
+        self.side_console.setMinimumWidth(340)
+        self.side_console.setMaximumWidth(440)
         self.workspace.setObjectName("workspace")
 
         # =========================
@@ -40,6 +44,7 @@ class MainWindow(QMainWindow):
 
         middle_layout.addWidget(self.sidebar, 1)
         middle_layout.addWidget(self.workspace, 4)
+        middle_layout.addWidget(self.side_console, 2)
 
         main_layout.addLayout(middle_layout)
         main_layout.addWidget(self.console)
@@ -89,56 +94,136 @@ class MainWindow(QMainWindow):
     # =========================
     def execute(self, command):
         # Clear console before new execution
-        self.console.clear()
-        self.console.set_status("🔄 Preparing to execute...", "running")
+        self._clear_consoles()
+        self._broadcast_status("🔄 Preparing to execute...", "running")
 
         self.thread = CommandThread(command)
-        self.thread.output_signal.connect(self.console.log)
-        self.thread.status_signal.connect(self.console.set_status)
+        self.thread.output_signal.connect(self._broadcast_log)
+        self.thread.status_signal.connect(self._broadcast_status)
         self.thread.start()
 
     def handle_suggested_tool(self, suggested_tool):
         lower_tool = suggested_tool.lower()
 
         if "hydra" in lower_tool:
-            self.workspace.switch_page("Auth")
-            self.workspace.pages["Auth"].show_hydra_panel()
-            self.console.log("Suggestion: Hydra selected. Configure the form and run it from the Auth page.")
-            self.console.set_status("Suggestion ready: Hydra", "info")
+            self._open_tool_panel(
+                page_name="Auth",
+                panel_method="show_hydra_panel",
+                tool_name="Hydra",
+                instruction="Configure the form and run it from the Auth page.",
+            )
+            return
+
+        if "john" in lower_tool:
+            self._open_tool_panel(
+                page_name="Auth",
+                panel_method="show_john_panel",
+                tool_name="John",
+                instruction="Choose the hash file and run it from the Auth page.",
+            )
             return
 
         if "nikto" in lower_tool:
-            self.workspace.switch_page("Web")
-            self.workspace.pages["Web"].show_nikto_panel()
-            self.console.log("Suggestion: Nikto selected. Configure the target URL and run it from the Web page.")
-            self.console.set_status("Suggestion ready: Nikto", "info")
+            self._open_tool_panel(
+                page_name="Web",
+                panel_method="show_nikto_panel",
+                tool_name="Nikto",
+                instruction="Configure the target URL and run it from the Web page.",
+            )
             return
 
         if "sqlmap" in lower_tool:
-            self.workspace.switch_page("Web")
-            self.workspace.pages["Web"].show_sqlmap_panel()
-            self.console.log("Suggestion: SQLmap selected. Configure the target URL and run it from the Web page.")
-            self.console.set_status("Suggestion ready: SQLmap", "info")
+            self._open_tool_panel(
+                page_name="Web",
+                panel_method="show_sqlmap_panel",
+                tool_name="SQLmap",
+                instruction="Configure the target URL and run it from the Web page.",
+            )
             return
 
-        if "nmap" in lower_tool or "whois" in lower_tool:
-            self.workspace.switch_page("Recon")
-            if "nmap" in lower_tool:
-                self.workspace.pages["Recon"].show_nmap_panel()
-                self.console.log("Suggestion: Nmap selected. Configure the target and run it from the Recon page.")
-                self.console.set_status("Suggestion ready: Nmap", "info")
-            else:
-                self.workspace.pages["Recon"].show_whois_panel()
-                self.console.log("Suggestion: Whois selected. Configure the domain and run it from the Recon page.")
-                self.console.set_status("Suggestion ready: Whois", "info")
+        if "gobuster" in lower_tool:
+            self._open_tool_panel(
+                page_name="Web",
+                panel_method="show_gobuster_panel",
+                tool_name="Gobuster",
+                instruction="Set URL and wordlist, then run it from the Web page.",
+            )
             return
 
-        self.console.log(f"Suggested action: {suggested_tool}. Please open the appropriate tool page.")
-        self.console.set_status("Suggestion ready", "info")
+        if "nmap" in lower_tool:
+            self._open_tool_panel(
+                page_name="Recon",
+                panel_method="show_nmap_panel",
+                tool_name="Nmap",
+                instruction="Configure target details and run it from the Recon page.",
+            )
+            return
+
+        if "whois" in lower_tool:
+            self._open_tool_panel(
+                page_name="Recon",
+                panel_method="show_whois_panel",
+                tool_name="Whois",
+                instruction="Configure the domain and run it from the Recon page.",
+            )
+            return
+
+        if "harvester" in lower_tool:
+            self._open_tool_panel(
+                page_name="Recon",
+                panel_method="show_harvester_panel",
+                tool_name="Harvester",
+                instruction="Set domain/source and run it from the Recon page.",
+            )
+            return
+
+        if "netcat" in lower_tool:
+            self._open_tool_panel(
+                page_name="Network",
+                panel_method="show_netcat_panel",
+                tool_name="Netcat",
+                instruction="Set mode and port, then run from the Network page.",
+            )
+            return
+
+        if "wireshark" in lower_tool:
+            self._open_tool_panel(
+                page_name="Network",
+                panel_method="show_wireshark_panel",
+                tool_name="Wireshark",
+                instruction="Launch it from the Network page.",
+            )
+            return
+
+        self._broadcast_log(
+            f"Suggested action: {suggested_tool}. Please open the appropriate tool page."
+        )
+        self._broadcast_status("Suggestion ready", "info")
 
     def handle_validation_error(self, message):
-        self.console.log(f"⚠️  {message}")
-        self.console.set_status(f"⚠️  {message}", "error")
+        self._broadcast_log(f"⚠️  {message}")
+        self._broadcast_status(f"⚠️  {message}", "error")
+
+    def _clear_consoles(self):
+        self.console.clear()
+        self.side_console.clear()
+
+    def _broadcast_log(self, message):
+        self.console.log(message)
+        self.side_console.log(message)
+
+    def _broadcast_status(self, status, status_type="info"):
+        self.console.set_status(status, status_type)
+        self.side_console.set_status(status, status_type)
+
+    def _open_tool_panel(self, page_name, panel_method, tool_name, instruction):
+        self.workspace.switch_page(page_name)
+        page = self.workspace.pages[page_name]
+        getattr(page, panel_method)()
+        self._broadcast_log(
+            f"Suggestion: {tool_name} selected. {instruction}"
+        )
+        self._broadcast_status(f"Suggestion ready: {tool_name}", "info")
 
     def _apply_theme(self):
         self.setStyleSheet(
@@ -318,6 +403,19 @@ class MainWindow(QMainWindow):
             QWidget#consolePanel {
                 border-top: 1px solid #2a3958;
                 background-color: #0e1728;
+            }
+
+            QWidget#sideConsolePanel {
+                border-left: 1px solid #2a3958;
+                background-color: #0e1728;
+                border-radius: 10px;
+            }
+
+            QLabel#consoleTitle {
+                font-size: 12px;
+                font-weight: 700;
+                color: #bcd0f5;
+                padding: 0 4px;
             }
 
             QTextEdit#consoleOutput {
