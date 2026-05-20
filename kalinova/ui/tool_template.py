@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (
     QStackedWidget,
     QGroupBox,
     QPushButton,
+    QScrollArea,
 )
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QFont
@@ -14,7 +15,7 @@ from PyQt6.QtGui import QFont
 from ui.tool_icon_button import ToolIconButton
 
 
-class ToolModulePage(QWidget):
+class ToolModulePage(QScrollArea):
     """
     Shared module layout:
     - Header with title/subtitle
@@ -34,8 +35,15 @@ class ToolModulePage(QWidget):
         self._tool_focus_widget = {}
 
         self.setObjectName("toolModulePage")
+        self.setWidgetResizable(True)
+        self.setStyleSheet("QScrollArea { border: none; background: transparent; }")
 
-        main_layout = QVBoxLayout(self)
+        # Create a container widget for all the content
+        self.container = QWidget()
+        self.container.setObjectName("toolModulePageContainer")
+        self.container.setStyleSheet("background: transparent;")
+
+        main_layout = QVBoxLayout(self.container)
         main_layout.setContentsMargins(24, 20, 24, 20)
         main_layout.setSpacing(16)
 
@@ -82,6 +90,8 @@ class ToolModulePage(QWidget):
 
         panel_layout.addWidget(self.panel_stack)
         main_layout.addWidget(panel_container, 1)
+
+        self.setWidget(self.container)
 
     def _build_empty_panel(self):
         empty = QWidget()

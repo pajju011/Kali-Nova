@@ -440,7 +440,7 @@ class MainWindow(QMainWindow):
                 background-color: #27406a;
             }
 
-            QWidget#toolModulePage {
+            #toolModulePage {
                 background-color: transparent;
             }
 
