@@ -67,7 +67,7 @@ class MainWindow(QMainWindow):
         middle_layout.addWidget(self.side_console, 2)
 
         main_layout.addLayout(middle_layout)
-        main_layout.addWidget(self.console)
+        # main_layout.addWidget(self.console)
 
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
@@ -238,6 +238,10 @@ class MainWindow(QMainWindow):
     def handle_validation_error(self, message):
         self._log_main(f"⚠️  {message}")
         self._set_main_status(f"⚠️  {message}", "error")
+        import os
+        if os.environ.get("QT_QPA_PLATFORM") != "offscreen":
+            from PyQt6.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "Configuration Required", message)
 
     def _extract_tool_name(self, command):
         parts = command.strip().split()
