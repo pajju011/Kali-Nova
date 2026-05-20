@@ -35,6 +35,7 @@ class MainWindow(QMainWindow):
         self.side_console.setObjectName("sideConsolePanel")
         self.side_console.setMinimumWidth(340)
         self.side_console.setMaximumWidth(440)
+        self.side_console.hide()
         self.workspace.setObjectName("workspace")
 
         # =========================
@@ -95,11 +96,13 @@ class MainWindow(QMainWindow):
     def execute(self, command):
         # Clear console before new execution
         self._clear_consoles()
+        self._show_side_output_panel()
         self._broadcast_status("🔄 Preparing to execute...", "running")
 
         self.thread = CommandThread(command)
         self.thread.output_signal.connect(self._broadcast_log)
         self.thread.status_signal.connect(self._broadcast_status)
+        self.thread.finished_signal.connect(self._hide_side_output_panel)
         self.thread.start()
 
     def handle_suggested_tool(self, suggested_tool):
@@ -224,6 +227,12 @@ class MainWindow(QMainWindow):
             f"Suggestion: {tool_name} selected. {instruction}"
         )
         self._broadcast_status(f"Suggestion ready: {tool_name}", "info")
+
+    def _show_side_output_panel(self):
+        self.side_console.show()
+
+    def _hide_side_output_panel(self):
+        self.side_console.hide()
 
     def _apply_theme(self):
         self.setStyleSheet(
