@@ -13,7 +13,7 @@ class ReconPage(ToolModulePage):
         super().__init__(
             title="Reconnaissance Tools",
             accent_color="#4e8df8",
-            subtitle="Select a recon tool to reveal its options and run a focused scan.",
+            subtitle="Select a recon tool to reveal its options and run a focused scan.",          
         )
 
         self.nmap_panel = self._create_nmap_panel()
