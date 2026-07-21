@@ -17,7 +17,7 @@ class ReconPage(ToolModulePage):
         )
 
         self.nmap_panel = self._create_nmap_panel()
-        self.whois_panel = self._create_whois_panel()
+        self.whois_panel = self._create_whois_panel()          
         self.harvester_panel = self._create_harvester_panel()
 
         self.add_tool(
