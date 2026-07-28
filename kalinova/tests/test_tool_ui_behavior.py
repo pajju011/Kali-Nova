@@ -43,6 +43,43 @@ class ReconPageUiBehaviorTests(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn("target", errors[0].lower())
 
+    def test_autopsy_tool_panel_activation(self):
+        page = ReconPage()
+        page.show()
+
+        button = page._tool_buttons["autopsy"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "autopsy")
+
+    def test_autopsy_command_generation(self):
+        page = ReconPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.autopsy_locker_input.setText("/var/lib/evidence")
+        page.autopsy_port_spin.setValue(8888)
+        page.autopsy_cookie_combo.setCurrentIndex(1)  # Force Cookie (-c)
+
+        page.build_autopsy()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "autopsy -c -d /var/lib/evidence -p 8888 localhost")
+
+    def test_autopsy_live_analysis_validation(self):
+        page = ReconPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.chk_live_analysis.setChecked(True)
+        page.build_autopsy()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Live analysis requires", errors[0])
+
 
 class NetworkPageWifiteBehaviorTests(unittest.TestCase):
     @classmethod

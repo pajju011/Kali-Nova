@@ -184,6 +184,11 @@ class CommandThread(QThread):
             app_state.add_event("WIRELESS_HANDSHAKE")
             self.output_signal.emit("[ALERT] Wireless handshake/PMKID captured!")
 
+        # Autopsy Digital Forensics Detection
+        if "autopsy forensic browser" in lower_line or "evidence locker" in lower_line:
+            app_state.add_event("FORENSICS_ANALYSIS")
+            self.output_signal.emit("[INFO] Digital forensics session initiated!")
+
     def run_simulation(self, tool_binary, command_args):
         simulated_lines = []
         target = "target-system.local"
@@ -435,6 +440,30 @@ class CommandThread(QThread):
                 "[+] cracking handshake using wordlist...",
                 "[+] KEY FOUND! [ CorporatePass2026! ]",
                 "[+] 1 attack completed, 1 handshake captured, 1 key cracked."
+            ]
+
+        elif tool_binary == "autopsy":
+            port = "9999"
+            if "-p" in command_args:
+                try:
+                    idx = command_args.index("-p")
+                    port = command_args[idx+1]
+                except Exception:
+                    pass
+            simulated_lines = [
+                "===============================================================================",
+                "Autopsy Forensic Browser v2.24",
+                "The Sleuth Kit Graphical Interface for Digital Forensics Analysis",
+                "===============================================================================",
+                "[+] Evidence Locker Directory: /var/lib/autopsy",
+                f"[+] Starting Autopsy HTTP Server on port {port}...",
+                "[+] Host binding: localhost",
+                "[+] Initializing SleuthKit plugins (tsk_loaddb, fls, mactime, srch_strings)...",
+                "[+] Autopsy Forensic Browser server is running!",
+                "",
+                f"    Open your web browser and navigate to: http://localhost:{port}/autopsy",
+                "",
+                "[+] Waiting for incoming browser connection..."
             ]
 
         else:

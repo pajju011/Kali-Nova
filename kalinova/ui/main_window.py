@@ -212,6 +212,15 @@ class MainWindow(QMainWindow):
             )
             return
 
+        if "autopsy" in lower_tool or "forensic" in lower_tool:
+            self._open_tool_panel(
+                page_name="Recon",
+                panel_method="show_autopsy_panel",
+                tool_name="Autopsy",
+                instruction="Configure evidence locker and port, then launch from Recon page.",
+            )
+            return
+
         if "netcat" in lower_tool:
             self._open_tool_panel(
                 page_name="Network",
