@@ -12,3 +12,7 @@ logs/
 reports/
 kalinova/logs/
 kalinova/reports/
+
+# Database files
+*.db
+kalinova.db

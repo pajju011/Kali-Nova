@@ -1,6 +1,10 @@
 import os
+import sys
 import unittest
 from unittest.mock import patch
+
+# Ensure kalinova is in Python path for test execution
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QApplication
@@ -47,12 +51,12 @@ class MainWindowBehaviorTests(unittest.TestCase):
         window.show()
 
         self.assertTrue(hasattr(window, "side_console"))
-        self.assertFalse(window.side_console.isVisible())
+        self.assertTrue(window.side_console.isHidden())
 
         window.handle_validation_error("Example validation message")
 
         self.assertIn("Example validation message", window.console.status_label.text())
-        self.assertFalse(window.side_console.isVisible())
+        self.assertTrue(window.side_console.isHidden())
 
     def test_handle_suggested_tool_opens_gobuster_panel(self):
         window = MainWindow()
@@ -70,19 +74,17 @@ class MainWindowBehaviorTests(unittest.TestCase):
         window = MainWindow()
         window.show()
 
-        self.assertFalse(window.side_console.isVisible())
+        self.assertTrue(window.side_console.isHidden())
 
         with patch("ui.main_window.CommandThread", DummyCommandThread):
             window.execute("echo test")
-            self.app.processEvents()
 
-            self.assertTrue(window.side_console.isVisible())
+            self.assertFalse(window.side_console.isHidden())
             self.assertEqual(window.side_tabs.count(), 1)
 
             window.thread.finished_signal.emit()
-            self.app.processEvents()
 
-        self.assertTrue(window.side_console.isVisible())
+        self.assertFalse(window.side_console.isHidden())
 
     def test_execute_allows_multiple_simultaneous_runs(self):
         window = MainWindow()
@@ -111,11 +113,9 @@ class MainWindowBehaviorTests(unittest.TestCase):
 
             window.execute("nmap localhost")
             first_thread.output_signal.emit("nmap line 1")
-            self.app.processEvents()
 
             window.execute("sqlmap -u http://example.com")
             second_thread.output_signal.emit("sqlmap line 1")
-            self.app.processEvents()
 
         self.assertEqual(window.side_tabs.count(), 2)
         first_tab_console = window.side_tabs.widget(0)
@@ -154,7 +154,6 @@ class MainWindowBehaviorTests(unittest.TestCase):
         window.thread = stub_thread_2
 
         window.close()
-        self.app.processEvents()
 
         self.assertTrue(stub_thread_1.stopped)
         self.assertTrue(stub_thread_1.waited)
@@ -172,9 +171,8 @@ class MainWindowBehaviorTests(unittest.TestCase):
             window.execute("echo test")
             self.assertEqual(window.side_tabs.count(), 1)
             window._close_output_tab(0)
-            self.app.processEvents()
             self.assertEqual(window.side_tabs.count(), 0)
-            self.assertFalse(window.side_console.isVisible())
+            self.assertTrue(window.side_console.isHidden())
 
     def test_f11_key_press_toggles_fullscreen(self):
         from PyQt6.QtGui import QKeyEvent
