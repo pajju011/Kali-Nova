@@ -230,6 +230,15 @@ class MainWindow(QMainWindow):
             )
             return
 
+        if "wifite" in lower_tool or "wifi" in lower_tool or "wpa" in lower_tool:
+            self._open_tool_panel(
+                page_name="Network",
+                panel_method="show_wifite_panel",
+                tool_name="Wifite",
+                instruction="Configure interface and wireless scan options, then run from Network page.",
+            )
+            return
+
         self._log_main(
             f"Suggested action: {suggested_tool}. Please open the appropriate tool page."
         )

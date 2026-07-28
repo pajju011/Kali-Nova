@@ -18,7 +18,7 @@ Convert security tools from raw CLI usage into a guided workflow with:
 As of code inspection on 2026-05-18:
 - App entry point is `main.py` (creates `MainWindow`)
 - UI modules exist for Dashboard, Recon, Web, Auth, Network, Reports, Settings
-- Tool command builders exist for 10 tools: `nmap`, `whois`, `theHarvester`, `nikto`, `sqlmap`, `gobuster`, `hydra`, `john`, `nc`, `wireshark`
+- Tool command builders exist for 11 tools: `nmap`, `whois`, `theHarvester`, `nikto`, `sqlmap`, `gobuster`, `hydra`, `john`, `nc`, `wireshark`, `wifite`
 - Command execution runs in `core.executor.CommandThread`
 - Risk scoring is in `core.risk_engine.RiskEngine`
 - Suggestions are in `core.suggestion_engine.SuggestionEngine`
