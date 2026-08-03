@@ -580,6 +580,12 @@ public:
 %If (Qt_6_3_0 -)
         SH_SpinBox_SelectOnStep,
 %End
+%If (Qt_6_11_0 -)
+        SH_ComboBox_ListMouseTracking_Current,
+%End
+%If (Qt_6_11_0 -)
+        SH_ComboBox_ListMouseTracking_Active,
+%End
         SH_CustomBase,
     };
 

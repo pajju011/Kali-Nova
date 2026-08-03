@@ -27,9 +27,16 @@ class QSaveFile : public QFileDevice
 %End
 
 public:
-    explicit QSaveFile(const QString &name);
+%If (Qt_6_11_0 -)
+    QSaveFile(const QString &name, QObject *parent /TransferThis/ = 0);
+%End
     explicit QSaveFile(QObject *parent /TransferThis/ = 0);
+%If (- Qt_6_11_0)
+    explicit QSaveFile(const QString &name);
+%End
+%If (- Qt_6_11_0)
     QSaveFile(const QString &name, QObject *parent /TransferThis/);
+%End
     virtual ~QSaveFile();
     virtual QString fileName() const;
     void setFileName(const QString &name);

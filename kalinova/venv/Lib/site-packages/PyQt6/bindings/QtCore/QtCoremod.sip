@@ -22,7 +22,7 @@
 
 %Module(name=PyQt6.QtCore, call_super_init=True, default_VirtualErrorHandler=PyQt6, keyword_arguments="Optional", use_limited_api=True, py_ssize_t_clean=True)
 
-%Timeline {Qt_6_0_0 Qt_6_1_0 Qt_6_2_0 Qt_6_3_0 Qt_6_4_0 Qt_6_5_0 Qt_6_6_0 Qt_6_7_0 Qt_6_8_0 Qt_6_9_0 Qt_6_10_0}
+%Timeline {Qt_6_0_0 Qt_6_1_0 Qt_6_2_0 Qt_6_3_0 Qt_6_4_0 Qt_6_5_0 Qt_6_6_0 Qt_6_7_0 Qt_6_8_0 Qt_6_9_0 Qt_6_10_0 Qt_6_11_0}
 
 %Platforms {Android iOS Linux macOS WebAssembly Windows}
 
@@ -66,6 +66,7 @@ WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 %Plugin PyQt6
 
+%MinimumABIVersion "13.8"
 %DefaultEncoding "ASCII"
 
 %Include(name=pyqt-internal.sip5, optional=True)
@@ -78,8 +79,8 @@ int PYQT_VERSION;
 const char *PYQT_VERSION_STR;
 
 %ModuleCode
-static int PYQT_VERSION = 0x060a02;
-static const char *PYQT_VERSION_STR = "6.10.2";
+static int PYQT_VERSION = 0x060b00;
+static const char *PYQT_VERSION_STR = "6.11.0";
 %End
 
 %Include qglobal.sip

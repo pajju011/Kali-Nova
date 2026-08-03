@@ -66,4 +66,9 @@ public:
 %If (Qt_6_5_0 -)
     QSvgGenerator::SvgVersion svgVersion() const;
 %End
+
+protected:
+%If (Qt_6_11_0 -)
+    virtual void initPainter(QPainter *) const;
+%End
 };

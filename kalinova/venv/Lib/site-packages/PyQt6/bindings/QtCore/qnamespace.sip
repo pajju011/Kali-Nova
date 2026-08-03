@@ -1178,6 +1178,9 @@ namespace Qt
         AccessibleDescriptionRole,
         SizeHintRole,
         InitialSortOrderRole,
+%If (Qt_6_11_0 -)
+        RangeModelAdapterRole,
+%End
         UserRole,
     };
 

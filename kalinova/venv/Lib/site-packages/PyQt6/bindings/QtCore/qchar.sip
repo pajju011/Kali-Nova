@@ -253,6 +253,18 @@ public:
 %If (Qt_6_9_0 -)
         Script_TuluTigalari,
 %End
+%If (Qt_6_11_0 -)
+        Script_Sidetic,
+%End
+%If (Qt_6_11_0 -)
+        Script_TaiYo,
+%End
+%If (Qt_6_11_0 -)
+        Script_TolongSiki,
+%End
+%If (Qt_6_11_0 -)
+        Script_BeriaErfe,
+%End
     };
 };
 

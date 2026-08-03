@@ -57,4 +57,13 @@ public:
 %If (Qt_6_2_0 -)
     QObject *objectForName(const QString &) const;
 %End
+%If (Qt_6_11_0 -)
+    QList<QQmlContext *> childContexts() const;
+%End
+%If (Qt_6_11_0 -)
+    QObject *findObjectRecursively(const QString &id) const;
+%End
+%If (Qt_6_11_0 -)
+    QList<QObject *> findObjectsRecursively(const QString &id) const;
+%End
 };

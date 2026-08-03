@@ -90,6 +90,13 @@ public:
 %MethodCode
         sipRes = qHash(*sipCpp);
 %End
+
+%If (Qt_6_11_0 -)
+    quint32 glyphCount() const;
+%End
+%If (Qt_6_11_0 -)
+    QString glyphName(quint32 glyphIndex) const;
+%End
 };
 
 %End

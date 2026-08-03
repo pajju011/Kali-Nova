@@ -115,19 +115,15 @@ public:
     void setFormats(const QList<QTextLayout::FormatRange> &overrides);
     QList<QTextLayout::FormatRange> formats() const;
     void clearFormats();
-
-private:
-    QTextLayout(const QTextLayout &);
-
-public:
 %If (Qt_6_5_0 -)
 
-    enum GlyphRunRetrievalFlag
+    enum GlyphRunRetrievalFlag : quint16
     {
         RetrieveGlyphIndexes,
         RetrieveGlyphPositions,
         RetrieveStringIndexes,
         RetrieveString,
+        DefaultRetrievalFlags,
         RetrieveAll,
     };
 
@@ -135,6 +131,9 @@ public:
 %If (Qt_6_5_0 -)
     typedef QFlags<QTextLayout::GlyphRunRetrievalFlag> GlyphRunRetrievalFlags;
 %End
+
+private:
+    QTextLayout(const QTextLayout &);
 };
 
 class QTextLine

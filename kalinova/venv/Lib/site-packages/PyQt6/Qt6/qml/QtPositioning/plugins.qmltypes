@@ -1586,8 +1586,17 @@ Module {
             write: "setFrom"
             index: 0
             lineNumber: 32
+            isOverride: true
         }
-        Property { name: "to"; type: "QGeoCoordinate"; read: "to"; write: "setTo"; index: 1; lineNumber: 33 }
+        Property {
+            name: "to"
+            type: "QGeoCoordinate"
+            read: "to"
+            write: "setTo"
+            index: 1
+            lineNumber: 33
+            isOverride: true
+        }
         Property {
             name: "direction"
             type: "Direction"

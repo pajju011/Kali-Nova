@@ -94,6 +94,11 @@ public:
 %If (Qt_6_4_0 -)
     QStringList supportedSubprotocols() const;
 %End
+
+signals:
+%If (Qt_6_11_0 -)
+    void sslErrorsOccurred(QSslSocket *socket, const QList<QSslError> &errors);
+%End
 };
 
 %End

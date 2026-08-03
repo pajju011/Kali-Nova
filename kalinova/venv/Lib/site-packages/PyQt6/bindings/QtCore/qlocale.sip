@@ -434,6 +434,12 @@ public:
 %If (Qt_6_9_0 -)
         SwampyCree,
 %End
+%If (Qt_6_11_0 -)
+        Ladin,
+%End
+%If (Qt_6_11_0 -)
+        Shan,
+%End
     };
 
     enum Country : ushort

@@ -45,7 +45,7 @@ public:
     QtMsgType messageType() const;
     void setMessageType(QtMsgType messageType);
 %If (Qt_6_4_0 -)
-    void swap(QQmlError &other);
+    void swap(QQmlError &other /Constrained/);
 %End
 };
 

@@ -47,6 +47,9 @@ namespace QSsl
         Dsa,
         Ec,
         Dh,
+%If (Qt_6_11_0 -)
+        MlDsa,
+%End
     };
 
     enum AlternativeNameEntryType

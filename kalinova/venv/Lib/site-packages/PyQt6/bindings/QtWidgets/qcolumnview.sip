@@ -62,4 +62,12 @@ protected:
 
 protected slots:
     virtual void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+
+public:
+%If (Qt_6_11_0 -)
+    void setPreviewColumnVisible(bool visible);
+%End
+%If (Qt_6_11_0 -)
+    bool isPreviewColumnVisible() const;
+%End
 };

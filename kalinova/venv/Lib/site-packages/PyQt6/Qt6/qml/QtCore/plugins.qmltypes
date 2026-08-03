@@ -8,7 +8,7 @@ import QtQuick.tooling 1.2
 Module {
     Component {
         file: "qpermissions.h"
-        lineNumber: 177
+        lineNumber: 178
         name: "QBluetoothPermission"
         accessSemantics: "value"
         Enum {
@@ -16,49 +16,49 @@ Module {
             alias: "CommunicationMode"
             isFlag: true
             type: "quint8"
-            lineNumber: 181
+            lineNumber: 182
             values: ["Access", "Advertise", "Default"]
         }
     }
     Component {
         file: "qpermissions.h"
-        lineNumber: 131
+        lineNumber: 132
         name: "QCalendarPermission"
         accessSemantics: "value"
         Enum {
             name: "AccessMode"
             type: "quint8"
-            lineNumber: 135
+            lineNumber: 136
             values: ["ReadOnly", "ReadWrite"]
         }
     }
     Component {
         file: "qpermissions.h"
-        lineNumber: 154
+        lineNumber: 155
         name: "QContactsPermission"
         accessSemantics: "value"
         Enum {
             name: "AccessMode"
             type: "quint8"
-            lineNumber: 158
+            lineNumber: 159
             values: ["ReadOnly", "ReadWrite"]
         }
     }
     Component {
         file: "qpermissions.h"
-        lineNumber: 98
+        lineNumber: 99
         name: "QLocationPermission"
         accessSemantics: "value"
         Enum {
             name: "Accuracy"
             type: "quint8"
-            lineNumber: 102
+            lineNumber: 103
             values: ["Approximate", "Precise"]
         }
         Enum {
             name: "Availability"
             type: "quint8"
-            lineNumber: 111
+            lineNumber: 112
             values: ["WhenInUse", "Always"]
         }
     }

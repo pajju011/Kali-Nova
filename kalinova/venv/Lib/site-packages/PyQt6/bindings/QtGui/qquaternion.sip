@@ -92,6 +92,9 @@ public:
     QMatrix3x3 toRotationMatrix() const;
     static QQuaternion fromRotationMatrix(const QMatrix3x3 &rot3x3);
     void getAxes(QVector3D *xAxis /Out/, QVector3D *yAxis /Out/, QVector3D *zAxis /Out/) const;
+%If (Qt_6_11_0 -)
+    static QQuaternion fromAxes(QQuaternion::Axes axes);
+%End
     static QQuaternion fromAxes(const QVector3D &xAxis, const QVector3D &yAxis, const QVector3D &zAxis);
     static QQuaternion fromDirection(const QVector3D &direction, const QVector3D &up);
     static QQuaternion rotationTo(const QVector3D &from, const QVector3D &to);
@@ -100,6 +103,39 @@ public:
     QQuaternion conjugated() const;
     QVector3D toEulerAngles() const;
     static QQuaternion fromEulerAngles(const QVector3D &eulerAngles);
+%If (Qt_6_11_0 -)
+
+    struct Axis
+    {
+%TypeHeaderCode
+#include <qquaternion.h>
+%End
+
+        float x;
+        float y;
+        float z;
+        static QQuaternion::Axis fromVector3D(QVector3D v);
+        QVector3D toVector3D() const;
+    };
+
+%End
+%If (Qt_6_11_0 -)
+
+    struct Axes
+    {
+%TypeHeaderCode
+#include <qquaternion.h>
+%End
+
+        QQuaternion::Axis x;
+        QQuaternion::Axis y;
+        QQuaternion::Axis z;
+    };
+
+%End
+%If (Qt_6_11_0 -)
+    QQuaternion::Axes toAxes() const;
+%End
 };
 
 bool operator==(const QQuaternion &q1, const QQuaternion &q2);

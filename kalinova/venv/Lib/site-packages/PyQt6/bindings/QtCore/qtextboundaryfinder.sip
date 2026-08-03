@@ -62,4 +62,7 @@ public:
     qsizetype toPreviousBoundary();
     bool isAtBoundary() const;
     QTextBoundaryFinder::BoundaryReasons boundaryReasons() const;
+%If (Qt_6_11_0 -)
+    void swap(QTextBoundaryFinder &other /Constrained/);
+%End
 };

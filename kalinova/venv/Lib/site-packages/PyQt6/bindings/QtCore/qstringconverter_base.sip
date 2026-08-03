@@ -71,6 +71,17 @@ public:
         System,
     };
 
+%If (Qt_6_11_0 -)
+
+    enum class FinalizeResultError : quint8
+    {
+        NoError,
+        InvalidCharacters,
+        NotEnoughSpace,
+    };
+
+%End
+
 protected:
     QStringConverter();
     QStringConverter(QStringConverter::Encoding encoding, QStringConverterBase::Flags f);

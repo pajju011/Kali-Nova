@@ -548,6 +548,9 @@ public:
     void fillRect(int x, int y, int w, int h, QGradient::Preset preset);
     void fillRect(const QRect &r, QGradient::Preset preset);
     void fillRect(const QRectF &r, QGradient::Preset preset);
+%If (Qt_6_11_0 -)
+    QPointF brushOriginF() const;
+%End
 
 private:
     QPainter(const QPainter &);

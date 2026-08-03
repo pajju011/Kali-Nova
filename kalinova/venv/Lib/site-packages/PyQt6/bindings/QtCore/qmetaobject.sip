@@ -270,6 +270,12 @@ public:
     QMetaType metaType() const;
     bool isBindable() const;
     int typeId() const;
+%If (Qt_6_11_0 -)
+    bool isVirtual() const;
+%End
+%If (Qt_6_11_0 -)
+    bool isOverride() const;
+%End
 };
 
 class QMetaClassInfo

@@ -199,6 +199,11 @@ public:
     QQuickGraphicsDevice graphicsDevice() const;
     void setGraphicsConfiguration(const QQuickGraphicsConfiguration &config);
     QQuickGraphicsConfiguration graphicsConfiguration() const;
+
+signals:
+%If (Qt_6_11_0 -)
+    void devicePixelRatioChanged();
+%End
 };
 
 class QQuickCloseEvent;

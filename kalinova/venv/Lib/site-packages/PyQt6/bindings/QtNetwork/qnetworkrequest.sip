@@ -184,4 +184,25 @@ public:
 %If (Qt_6_8_0 -)
     void setHeaders(const QHttpHeaders &newHeaders);
 %End
+%If (Qt_6_11_0 -)
+    static const std::chrono::milliseconds DefaultTransferTimeout;
+%End
+%If (Qt_6_11_0 -)
+    std::chrono::seconds tcpKeepAliveIdleTimeBeforeProbes() const;
+%End
+%If (Qt_6_11_0 -)
+    void setTcpKeepAliveIdleTimeBeforeProbes(std::chrono::seconds idle);
+%End
+%If (Qt_6_11_0 -)
+    std::chrono::seconds tcpKeepAliveIntervalBetweenProbes() const;
+%End
+%If (Qt_6_11_0 -)
+    void setTcpKeepAliveIntervalBetweenProbes(std::chrono::seconds interval);
+%End
+%If (Qt_6_11_0 -)
+    int tcpKeepAliveProbeCount() const;
+%End
+%If (Qt_6_11_0 -)
+    void setTcpKeepAliveProbeCount(int probes);
+%End
 };

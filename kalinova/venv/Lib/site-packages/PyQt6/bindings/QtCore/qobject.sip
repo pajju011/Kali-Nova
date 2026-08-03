@@ -561,6 +561,9 @@ public:
 %If (Qt_6_4_0 -)
     bool isQuickItemType() const;
 %End
+%If (Qt_6_11_0 -)
+    bool isQmlExposed() const;
+%End
 
 private:
     QObject(const QObject &);

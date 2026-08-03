@@ -287,4 +287,10 @@ public:
 %If (Qt_6_9_0 -)
     void setUpdateThreshold(int threshold);
 %End
+%If (Qt_6_11_0 -)
+    Qt::MatchFlags keyboardSearchFlags() const;
+%End
+%If (Qt_6_11_0 -)
+    void setKeyboardSearchFlags(Qt::MatchFlags searchFlags);
+%End
 };

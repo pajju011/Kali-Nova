@@ -8,7 +8,7 @@ import QtQuick.tooling 1.2
 Module {
     Component {
         file: "private/finalstate_p.h"
-        lineNumber: 30
+        lineNumber: 31
         name: "FinalState"
         accessSemantics: "reference"
         defaultProperty: "children"
@@ -26,14 +26,14 @@ Module {
             read: "children"
             notify: "childrenChanged"
             index: 0
-            lineNumber: 33
+            lineNumber: 34
             isReadonly: true
         }
-        Signal { name: "childrenChanged"; lineNumber: 46 }
+        Signal { name: "childrenChanged"; lineNumber: 47 }
     }
     Component {
         file: "private/statemachineforeign_p.h"
-        lineNumber: 43
+        lineNumber: 44
         name: "QAbstractState"
         accessSemantics: "reference"
         prototype: "QObject"
@@ -50,26 +50,26 @@ Module {
             read: "active"
             notify: "activeChanged"
             index: 0
-            lineNumber: 19
+            lineNumber: 20
             isReadonly: true
         }
-        Signal { name: "entered"; lineNumber: 30 }
-        Signal { name: "exited"; lineNumber: 31 }
+        Signal { name: "entered"; lineNumber: 31 }
+        Signal { name: "exited"; lineNumber: 32 }
         Signal {
             name: "activeChanged"
-            lineNumber: 32
+            lineNumber: 33
             Parameter { name: "active"; type: "bool" }
         }
     }
     Component {
         file: "qabstracttransition.h"
-        lineNumber: 24
+        lineNumber: 25
         name: "QAbstractTransition"
         accessSemantics: "reference"
         prototype: "QObject"
         Enum {
             name: "TransitionType"
-            lineNumber: 33
+            lineNumber: 34
             values: ["ExternalTransition", "InternalTransition"]
         }
         Property {
@@ -78,7 +78,7 @@ Module {
             isPointer: true
             read: "sourceState"
             index: 0
-            lineNumber: 27
+            lineNumber: 28
             isReadonly: true
         }
         Property {
@@ -89,7 +89,7 @@ Module {
             write: "setTargetState"
             notify: "targetStateChanged"
             index: 1
-            lineNumber: 28
+            lineNumber: 29
         }
         Property {
             name: "targetStates"
@@ -98,7 +98,7 @@ Module {
             write: "setTargetStates"
             notify: "targetStatesChanged"
             index: 2
-            lineNumber: 29
+            lineNumber: 30
         }
         Property {
             name: "transitionType"
@@ -108,22 +108,22 @@ Module {
             read: "transitionType"
             write: "setTransitionType"
             index: 3
-            lineNumber: 30
+            lineNumber: 31
         }
-        Signal { name: "triggered"; lineNumber: 61 }
-        Signal { name: "targetStateChanged"; lineNumber: 62 }
-        Signal { name: "targetStatesChanged"; lineNumber: 63 }
+        Signal { name: "triggered"; lineNumber: 62 }
+        Signal { name: "targetStateChanged"; lineNumber: 63 }
+        Signal { name: "targetStatesChanged"; lineNumber: 64 }
     }
     Component {
         file: "qfinalstate.h"
-        lineNumber: 12
+        lineNumber: 13
         name: "QFinalState"
         accessSemantics: "reference"
         prototype: "QAbstractState"
     }
     Component {
         file: "private/statemachineforeign_p.h"
-        lineNumber: 26
+        lineNumber: 27
         name: "QHistoryState"
         accessSemantics: "reference"
         prototype: "QAbstractState"
@@ -134,7 +134,7 @@ Module {
         exportMetaObjectRevisions: [256, 1536]
         Enum {
             name: "HistoryType"
-            lineNumber: 23
+            lineNumber: 24
             values: ["ShallowHistory", "DeepHistory"]
         }
         Property {
@@ -145,7 +145,7 @@ Module {
             write: "setDefaultState"
             notify: "defaultStateChanged"
             index: 0
-            lineNumber: 16
+            lineNumber: 17
         }
         Property {
             name: "defaultTransition"
@@ -156,7 +156,7 @@ Module {
             write: "setDefaultTransition"
             notify: "defaultTransitionChanged"
             index: 1
-            lineNumber: 17
+            lineNumber: 18
         }
         Property {
             name: "historyType"
@@ -166,15 +166,15 @@ Module {
             write: "setHistoryType"
             notify: "historyTypeChanged"
             index: 2
-            lineNumber: 20
+            lineNumber: 21
         }
-        Signal { name: "defaultTransitionChanged"; lineNumber: 45 }
-        Signal { name: "defaultStateChanged"; lineNumber: 46 }
-        Signal { name: "historyTypeChanged"; lineNumber: 47 }
+        Signal { name: "defaultTransitionChanged"; lineNumber: 46 }
+        Signal { name: "defaultStateChanged"; lineNumber: 47 }
+        Signal { name: "historyTypeChanged"; lineNumber: 48 }
     }
     Component {
         file: "private/statemachineforeign_p.h"
-        lineNumber: 52
+        lineNumber: 53
         name: "QSignalTransition"
         accessSemantics: "reference"
         prototype: "QAbstractTransition"
@@ -195,7 +195,7 @@ Module {
             write: "setSenderObject"
             notify: "senderObjectChanged"
             index: 0
-            lineNumber: 16
+            lineNumber: 17
         }
         Property {
             name: "signal"
@@ -205,14 +205,14 @@ Module {
             write: "setSignal"
             notify: "signalChanged"
             index: 1
-            lineNumber: 18
+            lineNumber: 19
         }
-        Signal { name: "senderObjectChanged"; lineNumber: 55 }
-        Signal { name: "signalChanged"; lineNumber: 56 }
+        Signal { name: "senderObjectChanged"; lineNumber: 56 }
+        Signal { name: "signalChanged"; lineNumber: 57 }
     }
     Component {
         file: "private/statemachineforeign_p.h"
-        lineNumber: 34
+        lineNumber: 35
         name: "QState"
         accessSemantics: "reference"
         prototype: "QAbstractState"
@@ -224,12 +224,12 @@ Module {
         exportMetaObjectRevisions: [256, 1536]
         Enum {
             name: "ChildMode"
-            lineNumber: 28
+            lineNumber: 29
             values: ["ExclusiveStates", "ParallelStates"]
         }
         Enum {
             name: "RestorePolicy"
-            lineNumber: 34
+            lineNumber: 35
             values: ["DontRestoreProperties", "RestoreProperties"]
         }
         Property {
@@ -241,7 +241,7 @@ Module {
             write: "setInitialState"
             notify: "initialStateChanged"
             index: 0
-            lineNumber: 21
+            lineNumber: 22
         }
         Property {
             name: "errorState"
@@ -252,7 +252,7 @@ Module {
             write: "setErrorState"
             notify: "errorStateChanged"
             index: 1
-            lineNumber: 23
+            lineNumber: 24
         }
         Property {
             name: "childMode"
@@ -262,17 +262,17 @@ Module {
             write: "setChildMode"
             notify: "childModeChanged"
             index: 2
-            lineNumber: 25
+            lineNumber: 26
         }
-        Signal { name: "finished"; lineNumber: 81 }
-        Signal { name: "propertiesAssigned"; lineNumber: 82 }
-        Signal { name: "childModeChanged"; lineNumber: 83 }
-        Signal { name: "initialStateChanged"; lineNumber: 84 }
-        Signal { name: "errorStateChanged"; lineNumber: 85 }
+        Signal { name: "finished"; lineNumber: 82 }
+        Signal { name: "propertiesAssigned"; lineNumber: 83 }
+        Signal { name: "childModeChanged"; lineNumber: 84 }
+        Signal { name: "initialStateChanged"; lineNumber: 85 }
+        Signal { name: "errorStateChanged"; lineNumber: 86 }
     }
     Component {
         file: "qstatemachine.h"
-        lineNumber: 23
+        lineNumber: 24
         name: "QStateMachine"
         accessSemantics: "reference"
         prototype: "QState"
@@ -282,7 +282,7 @@ Module {
             bindable: "bindableErrorString"
             read: "errorString"
             index: 0
-            lineNumber: 26
+            lineNumber: 27
             isReadonly: true
         }
         Property {
@@ -292,7 +292,7 @@ Module {
             read: "globalRestorePolicy"
             write: "setGlobalRestorePolicy"
             index: 1
-            lineNumber: 27
+            lineNumber: 28
         }
         Property {
             name: "running"
@@ -301,7 +301,7 @@ Module {
             write: "setRunning"
             notify: "runningChanged"
             index: 2
-            lineNumber: 29
+            lineNumber: 30
         }
         Property {
             name: "animated"
@@ -310,41 +310,41 @@ Module {
             read: "isAnimated"
             write: "setAnimated"
             index: 3
-            lineNumber: 31
+            lineNumber: 32
         }
-        Signal { name: "started"; lineNumber: 130 }
-        Signal { name: "stopped"; lineNumber: 131 }
+        Signal { name: "started"; lineNumber: 131 }
+        Signal { name: "stopped"; lineNumber: 132 }
         Signal {
             name: "runningChanged"
-            lineNumber: 132
+            lineNumber: 133
             Parameter { name: "running"; type: "bool" }
         }
-        Method { name: "start"; lineNumber: 125 }
-        Method { name: "stop"; lineNumber: 126 }
+        Method { name: "start"; lineNumber: 126 }
+        Method { name: "stop"; lineNumber: 127 }
         Method {
             name: "setRunning"
-            lineNumber: 127
+            lineNumber: 128
             Parameter { name: "running"; type: "bool" }
         }
-        Method { name: "_q_start"; lineNumber: 153 }
-        Method { name: "_q_process"; lineNumber: 154 }
-        Method { name: "_q_animationFinished"; lineNumber: 156 }
+        Method { name: "_q_start"; lineNumber: 154 }
+        Method { name: "_q_process"; lineNumber: 155 }
+        Method { name: "_q_animationFinished"; lineNumber: 157 }
         Method {
             name: "_q_startDelayedEventTimer"
-            lineNumber: 158
+            lineNumber: 159
             Parameter { type: "int" }
             Parameter { type: "int" }
         }
         Method {
             name: "_q_killDelayedEventTimer"
-            lineNumber: 159
+            lineNumber: 160
             Parameter { type: "int" }
             Parameter { type: "int" }
         }
     }
     Component {
         file: "private/signaltransition_p.h"
-        lineNumber: 33
+        lineNumber: 34
         name: "SignalTransition"
         accessSemantics: "reference"
         prototype: "QSignalTransition"
@@ -364,7 +364,7 @@ Module {
             write: "setSignal"
             notify: "qmlSignalChanged"
             index: 0
-            lineNumber: 37
+            lineNumber: 38
         }
         Property {
             name: "guard"
@@ -374,16 +374,16 @@ Module {
             write: "setGuard"
             notify: "guardChanged"
             index: 1
-            lineNumber: 39
+            lineNumber: 40
         }
-        Signal { name: "guardChanged"; lineNumber: 62 }
-        Signal { name: "invokeYourself"; lineNumber: 63 }
-        Signal { name: "qmlSignalChanged"; lineNumber: 67 }
-        Method { name: "invoke"; lineNumber: 59 }
+        Signal { name: "guardChanged"; lineNumber: 63 }
+        Signal { name: "invokeYourself"; lineNumber: 64 }
+        Signal { name: "qmlSignalChanged"; lineNumber: 68 }
+        Method { name: "invoke"; lineNumber: 60 }
     }
     Component {
         file: "private/state_p.h"
-        lineNumber: 29
+        lineNumber: 30
         name: "State"
         accessSemantics: "reference"
         defaultProperty: "children"
@@ -402,14 +402,14 @@ Module {
             read: "children"
             notify: "childrenChanged"
             index: 0
-            lineNumber: 33
+            lineNumber: 34
             isReadonly: true
         }
-        Signal { name: "childrenChanged"; lineNumber: 49 }
+        Signal { name: "childrenChanged"; lineNumber: 50 }
     }
     Component {
         file: "private/statemachine_p.h"
-        lineNumber: 29
+        lineNumber: 30
         name: "StateMachine"
         accessSemantics: "reference"
         defaultProperty: "children"
@@ -428,7 +428,7 @@ Module {
             read: "children"
             notify: "childrenChanged"
             index: 0
-            lineNumber: 33
+            lineNumber: 34
             isReadonly: true
         }
         Property {
@@ -438,15 +438,15 @@ Module {
             write: "setRunning"
             notify: "qmlRunningChanged"
             index: 1
-            lineNumber: 37
+            lineNumber: 38
         }
-        Signal { name: "childrenChanged"; lineNumber: 58 }
-        Signal { name: "qmlRunningChanged"; lineNumber: 62 }
-        Method { name: "checkChildMode"; lineNumber: 55 }
+        Signal { name: "childrenChanged"; lineNumber: 59 }
+        Signal { name: "qmlRunningChanged"; lineNumber: 63 }
+        Method { name: "checkChildMode"; lineNumber: 56 }
     }
     Component {
         file: "private/timeouttransition_p.h"
-        lineNumber: 28
+        lineNumber: 29
         name: "TimeoutTransition"
         accessSemantics: "reference"
         prototype: "QSignalTransition"
@@ -464,7 +464,7 @@ Module {
             read: "timeout"
             write: "setTimeout"
             index: 0
-            lineNumber: 31
+            lineNumber: 32
         }
     }
 }

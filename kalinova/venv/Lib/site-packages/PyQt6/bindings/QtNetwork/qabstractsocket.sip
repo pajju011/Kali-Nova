@@ -298,6 +298,15 @@ public:
         SendBufferSizeSocketOption,
         ReceiveBufferSizeSocketOption,
         PathMtuSocketOption,
+%If (Qt_6_11_0 -)
+        KeepAliveIdleOption,
+%End
+%If (Qt_6_11_0 -)
+        KeepAliveIntervalOption,
+%End
+%If (Qt_6_11_0 -)
+        KeepAliveCountOption,
+%End
     };
 
     virtual void setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value);

@@ -7,6 +7,8 @@ from reportlab.lib.rl_accel import fp_str
 from reportlab.lib.utils import isStr, asNative
 import weakref
 
+_useDefault=object()
+
 visibilities = dict(
                 visible=0,
                 hidden=0,
@@ -133,6 +135,8 @@ def _pdfObjToStr(obj):
         return obj._s
     return str(obj)
 
+_NotSet = object()
+
 class AcroForm(PDFObject):
     formFontNames = {
         "Helvetica": "Helv",
@@ -158,6 +162,10 @@ class AcroForm(PDFObject):
         self._pdfdocenc = {}
         self.sigFlags = None
         self.extras = {}
+
+    @property
+    def useDefault(self):
+        return _useDefault
 
     @property
     def canv(self):
@@ -209,7 +217,7 @@ class AcroForm(PDFObject):
                 fillColor=None,
                 borderColor=None,
                 textColor=None,
-                borderWidth=1,
+                borderWidth=None,
                 borderStyle='solid',
                 size=20,
                 dashLen=3,
@@ -218,9 +226,10 @@ class AcroForm(PDFObject):
         ds = size
         if shape=='square':
             stream('q')
-            streamFill = self.streamFillColor(fillColor)
-            stream('1 g 1 G %(streamFill)s 0 0 %(size)s %(size)s re f')
-            if borderWidth!=None:
+            if opaqueColor(fillColor):
+                streamFill = self.streamFillColor(fillColor)
+                stream('1 g 1 G %(streamFill)s 0 0 %(size)s %(size)s re f')
+            if borderWidth is not None and opaqueColor(borderColor):
                 streamStroke = self.streamStrokeColor(borderColor)
                 hbw = borderWidth*0.5
                 smbw = size - borderWidth
@@ -234,7 +243,7 @@ class AcroForm(PDFObject):
                         dash = ''
                     stream('%(streamStroke)s%(dash)s %(borderWidth)s w %(hbw)s %(hbw)s %(smbw)s %(smbw)s re s')
 
-                if borderStyle in ('bevelled','inset'):
+                if borderStyle in ('bevelled','inset') and opaqueColor(fillColor):
                     _2bw = 2*borderWidth
                     sm2bw = size - _2bw
                     ds = sm2bw
@@ -249,12 +258,13 @@ class AcroForm(PDFObject):
         elif shape=='circle':
             cas = lambda _r,**_casKwds: self.circleArcStream(size,_r,**_casKwds)
             r = size*0.5
-            streamFill = self.streamFillColor(fillColor)
-            stream('q 1 g 1 G %(streamFill)s')
-            stream(cas(r))
-            stream('f')
-            stream('Q')
-            if borderWidth!=None:
+            if opaqueColor(fillColor):
+                streamFill = self.streamFillColor(fillColor)
+                stream('q 1 g 1 G %(streamFill)s')
+                stream(cas(r))
+                stream('f')
+                stream('Q')
+            if borderWidth is not None and opaqueColor(borderColor):
                 stream('q')
                 streamStroke = self.streamStrokeColor(borderColor)
                 hbw = borderWidth*0.5
@@ -270,7 +280,7 @@ class AcroForm(PDFObject):
                     stream(cas(r-hbw))
                     stream('s')
                 stream('Q')
-                if borderStyle in ('bevelled','inset'):
+                if borderStyle in ('bevelled','inset') and opaqueColor(fillColor):
                     _3bwh = 3*hbw
                     ds = size - _3bwh
                     bbs0 = Blacker(fillColor,0.5)
@@ -289,8 +299,12 @@ class AcroForm(PDFObject):
                     stream(cas(r-_3bwh,rotated=True,arcs=a1))
                     stream('S Q')
         if value=='Yes':
-            textFillColor = self.streamFillColor(textColor)
-            textStrokeColor = self.streamStrokeColor(textColor)
+            if opaqueColor(textColor):
+                textFillColor = self.streamFillColor(textColor)
+                textStrokeColor = self.streamStrokeColor(textColor)
+            else:
+                textFillColor = '0 g'
+                textStrokeColor = '0 G'
             stream('q %(textFillColor)s %(textStrokeColor)s')
             cbm = cbmarks[buttonStyle]
             if shape=='circle' and buttonStyle=='circle':
@@ -351,18 +365,57 @@ class AcroForm(PDFObject):
     def getRefStr(self,obj):
         return asNative(self.getRef(obj).format(self.canv._doc))
 
-    @staticmethod
-    def stdColors(t,b,f):
-        if isinstance(f,CMYKColor) or isinstance(t,CMYKColor) or isinstance(b,CMYKColor):
-            return (t or CMYKColor(0,0,0,0.9), b or  CMYKColor(0,0,0,0.9), f or CMYKColor(0.12,0.157,0,0))
-        else:
-            return (t or Color(0.1,0.1,0.1), b or Color(0.1,0.1,0.1), f or Color(0.8,0.843,1))
+    _defaultValues = dict(
+                        cmyk_textColor=CMYKColor(0,0,0,0.9),
+                        cmyk_borderColor=CMYKColor(0,0,0,0.9),
+                        cmyk_fillColor=CMYKColor(0.12,0.157,0,0),
+                        rgb_textColor=Color(0.1,0.1,0.1),
+                        rgb_borderColor=Color(0.1,0.1,0.1),
+                        rgb_fillColor=Color(0.8,0.843,1),
+                        borderWidth=1,
+                        )
+
+    def setDefault(self, name, value):
+        if '_defaultValues' not in self.__dict__:
+            self._defaultValues = self.__class__._defaultValues.clone()
+        
+        d = self._defaultValues()
+        if name in d.keys():
+            if '_' in name:
+                #its a colour name
+                if name[:4]=='cmyk':
+                    if isinstance(value,(CMYKColor,NoneType)):
+                        d[name] = value
+                        return
+                elif isinstance(value,(Color,NoneType)):
+                        d[name] = value
+                        return
+            elif isinstance(value(float,int,NoneType)):
+                #it's a number
+                d[name] = value
+                return
+            raise ValueError(f'Invalid value in acroForm.setDefault({name!r},{value!r})')
+        raise ValueError(f'Invalid name in acroForm.setDefault({name!r},{value!r})')
+                    
+    def getDefaults(self,textColor,borderColor,fillColor, borderWidth):
+        pfx = (isinstance(fillColor,CMYKColor)
+            or isinstance(textColor,CMYKColor)
+            or isinstance(borderColor,CMYKColor))
+        if not pfx: pfx = getattr(self.canv._enforceColorSpace,'__name__','_enforceRGB')!='_enforceRGB'
+            
+        pfx = 'cmyk_' if pfx else 'rgb_'
+        d = self._defaultValues
+        return (textColor if textColor is not _useDefault else d[pfx+'textColor'],
+                borderColor if borderColor is not _useDefault else d[pfx+'borderColor'],
+                fillColor if fillColor is not _useDefault else d[pfx+'fillColor'],
+                borderWidth if borderWidth is not _useDefault else d['borderWidth'],
+                )
     
     @staticmethod
     def varyColors(key,t,b,f):
         if key!='N':
             func = Whiter if key=='R' else Blacker
-            t,b,f = [func(c,0.9) for c in (t,b,f)]
+            t,b,f = [func(c,0.9) if c is not None else None for c in (t,b,f)]
         return t,b,f
 
     def checkForceBorder(self,x,y,width,height,forceBorder,shape,borderStyle,borderWidth,borderColor,fillColor):
@@ -370,7 +423,7 @@ class AcroForm(PDFObject):
             canv = self.canv
             canv.saveState()
             canv.resetTransforms()
-            if borderWidth!=None:
+            if borderWidth is not None and opaqueColor(borderColor):
                 hbw = 0.5*borderWidth
                 canv.setLineWidth(borderWidth)
                 canv.setStrokeColor(borderColor)
@@ -381,22 +434,24 @@ class AcroForm(PDFObject):
             height -= 2*hbw
             x += hbw
             y += hbw
-            canv.setFillColor(fillColor)
+            doFill = opaqueColor(fillColor)
+            if doFill:
+                canv.setFillColor(fillColor)
             if shape=='square':
-                canv.rect(x,y,width,height,stroke=s,fill=1)
+                canv.rect(x,y,width,height,stroke=s,fill=1 if doFill else 0)
             else:
                 r = min(width,height) * 0.5
-                canv.circle(x+r,y+r,r,stroke=s,fill=1)
+                canv.circle(x+r,y+r,r,stroke=s,fill=1 if doFill else 0)
             canv.restoreState()
 
     def checkbox(self,
                 checked=False,
                 buttonStyle='check',
                 shape='square',
-                fillColor=None,
-                borderColor=None,
-                textColor=None,
-                borderWidth=1,
+                fillColor=_useDefault,
+                borderColor=_useDefault,
+                textColor=_useDefault,
+                borderWidth=_useDefault,
                 borderStyle='solid',
                 size=20,
                 x=0,
@@ -410,7 +465,7 @@ class AcroForm(PDFObject):
                 dashLen = 3,
                 ):
         initialValue = 'Yes' if checked else 'Off'
-        textColor,borderColor,fillColor=self.stdColors(textColor,borderColor,fillColor)
+        textColor,borderColor,fillColor,borderWidth = self.getDefaults(textColor,borderColor,fillColor,borderWidth)
         canv = self.canv
         if relative:
             x, y = self.canv.absolutePosition(x,y)
@@ -461,11 +516,11 @@ class AcroForm(PDFObject):
             name = 'AFF%03d' % len(self.fields)
         if borderWidth: CB['BS'] = bsPDF(borderWidth,borderStyle,dashLen)
         CB['T'] = PDFString(name)
-        MK = dict(
-                CA='(%s)' % ZDSyms[buttonStyle],
-                BC=PDFArray(self.colorTuple(borderColor)),
-                BG=PDFArray(self.colorTuple(fillColor)),
-                )
+        MK = dict(CA='(%s)' % ZDSyms[buttonStyle])
+        if borderColor is not None:
+            MK['BC'] = PDFArray(self.colorTuple(borderColor))
+        if fillColor is not None:
+            MK['BG'] = PDFArray(self.colorTuple(fillColor))
         CB['MK'] = PDFDictionary(MK)
         CB = PDFDictionary(CB)
         self.canv._addAnnotation(CB)
@@ -477,10 +532,10 @@ class AcroForm(PDFObject):
                 selected=False,
                 buttonStyle='circle',
                 shape='circle',
-                fillColor=None,
-                borderColor=None,
-                textColor=None,
-                borderWidth=1,
+                fillColor=_useDefault,
+                borderColor=_useDefault,
+                textColor=_useDefault,
+                borderWidth=_useDefault,
                 borderStyle='solid',
                 size=20,
                 x=0,
@@ -506,7 +561,7 @@ class AcroForm(PDFObject):
         if not value:
             raise ValueError('bad value %r for radio.%s' % (value,name))
         initialValue = value if selected else 'Off'
-        textColor,borderColor,fillColor=self.stdColors(textColor,borderColor,fillColor)
+        textColor,borderColor,fillColor,borderWidth = self.getDefaults(textColor,borderColor,fillColor,borderWidth)
 
         if initialValue==value:
             if group.V is not None:
@@ -559,11 +614,11 @@ class AcroForm(PDFObject):
                 H=PDFName('N'),
                 )
         #RB['T'] = PDFString(name)
-        MK = dict(
-                CA='(%s)' % ZDSyms[buttonStyle],
-                BC=PDFArray(self.colorTuple(borderColor)),
-                BG=PDFArray(self.colorTuple(fillColor)),
-                )
+        MK = dict(CA='(%s)' % ZDSyms[buttonStyle])
+        if borderColor is not None:
+            MK['BC'] = PDFArray(self.colorTuple(borderColor))
+        if fillColor is not None:
+            MK['BG'] = PDFArray(self.colorTuple(fillColor))
         if borderWidth: RB['BS'] = bsPDF(borderWidth,borderStyle,dashLen)
         RB['MK'] = PDFDictionary(MK)
         RB = PDFDictionary(RB)
@@ -602,7 +657,7 @@ class AcroForm(PDFObject):
                 fillColor=None,
                 borderColor=None,
                 textColor=None,
-                borderWidth=1,
+                borderWidth=None,
                 borderStyle='solid',
                 width=120,
                 height=36,
@@ -618,6 +673,12 @@ class AcroForm(PDFObject):
         if opaqueColor(fillColor):
             streamFill = self.streamFillColor(fillColor)
             stream('%(streamFill)s\n0 0 %(width)s %(height)s re\nf')
+        # Pre-initialise border-derived variables so they are always defined for
+        # the /Tx clipping-region stream that follows, even when no border is drawn.
+        hbw = _2bw = 0
+        bww = width
+        bwh = height
+        undash = ''
         if borderWidth!=None and borderWidth>0 and opaqueColor(borderColor):
             hbw = borderWidth*0.5
             bww = width - borderWidth
@@ -655,7 +716,7 @@ class AcroForm(PDFObject):
         _4bw = 4*borderWidth
         w4bw = width - _4bw
         h4bw = height - _4bw
-        textFill = self.streamFillColor(textColor)
+        textFill = self.streamFillColor(textColor) if opaqueColor(textColor) else '0 g'
         stream('/Tx BMC \nq\n%(_2bw)s %(_2bw)s %(w4bw)s %(h4bw)s re\nW\nn')
         leading = 1.2 * fontSize
         if wkind=='listbox':
@@ -736,10 +797,10 @@ class AcroForm(PDFObject):
 
     def _textfield(self,
                 value='',
-                fillColor=None,
-                borderColor=None,
-                textColor=None,
-                borderWidth=1,
+                fillColor=_useDefault,
+                borderColor=_useDefault,
+                textColor=_useDefault,
+                borderWidth=_useDefault,
                 borderStyle='solid',
                 width=120,
                 height=36,
@@ -759,9 +820,14 @@ class AcroForm(PDFObject):
                 dashLen=3,
                 ):
         rFontName, iFontName = self.makeFont(fontName)
+        # Decide which widget dictionary entries to write before fontSize gets
+        # its rendering default.  Omitting /DA, /MK /BG, and /MK /BC when they
+        # were not explicitly requested lets the field inherit appearance from
+        # the AcroForm-level /DA//DR or the PDF viewer's built-in default.
+        _write_da = textColor is not None or fontName is not None or fontSize is not None
         if fontSize is None:
             fontSize = 12
-        textColor,borderColor,fillColor=self.stdColors(textColor,borderColor,fillColor)
+        textColor,borderColor,fillColor,borderWidth = self.getDefaults(textColor,borderColor,fillColor,borderWidth)
         canv = self.canv
         if relative:
             x, y = self.canv.absolutePosition(x,y)
@@ -864,8 +930,13 @@ class AcroForm(PDFObject):
                 F = makeFlags(annotationFlags,annotationFlagValues),
                 Ff = Ff,
                 #H=PDFName('N'),
-                DA=PDFString('/%s %d Tf %s' % (iFontName,fontSize, self.streamFillColor(textColor))),
                 )
+        # Write /DA only when font or text color was explicitly requested.
+        # Omitting /DA lets the widget inherit its default appearance from the
+        # AcroForm /DA string instead of overriding it with a widget-level entry.
+        if _write_da:
+            da_color = self.streamFillColor(textColor) if opaqueColor(textColor) else '0 g'
+            TF['DA'] = PDFString('/%s %d Tf %s' % (iFontName,fontSize, da_color))
         if Opt: TF['Opt'] = Opt
         if I: TF['I'] = PDFArray(I)
         if maxlen:
@@ -875,15 +946,17 @@ class AcroForm(PDFObject):
         if not name:
             name = 'AFF%03d' % len(self.fields)
         TF['T'] = PDFString(name)
-        MK = dict(
-                BG=PDFArray(self.colorTuple(fillColor)),
-                )
+        MK = {}
+        if fillColor is not None:
+            MK['BG'] = PDFArray(self.colorTuple(fillColor))
         # Acrobat seems to draw a thin border when BS is defined, so only
         # include this if there actually is a border to draw
         if borderWidth:
             TF['BS'] = bsPDF(borderWidth,borderStyle,dashLen)
-            MK['BC'] = PDFArray(self.colorTuple(borderColor))
-        TF['MK'] = PDFDictionary(MK)
+            if borderColor is not None:
+                MK['BC'] = PDFArray(self.colorTuple(borderColor))
+        if MK:
+            TF['MK'] = PDFDictionary(MK)
 
         TF = PDFDictionary(TF)
         self.canv._addAnnotation(TF)
@@ -892,10 +965,10 @@ class AcroForm(PDFObject):
 
     def textfield(self,
                 value='',
-                fillColor=None,
-                borderColor=None,
-                textColor=None,
-                borderWidth=1,
+                fillColor=_useDefault,
+                borderColor=_useDefault,
+                textColor=_useDefault,
+                borderWidth=_useDefault,
                 borderStyle='solid',
                 width=120,
                 height=36,
@@ -938,10 +1011,10 @@ class AcroForm(PDFObject):
 
     def listbox(self,
                 value='',
-                fillColor=None,
-                borderColor=None,
-                textColor=None,
-                borderWidth=1,
+                fillColor=_useDefault,
+                borderColor=_useDefault,
+                textColor=_useDefault,
+                borderWidth=_useDefault,
                 borderStyle='solid',
                 width=120,
                 height=36,
@@ -985,10 +1058,10 @@ class AcroForm(PDFObject):
                 )
     def choice(self,
                 value='',
-                fillColor=None,
-                borderColor=None,
-                textColor=None,
-                borderWidth=1,
+                fillColor=_useDefault,
+                borderColor=_useDefault,
+                textColor=_useDefault,
+                borderWidth=_useDefault,
                 borderStyle='solid',
                 width=120,
                 height=36,

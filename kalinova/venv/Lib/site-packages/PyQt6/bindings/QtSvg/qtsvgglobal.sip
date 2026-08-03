@@ -28,7 +28,7 @@ namespace QtSvg
 #include <qtsvgglobal.h>
 %End
 
-    enum Option
+    enum Option : quint32
     {
         NoOption,
         Tiny12FeaturesOnly,

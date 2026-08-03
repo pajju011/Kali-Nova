@@ -29,7 +29,7 @@ class QQuickTextDocument : public QObject
 public:
 %If (Qt_6_7_0 -)
 
-    enum class Status
+    enum class Status : quint8
     {
         Null,
         Loading,

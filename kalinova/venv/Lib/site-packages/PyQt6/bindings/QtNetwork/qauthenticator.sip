@@ -41,4 +41,7 @@ public:
     QVariant option(const QString &opt) const;
     QVariantHash options() const;
     void setOption(const QString &opt, const QVariant &value);
+%If (Qt_6_11_0 -)
+    void clear();
+%End
 };

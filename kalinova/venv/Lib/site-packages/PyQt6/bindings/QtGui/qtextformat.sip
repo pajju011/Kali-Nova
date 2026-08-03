@@ -238,6 +238,12 @@ public:
 %If (Qt_6_8_0 -)
         ImageMaxWidth,
 %End
+%If (Qt_6_11_0 -)
+        FontFeatures,
+%End
+%If (Qt_6_11_0 -)
+        FontVariableAxes,
+%End
         UserProperty,
     };
 
@@ -413,6 +419,18 @@ public:
     qreal subScriptBaseline() const;
     void setBaselineOffset(qreal baseline);
     qreal baselineOffset() const;
+%If (Qt_6_11_0 -)
+    void setFontFeatures(const QMap<QFont::Tag, quint32> &fontFeatures);
+%End
+%If (Qt_6_11_0 -)
+    QMap<QFont::Tag, quint32> fontFeatures() const;
+%End
+%If (Qt_6_11_0 -)
+    void setFontVariableAxes(const QMap<QFont::Tag, float> &fontVariableAxes);
+%End
+%If (Qt_6_11_0 -)
+    QMap<QFont::Tag, float> fontVariableAxes() const;
+%End
 };
 
 class QTextBlockFormat : public QTextFormat

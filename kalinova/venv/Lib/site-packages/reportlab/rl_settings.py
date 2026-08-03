@@ -2,7 +2,7 @@
 #see license.txt for license details
 '''default settings for reportlab
 
-to override these drop a module rl_local_settings.py parallel to this file or
+to override these drop a module local_rl_settings.py parallel to this file or
 anywhere on the path.
 '''
 import os, sys
@@ -73,7 +73,11 @@ toColorCanUse
 defCWRF
 unShapedFontGlob'''.split())
 
-allowTableBoundsErrors =    1 # set to 0 to die on too large elements in tables in debug (recommend 1 for production use)
+allowTableBoundsErrors =    1                       # bit 0 --> ignore overall width excession
+                                                    # bit 1 --> ignore negative available width
+                                                    # bit 2 --> turn bit 0 to a warning
+                                                    # bit 3 --> turn bit 1 into a warning
+                                                    # (recommend 1 for production use)
 shapeChecking =             1
 defaultEncoding =           'WinAnsiEncoding'       # 'WinAnsi' or 'MacRoman'
 defaultGraphicsFontName=    'Times-Roman'           #initializer for STATE_DEFAULTS in shapes.py
@@ -155,14 +159,16 @@ reserveTTFNotdef=1                                  #if true force subset elemen
                                                     #PDFUA forbids index 0(.notdef) in strings
 documentLang=None                                   #pdf document catalog Lang value xx-xx not ee_xx
 encryptionStrength=40                               #the bits for standard encryption 40, 128 or 256 (AES)
-trustedHosts=None                                   #set to a list of trusted for access hosts None means
-                                                    #all are trusted glob patterns eg *.reportlab.com are
+trustedHosts=None                                   #set to a list of trusted for access hosts
+                                                    #glob patterns eg *.reportlab.com are
                                                     #allowed. In environment use a comma separated string.
+                                                    #to use data: or file: schemes trustedHosts must contain localhost
+                                                    #None or other false value means no hosts are trusted
 trustedSchemes=['file', 'rml', 'data', 'https',     #these url schemes are trusted
                 'http', 'ftp']
-renderPMBackend='rlPyCairo'                         #or '_renderPM' if available
-xmlParser='lxml'                                    #or 'pyrxp' for preferred xml parsing
-textPaths='freetype'                                #freetype or _renderPM or backend
+renderPMBackend='rlPyCairo'                         #rl_renderPM is gone
+xmlParser='lxml'                                    #pyRXP is gone
+textPaths='freetype'                                #freetype or backend, rl_renderPM is gone
                                                     #determines what code is used to create Paths from str
                                                     #see reportlab/graphics/utils.py for full horror
 toColorCanUse='rl_extended_literal_eval'            #change to None or 'rl_safe_eval' depending on trust

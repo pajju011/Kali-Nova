@@ -455,7 +455,7 @@ class Group(Shape):
             After calling this the instance will be a drawing!
         """
         self.__class__ = Drawing
-        self._attrMap.update(self._xtraAttrMap)
+        self._attrMap.update(getattr(self,'_xtraAttrMap',{}))
         self.width = width
         self.height = height
 

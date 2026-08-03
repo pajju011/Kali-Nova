@@ -7,6 +7,7 @@ __all__ = (
     'skewX',
     'skewY',
     'mmult',
+    'combineTransforms',
     'inverse',
     'zTransformPoint',
     'transformPoint',
@@ -56,6 +57,23 @@ def mmult(A, B):
             A[1]*B[2] + A[3]*B[3],
             A[0]*B[4] + A[2]*B[5] + A[4],
             A[1]*B[4] + A[3]*B[5] + A[5])
+
+def combineTransforms(*T):
+    '''
+    given transform matrices in the order they should be applied generate
+    a combined transform.
+
+    combineTransforms(T0,T1,T2) == mmult(T2,mmult(T1,T0))
+                                == T2*T1*T0
+    so that T0 is applied first, then T1 and finally T2.
+    '''
+    nT = len(T)
+    return (
+            mmult(T[1],T[0]) if nT==2 
+            else mmult(combineTransforms(*T[2:]), mmult(T[1],T[0])) if nT>2
+            else T[0] if nT==1
+            else nullTransform()
+            )
 
 def inverse(A):
     "For A affine 2D represented as 6vec return 6vec version of A**(-1)"

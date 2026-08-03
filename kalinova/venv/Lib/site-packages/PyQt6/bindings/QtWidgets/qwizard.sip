@@ -76,6 +76,9 @@ public:
         HaveCustomButton2,
         HaveCustomButton3,
         NoCancelButtonOnLastPage,
+%If (Qt_6_11_0 -)
+        StretchBanner,
+%End
     };
 
     typedef QFlags<QWizard::WizardOption> WizardOptions;

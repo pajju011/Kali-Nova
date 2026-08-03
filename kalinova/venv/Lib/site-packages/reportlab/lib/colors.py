@@ -769,15 +769,37 @@ def hsl2rgb(h, s, l):
     return hue2rgb(m1, m2, h+1./3),hue2rgb(m1, m2, h),hue2rgb(m1, m2, h-1./3)
 
 import re
-_re_css = re.compile(r'^\s*(pcmyk|cmyk|rgb|hsl)(a|)\s*\(\s*([^)]*)\)\s*$')
+_re_css_func = re.compile(r'^\s*(pcmyk|cmyk|rgb|hsl)(a|)\s*(.*)\s*$')
+_re_css_args = re.compile(r'^\(\s*([^)/]*)(?:\s*/\s*(\d{0,3}(?:\.\d*|)%?)|)\)$')
 class cssParse:
-    def pcVal(self,v):
+    '''
+    best effort convert css like rgb/rgba colours into reportlab Color
+    we support functions rgb/a, cmyk/a, pcmyk/a & hsl/a
+
+    rgb & rgba have special treatment if the r g b arguments have a 
+    decimal point and no % signs. In that case the r g b values are
+    treated as simple floats and must lie in [0,1]. Otherwise we assume
+    the r g b values will be treated as 255 fractions ie 1 --> 1/255.
+
+    if arguments have a percentage sign appended then the values are first
+    divided by 100.
+
+    The alpha values can be specified using the <func>a form and adding
+    an extra argument or using the simple form and adding /<alpha> before
+    the closing parenthesis. The alpha values can have decimal points and
+    percent signs as desired. It's not clear if we should force rgb alpha
+    values into 8 bit form.
+
+    Arguments can be separated by comma or space.
+    '''
+    def pcVal(self,v,n='argument'):
         v = v.strip()
         try:
-            c=float(v[:-1])
-            c=min(100,max(0,c))/100.
+            c=float(v.rstrip('%'))
+            if c<0 or c>100: raise ValueError
+            return c/100.
         except:
-            raise ValueError('bad percentage argument value %r in css color %r' % (v,self.s))
+            raise ValueError(f'bad {n} percentage value {v!r} in css color {self.s!r}')
         return c
 
     def rgbPcVal(self,v):
@@ -787,10 +809,19 @@ class cssParse:
         v = v.strip()
         try:
             c=float(v)
-            if 0<c<=1: c *= 255
-            return int(min(255,max(0,c)))/255.
+            #if 0<c<=1: c *= 255
+            if c<0 or c>255: raise ValueError
+            return int(c)/255.
         except:
-            raise ValueError('bad argument value %r in css color %r' % (v,self.s))
+            raise ValueError(f'bad argument value {v!r} in css color {self.s!r}')
+
+    def floatVal(self,v):
+        try:
+            c=float(v)
+            if c<0 or c>1: raise ValueError
+            return c
+        except:
+            raise ValueError(f'bad argument value {v!r} in css color {self.s!r}')
 
     def hueVal(self,v):
         v = v.strip()
@@ -798,30 +829,45 @@ class cssParse:
             c=float(v)
             return ((c%360+360)%360)/360.
         except:
-            raise ValueError('bad hue argument value %r in css color %r' % (v,self.s))
+            raise ValueError(f'bad hue argument value {v!r} in css color {self.s!r}')
 
     def alphaVal(self,v,c=1,n='alpha'):
         try:
             a = float(v)
-            return min(c,max(0,a))
+            if a>c or a<0: raise VaueError
+            return a
         except:
-            raise ValueError('bad %s argument value %r in css color %r' % (n,v,self.s))
+            raise ValueError(f'bad {n} argument value {v!r} in css color {self.s!r}')
 
     _n_c = dict(pcmyk=(4,100,True,False),cmyk=(4,1,True,False),hsl=(3,1,False,True),rgb=(3,1,False,False))
 
     def __call__(self,s):
-        n = _re_css.match(s)
-        if not n: return
+        f = _re_css_func.match(s)
+        if not f: return    #we didn't match the start of a css func
         self.s = s
-        b,c,cmyk,hsl = self._n_c[n.group(1)]
-        ha = n.group(2)
-        n = n.group(3).split(',')   #strip parens and split on comma
+        b,c,cmyk,hsl = self._n_c[f.group(1)]
+        n = _re_css_args.match(f.group(3))
+        if not n: raise ValueError(f'css color {s!r} has bad argument list {f.group(3)!r}')
+        ha = f.group(2)
+        ha1 = n.group(2)
+        if ha and ha1:
+            raise ValueError(f'css color {s!r} has both inline alpha and /alpha%')
+        n = n.group(1)
+        n = n.split(',') if ',' in n else n.strip().split() #split on comma or spaces
         if len(n)!=(b+(ha and 1 or 0)):
-            raise ValueError('css color %r has wrong number of components' % s)
+            raise ValueError(f'css color {s!r} has wrong number of components')
         if ha:
-            n,a = n[:b],self.alphaVal(n[b],c)
+            a = n[b]
+            n = n[:b]
+            a = self.pcVal(a,'alpha') if '%' in a else self.alphaVal(a,c)
+        elif ha1:
+            a = self.pcVal(ha1,f'/{ha1}') if '%' in ha1 else self.alphaVal(ha1,c)
         else:
             a = c
+
+        pc = ''.join(n)
+        dp = '.' in pc
+        pc = '%' in pc
 
         if cmyk:
             C = self.alphaVal(n[0],c,'cyan')
@@ -832,8 +878,11 @@ class cssParse:
         else:
             if hsl:
                 R,G,B= hsl2rgb(self.hueVal(n[0]),self.pcVal(n[1]),self.pcVal(n[2]))
+            elif dp and not pc:
+                R,G,B = map(self.floatVal,n)
             else:
-                R,G,B = list(map('%' in n[0] and self.rgbPcVal or self.rgbVal,n))
+                R,G,B = list(map(pc and self.rgbPcVal or self.rgbVal,n))
+                #a = int(a*255+0.5)/255.
 
             return Color(R,G,B,a)
 

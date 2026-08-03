@@ -41,6 +41,9 @@ public:
     static QTemporaryFile *createNativeFile(const QString &fileName) /Factory,ReleaseGIL/;
     static QTemporaryFile *createNativeFile(QFile &file) /Factory,ReleaseGIL/;
     bool rename(const QString &newName);
+%If (Qt_6_11_0 -)
+    bool renameOverwrite(const QString &newName);
+%End
 
 protected:
     virtual bool open(QIODeviceBase::OpenMode flags) /ReleaseGIL/;

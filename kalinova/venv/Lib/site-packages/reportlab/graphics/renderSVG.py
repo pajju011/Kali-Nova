@@ -157,12 +157,20 @@ class SVGCanvas:
         extraXmlDecl = ''   use to add extra xml declarations
         scaleGroupId = ''   id of an extra group to add around the drawing to allow easy scaling
         svgAttrs = {}       dictionary of attributes to be applied to the svg tag itself
+        fontSizer = 'px'    a string unit or acallable that returns a string fontSize value
         '''
         self.verbose = verbose
         self.encoding = codecs.lookup(encoding).name
         self.bom = bom
         useClip = kwds.pop('useClip',False)
         self.fontHacks = kwds.pop('fontHacks',{})
+        fz = kwds.pop('fontSizer','px')
+        if isinstance(fz,str):
+            self.fontSizer = lambda v: f'%s{fz}' % v
+        elif callable(fz):
+            self.fontSizer = fz
+        else:
+            raise ValueError(f'{fontSizer=} should be a str unit eg px/pt or a callable that returns a string')
         self.extraXmlDecl = kwds.pop('extraXmlDecl','')
         scaleGroupId = kwds.pop('scaleGroupId','')
         self._fillMode = FILL_EVEN_ODD
@@ -414,7 +422,7 @@ class SVGCanvas:
                         style[a] = v
             if 'font-family' not in style:
                 style['font-family'] = font
-            style['font-size'] = '%spx' % fontSize
+            style['font-size'] = self.fontSizer(fontSize)
 
     def _add_link(self, dom_object, link_info) :
         assert isinstance(link_info, dict)

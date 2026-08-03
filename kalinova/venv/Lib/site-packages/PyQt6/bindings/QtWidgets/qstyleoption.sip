@@ -62,7 +62,11 @@ class QStyleOption
         break;
     
     case QStyleOption::SO_MenuItem:
+    #if QT_VERSION >= 0x060b00
+        sipType = sipType_QStyleOptionMenuItemV2;
+    #else
         sipType = sipType_QStyleOptionMenuItem;
+    #endif
         break;
     
     case QStyleOption::SO_ProgressBar:
@@ -554,6 +558,27 @@ public:
     QStyleOptionMenuItem();
     QStyleOptionMenuItem(const QStyleOptionMenuItem &other);
 };
+
+%If (Qt_6_11_0 -)
+
+class QStyleOptionMenuItemV2 : public QStyleOptionMenuItem
+{
+%TypeHeaderCode
+#include <qstyleoption.h>
+%End
+
+public:
+    enum StyleOptionVersion
+    {
+        Version,
+    };
+
+    QStyleOptionMenuItemV2();
+    QStyleOptionMenuItemV2(const QStyleOptionMenuItemV2 &other);
+    bool mouseDown;
+};
+
+%End
 
 class QStyleOptionDockWidget : public QStyleOption
 {

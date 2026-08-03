@@ -92,6 +92,29 @@ protected slots:
 protected:
     virtual bool event(QEvent *);
     virtual bool eventFilter(QObject *, QEvent *);
+
+public:
+%If (Qt_6_11_0 -)
+
+    enum class AutoConnectPolicy
+    {
+        None,
+        Full,
+        OnRead,
+    };
+
+%End
+%If (Qt_6_11_0 -)
+    QRangeModel::AutoConnectPolicy autoConnectPolicy() const;
+%End
+%If (Qt_6_11_0 -)
+    void setAutoConnectPolicy(QRangeModel::AutoConnectPolicy policy);
+%End
+
+signals:
+%If (Qt_6_11_0 -)
+    void autoConnectPolicyChanged(QRangeModel::AutoConnectPolicy policy);
+%End
 };
 
 %End

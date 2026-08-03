@@ -106,7 +106,7 @@ public:
     QMetaProperty property() const;
     QMetaMethod method() const;
 %If (Qt_6_3_0 -)
-    void swap(QQmlProperty &other);
+    void swap(QQmlProperty &other /Constrained/);
 %End
 };
 

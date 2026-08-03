@@ -53,9 +53,9 @@ def _enumChk(name,value,allowed=()):
 
 from functools import partial
 _rlChecks=dict(
-        renderPMBackend = partial(_enumChk,allowed=('rlPyCairo','_renderPM')),
-        xmlParser = partial(_enumChk,allowed=('lxml','pyrxp')),
-        textPaths = partial(_enumChk,allowed=('freetype','_renderPM','backend')),
+        renderPMBackend = partial(_enumChk,allowed=('rlPyCairo',)),
+        xmlParser = partial(_enumChk,allowed=('lxml',)),
+        textPaths = partial(_enumChk,allowed=('freetype','backend')),
         )
 
 #this is used to set the options from
@@ -129,13 +129,13 @@ def _startUp():
             _setOpt(k,v,conv)
 
 _registered_resets=[]
-def register_reset(func):
+def register_reset(func, callback=None):
     '''register a function to be called by rl_config._reset'''
     _registered_resets[:] = [x for x in _registered_resets if x()]
     L = [x for x in _registered_resets if x() is func]
     if L: return
-    from weakref import ref
-    _registered_resets.append(ref(func))
+    from weakref import ref, WeakMethod
+    _registered_resets.append((WeakMethod if hasattr(func,'__self__') else ref)(func,callback))
 
 def _reset():
     '''attempt to reset reportlab and friends'''
