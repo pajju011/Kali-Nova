@@ -20,6 +20,7 @@ class AuthPage(ToolModulePage):
         self.hash_identifier_panel = self._create_hash_identifier_panel()
         self.hashid_panel = self._create_hashid_panel()
         self.sslscan_panel = self._create_sslscan_panel()
+        self.tlssled_panel = self._create_tlssled_panel()
         self.sslyze_panel = self._create_sslyze_panel()
 
         self.add_tool(
