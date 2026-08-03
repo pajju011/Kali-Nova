@@ -215,3 +215,23 @@ class AuthPage(ToolModulePage):
             return
         # Execute hash-identifier with the provided hash
         self.run_command.emit(f"hash-identifier {hash_val}")
+
+    def _create_hashid_panel(self):
+        panel, layout = self.create_panel("🔎 HashID")
+        self.hashid_input = QLineEdit()
+        self.hashid_input.setPlaceholderText("Enter hash to identify")
+        self.hashid_btn = self.create_primary_button("Identify with hashid")
+        self.hashid_btn.clicked.connect(self.build_hashid)
+
+        layout.addWidget(QLabel("Hash"))
+        layout.addWidget(self.hashid_input)
+        layout.addWidget(self.hashid_btn)
+        layout.addStretch()
+        return panel
+
+    def build_hashid(self):
+        hash_val = self.hashid_input.text().strip()
+        if not hash_val:
+            self.emit_validation_error("Hash value is required before running.")
+            return
+        self.run_command.emit(f"hashid {hash_val}")
