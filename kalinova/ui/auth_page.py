@@ -17,6 +17,7 @@ class AuthPage(ToolModulePage):
 
         self.hydra_panel = self._create_hydra_panel()
         self.john_panel = self._create_john_panel()
+        self.hash_identifier_panel = self._create_hash_identifier_panel()
 
         self.add_tool(
             tool_id="hydra",
@@ -33,6 +34,15 @@ class AuthPage(ToolModulePage):
             description="Hash Cracking",
             panel=self.john_panel,
             focus_widget=self.hash_file,
+        )
+
+        self.add_tool(
+            tool_id="hash_identifier",
+            icon="🔎",
+            name="Hash Identifier",
+            description="Identify hash types",
+            panel=self.hash_identifier_panel,
+            focus_widget=self.hash_input,
         )
 
     def _create_hydra_panel(self):
@@ -175,3 +185,24 @@ class AuthPage(ToolModulePage):
             command += f" --wordlist=\"{wordlist}\""
 
         self.run_command.emit(command)
+
+    def _create_hash_identifier_panel(self):
+        panel, layout = self.create_panel("🔎 Hash Identifier")
+        self.hash_input = QLineEdit()
+        self.hash_input.setPlaceholderText("Enter hash to identify")
+        self.hash_btn = self.create_primary_button("Identify Hash")
+        self.hash_btn.clicked.connect(self.build_hash_identifier)
+
+        layout.addWidget(QLabel("Hash"))
+        layout.addWidget(self.hash_input)
+        layout.addWidget(self.hash_btn)
+        layout.addStretch()
+        return panel
+
+    def build_hash_identifier(self):
+        hash_val = self.hash_input.text().strip()
+        if not hash_val:
+            self.emit_validation_error("Hash value is required before running.")
+            return
+        # Execute hash-identifier with the provided hash
+        self.run_command.emit(f"hash-identifier {hash_val}")
