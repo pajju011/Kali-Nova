@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QLabel, QLineEdit, QComboBox, QFileDialog
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal
 
 from ui.tool_template import ToolModulePage
 
@@ -318,6 +318,28 @@ class AuthPage(ToolModulePage):
         layout.addWidget(QLabel("Port"))
         layout.addWidget(self.tlssled_port_input)
         layout.addWidget(self.tlssled_btn)
+        layout.addStretch()
+        usage_label = QLabel()
+        usage_label.setTextFormat(Qt.TextFormat.RichText)
+        usage_label.setWordWrap(True)
+        usage_label.setText("""
+<pre style='font-family:monospace;'>
+TLSSLed Usage Example
+Check SSL/TLS on the host (192.168.1.1) and port (443):
+
+root@kali:~# tlssled 192.168.1.1 443
+------------------------------------------------------
+ TLSSLed - (1.3) based on sslscan and openssl
+                 by Raul Siles (www.taddong.com)
+------------------------------------------------------
+    openssl version: OpenSSL 1.0.1e 11 Feb 2013
+    sslscan version 1.8.2
+------------------------------------------------------
+[*] Analyzing SSL/TLS on 192.168.1.1:443 ...
+    ... (truncated output) ...
+</pre>
+""")
+        layout.addWidget(usage_label)
         layout.addStretch()
         return panel
 
