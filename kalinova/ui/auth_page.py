@@ -19,6 +19,7 @@ class AuthPage(ToolModulePage):
         self.john_panel = self._create_john_panel()
         self.hash_identifier_panel = self._create_hash_identifier_panel()
         self.hashid_panel = self._create_hashid_panel()
+        self.sslscan_panel = self._create_sslscan_panel()
 
         self.add_tool(
             tool_id="hydra",
@@ -235,3 +236,32 @@ class AuthPage(ToolModulePage):
             self.emit_validation_error("Hash value is required before running.")
             return
         self.run_command.emit(f"hashid {hash_val}")
+
+    def _create_sslscan_panel(self):
+        panel, layout = self.create_panel("🔒 SSLScan")
+        self.sslscan_target_input = QLineEdit()
+        self.sslscan_target_input.setPlaceholderText("Enter host:port or host")
+        self.sslscan_btn = self.create_primary_button("Run SSLScan")
+        self.sslscan_btn.clicked.connect(self.build_sslscan)
+
+        layout.addWidget(QLabel("Target"))
+        layout.addWidget(self.sslscan_target_input)
+        layout.addWidget(self.sslscan_btn)
+        layout.addStretch()
+        return panel
+
+    def build_sslscan(self):
+        target = self.sslscan_target_input.text().strip()
+        if not target:
+            self.emit_validation_error("Target host is required before running.")
+            return
+        self.run_command.emit(f"sslscan {target}")
+
+        self.add_tool(
+            tool_id="sslscan",
+            icon="🔒",
+            name="SSLScan",
+            description="SSL/TLS Scanner",
+            panel=self.sslscan_panel,
+            focus_widget=self.sslscan_target_input,
+        )
