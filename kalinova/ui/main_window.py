@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget,
     QVBoxLayout, QHBoxLayout,
-    QLabel, QTabWidget
+    QLabel, QTabWidget, QSplitter
 )
 from PyQt6.QtCore import Qt
 
@@ -52,19 +52,27 @@ class MainWindow(QMainWindow):
         self.side_tabs.tabCloseRequested.connect(self._close_output_tab)
         side_layout.addWidget(self.side_console_title)
         side_layout.addWidget(self.side_tabs)
-        self.side_console.setMinimumWidth(340)
-        self.side_console.setMaximumWidth(520)
+        self.side_console.setMinimumWidth(450)
+        self.side_console.setMaximumWidth(1200)
         self.side_console.hide()
         self.workspace.setObjectName("workspace")
+
+        # Splitter between workspace and side output panel
+        self.splitter = QSplitter(Qt.Orientation.Horizontal)
+        self.splitter.setObjectName("mainSplitter")
+        self.splitter.addWidget(self.workspace)
+        self.splitter.addWidget(self.side_console)
+        self.splitter.setStretchFactor(0, 3)
+        self.splitter.setStretchFactor(1, 2)
+        self.splitter.setCollapsible(0, False)
 
         # =========================
         # Layout Structure
         # =========================
         main_layout.addWidget(self.topbar)
 
-        middle_layout.addWidget(self.sidebar, 1)
-        middle_layout.addWidget(self.workspace, 4)
-        middle_layout.addWidget(self.side_console, 2)
+        middle_layout.addWidget(self.sidebar, 0)
+        middle_layout.addWidget(self.splitter, 1)
 
         main_layout.addLayout(middle_layout)
         # main_layout.addWidget(self.console)
@@ -571,10 +579,19 @@ class MainWindow(QMainWindow):
 
             QLabel#consoleTitle,
             QLabel#sideConsoleTitle {
-                font-size: 12px;
+                font-size: 14px;
                 font-weight: 700;
                 color: #bcd0f5;
-                padding: 0 4px;
+                padding: 2px 4px;
+            }
+
+            QSplitter::handle {
+                background-color: #1e2c45;
+                width: 5px;
+            }
+
+            QSplitter::handle:hover {
+                background-color: #3b82f6;
             }
 
             QTabWidget#sideOutputTabs::pane {
@@ -587,7 +604,9 @@ class MainWindow(QMainWindow):
                 background-color: #192741;
                 color: #cfe0ff;
                 border: 1px solid #2f4568;
-                padding: 6px 10px;
+                padding: 6px 12px;
+                font-size: 12px;
+                font-weight: 600;
                 margin-right: 2px;
                 border-top-left-radius: 6px;
                 border-top-right-radius: 6px;
@@ -603,8 +622,10 @@ class MainWindow(QMainWindow):
                 border: 1px solid #284f35;
                 background-color: #08100f;
                 color: #6cff9a;
-                font-family: 'Consolas';
-                font-size: 10px;
+                font-family: 'Consolas', 'Cascadia Code', 'Courier New', monospace;
+                font-size: 13px;
+                line-height: 1.5;
+                padding: 8px;
             }
             """
         )
