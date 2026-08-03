@@ -18,6 +18,7 @@ class AuthPage(ToolModulePage):
         self.hydra_panel = self._create_hydra_panel()
         self.john_panel = self._create_john_panel()
         self.hash_identifier_panel = self._create_hash_identifier_panel()
+        self.hashid_panel = self._create_hashid_panel()
 
         self.add_tool(
             tool_id="hydra",
@@ -43,6 +44,14 @@ class AuthPage(ToolModulePage):
             description="Identify hash types",
             panel=self.hash_identifier_panel,
             focus_widget=self.hash_input,
+        )
+        self.add_tool(
+            tool_id="hashid",
+            icon="🔎",
+            name="HashID",
+            description="Identify hash types (hashid)",
+            panel=self.hashid_panel,
+            focus_widget=self.hashid_input,
         )
 
     def _create_hydra_panel(self):
