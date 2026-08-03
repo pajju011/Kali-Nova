@@ -295,3 +295,11 @@ class AuthPage(ToolModulePage):
             panel=self.sslyze_panel,
             focus_widget=self.sslyze_target_input,
         )
+        self.add_tool(
+            tool_id="tlssled",
+            icon="🔐",
+            name="TLSSLed",
+            description="SSL/TLS security evaluator",
+            panel=self.tlssled_panel,
+            focus_widget=self.tlssled_host_input,
+        )
