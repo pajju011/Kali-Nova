@@ -1,0 +1,40 @@
+
+============================================================
+Time: 2026-07-20 22:02:35.456606
+Command: nmap amzon.in
+============================================================
+Starting Nmap 7.92 ( https://nmap.org ) at 2026-07-20 22:02:35
+Nmap scan report for amzon.in
+Host is up (0.0051s latency).
+Not shown: 996 closed tcp ports (conn-refused)
+PORT     STATE SERVICE
+22/tcp   open  ssh
+80/tcp   open  http
+443/tcp  open  https
+8080/tcp open  http-proxy
+MAC Address: 00:0C:29:3E:B2:A1 (VMware)
+Device type: general purpose
+Running: Linux 5.X
+OS CPE: cpe:/o:linux:linux_kernel:5
+OS details: Linux 5.0 - 5.4
+Nmap done: 1 IP address (1 host up) scanned in 2.30 seconds
+
+============================================================
+Time: 2026-07-20 22:02:49.326907
+Command: nmap amzon.in
+============================================================
+Starting Nmap 7.92 ( https://nmap.org ) at 2026-07-20 22:02:49
+Nmap scan report for amzon.in
+Host is up (0.0051s latency).
+Not shown: 996 closed tcp ports (conn-refused)
+PORT     STATE SERVICE
+22/tcp   open  ssh
+80/tcp   open  http
+443/tcp  open  https
+8080/tcp open  http-proxy
+MAC Address: 00:0C:29:3E:B2:A1 (VMware)
+Device type: general purpose
+Running: Linux 5.X
+OS CPE: cpe:/o:linux:linux_kernel:5
+OS details: Linux 5.0 - 5.4
+Nmap done: 1 IP address (1 host up) scanned in 4.17 seconds

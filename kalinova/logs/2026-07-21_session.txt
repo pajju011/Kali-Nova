@@ -1,0 +1,20 @@
+
+============================================================
+Time: 2026-07-21 14:12:55.274160
+Command: nikto -h amzon.com
+============================================================
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          192.168.1.45
++ Target Hostname:    amzon.com
++ Target Port:        80
+---------------------------------------------------------------------------
++ GET /: The anti-clickjacking X-Frame-Options header is not present.
++ GET /: The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against certain forms of XSS.
++ GET /: The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type.
++ OSVDB-3092: /admin/: This directory is password protected or accessible without authorization.
++ OSVDB-3268: /images/: Directory indexing found.
++ OSVDB-3233: /config.php: Found sensitive configuration file containing database passwords.
++ OSVDB-3092: /login: Admin access panel detected.
++ 7748 requests tested on local host.
++ Nikto scan completed successfully.
