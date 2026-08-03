@@ -302,6 +302,32 @@ class AuthPage(ToolModulePage):
             description="SSL/TLS security evaluator",
             panel=self.tlssled_panel,
             focus_widget=self.tlssled_host_input,
+        )
+
+    def _create_tlssled_panel(self):
+        panel, layout = self.create_panel("🔐 TLSSLed")
+        self.tlssled_host_input = QLineEdit()
+        self.tlssled_host_input.setPlaceholderText("Enter host")
+        self.tlssled_port_input = QLineEdit()
+        self.tlssled_port_input.setPlaceholderText("Enter port")
+        self.tlssled_btn = self.create_primary_button("Run TLSSLed")
+        self.tlssled_btn.clicked.connect(self.build_tlssled)
+
+        layout.addWidget(QLabel("Host"))
+        layout.addWidget(self.tlssled_host_input)
+        layout.addWidget(QLabel("Port"))
+        layout.addWidget(self.tlssled_port_input)
+        layout.addWidget(self.tlssled_btn)
+        layout.addStretch()
+        return panel
+
+    def build_tlssled(self):
+        host = self.tlssled_host_input.text().strip()
+        port = self.tlssled_port_input.text().strip()
+        if not host or not port:
+            self.emit_validation_error("Host and port are required before running.")
+            return
+        self.run_command.emit(f"tlssled {host} {port}")
 
     def _create_tlssled_panel(self):
         panel, layout = self.create_panel("🔐 TLSSLed")
