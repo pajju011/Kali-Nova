@@ -45,23 +45,40 @@ class MainWindow(QMainWindow):
         side_layout.setContentsMargins(8, 8, 8, 8)
         side_layout.setSpacing(6)
 
+        # Side console header with Slide Expand button
+        side_header = QWidget()
+        side_header_layout = QHBoxLayout(side_header)
+        side_header_layout.setContentsMargins(0, 0, 0, 0)
+        side_header_layout.setSpacing(6)
+
+        self.btn_slide_expand = QPushButton("⇇ Slide Panel")
+        self.btn_slide_expand.setObjectName("slideExpandBtn")
+        self.btn_slide_expand.setToolTip("Slide / Expand output panel width")
+        self.btn_slide_expand.clicked.connect(self.toggle_slide_panel_width)
+
         self.side_console_title = QLabel("Tool Output")
         self.side_console_title.setObjectName("sideConsoleTitle")
+
+        side_header_layout.addWidget(self.btn_slide_expand)
+        side_header_layout.addWidget(self.side_console_title)
+        side_header_layout.addStretch()
+
         self.side_tabs = QTabWidget()
         self.side_tabs.setObjectName("sideOutputTabs")
         self.side_tabs.setTabsClosable(True)
         self.side_tabs.tabCloseRequested.connect(self._close_output_tab)
         
-        side_layout.addWidget(self.side_console_title)
+        side_layout.addWidget(side_header)
         side_layout.addWidget(self.side_tabs)
-        self.side_console.setMinimumWidth(280)
+        self.side_console.setMinimumWidth(150)
         self.side_console.setMaximumWidth(16777215)
         self.side_console.hide()
         self.workspace.setObjectName("workspace")
 
-        # Splitter between workspace and side output panel
+        # Splitter between workspace and side output panel with wide handle
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
         self.splitter.setObjectName("mainSplitter")
+        self.splitter.setHandleWidth(10)
         self.splitter.addWidget(self.workspace)
         self.splitter.addWidget(self.side_console)
         self.splitter.setStretchFactor(0, 3)
@@ -396,6 +413,29 @@ class MainWindow(QMainWindow):
         else:
             self.set_output_panel_split(0.40)
 
+    def toggle_slide_panel_width(self):
+        if not self.side_console.isVisible():
+            self.side_console.show()
+        sizes = self.splitter.sizes()
+        if len(sizes) == 2:
+            current_side_w = sizes[1]
+            total_w = sum(sizes)
+            if total_w <= 100:
+                total_w = max(1000, self.width() - 240)
+            
+            if current_side_w < int(total_w * 0.45):
+                # Expand slide leftward (55% output width)
+                new_side = int(total_w * 0.55)
+                new_work = total_w - new_side
+                self.splitter.setSizes([new_work, new_side])
+                self.btn_slide_expand.setText("⇉ Slide Back")
+            else:
+                # Retract slide rightward (35% output width)
+                new_side = int(total_w * 0.35)
+                new_work = total_w - new_side
+                self.splitter.setSizes([new_work, new_side])
+                self.btn_slide_expand.setText("⇇ Slide Panel")
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_F11:
             if self.isFullScreen():
@@ -606,45 +646,32 @@ class MainWindow(QMainWindow):
                 padding: 2px 4px;
             }
 
-            QSplitter::handle {
-                background-color: #1e2c45;
-                width: 5px;
-            }
-
-            QSplitter::handle:hover {
-                background-color: #3b82f6;
-            }
-
-            QPushButton#slidePresetBtn {
-                padding: 3px 8px;
+            QPushButton#slideExpandBtn {
+                padding: 4px 10px;
                 font-size: 11px;
                 font-weight: 700;
-                background-color: #192741;
-                border: 1px solid #2f4568;
-                border-radius: 4px;
-                color: #8ea2c5;
+                background-color: #1a273e;
+                border: 1px solid #354a70;
+                border-radius: 6px;
+                color: #38bdf8;
             }
-
-            QPushButton#slidePresetBtn:hover {
-                background-color: #243b66;
+            QPushButton#slideExpandBtn:hover {
+                background-color: #24385a;
+                border-color: #38bdf8;
                 color: #ffffff;
-                border-color: #3d78d8;
             }
 
-            QPushButton#slideCloseBtn {
-                padding: 3px 8px;
-                font-size: 11px;
-                font-weight: bold;
-                background-color: #2a1b24;
-                border: 1px solid #572f3a;
-                border-radius: 4px;
-                color: #f87171;
+            QSplitter#mainSplitter::handle:horizontal {
+                background-color: #16233b;
+                border-left: 1px solid #2b3e63;
+                border-right: 1px solid #2b3e63;
+                width: 10px;
             }
-
-            QPushButton#slideCloseBtn:hover {
-                background-color: #3f2231;
-                color: #ffffff;
-                border-color: #ef4444;
+            QSplitter#mainSplitter::handle:horizontal:hover {
+                background-color: #3b82f6;
+            }
+            QSplitter#mainSplitter::handle:horizontal:pressed {
+                background-color: #60a5fa;
             }
 
             QTabWidget#sideOutputTabs::pane {
