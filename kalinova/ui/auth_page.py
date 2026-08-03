@@ -20,6 +20,7 @@ class AuthPage(ToolModulePage):
         self.hash_identifier_panel = self._create_hash_identifier_panel()
         self.hashid_panel = self._create_hashid_panel()
         self.sslscan_panel = self._create_sslscan_panel()
+        self.sslyze_panel = self._create_sslyze_panel()
 
         self.add_tool(
             tool_id="hydra",
@@ -257,6 +258,26 @@ class AuthPage(ToolModulePage):
             return
         self.run_command.emit(f"sslscan {target}")
 
+    def _create_sslyze_panel(self):
+        panel, layout = self.create_panel("🔐 SSLyze")
+        self.sslyze_target_input = QLineEdit()
+        self.sslyze_target_input.setPlaceholderText("Enter host (or host:port)")
+        self.sslyze_btn = self.create_primary_button("Run SSLyze")
+        self.sslyze_btn.clicked.connect(self.build_sslyze)
+
+        layout.addWidget(QLabel("Target"))
+        layout.addWidget(self.sslyze_target_input)
+        layout.addWidget(self.sslyze_btn)
+        layout.addStretch()
+        return panel
+
+    def build_sslyze(self):
+        target = self.sslyze_target_input.text().strip()
+        if not target:
+            self.emit_validation_error("Target host is required before running.")
+            return
+        self.run_command.emit(f"sslyze {target}")
+
         self.add_tool(
             tool_id="sslscan",
             icon="🔒",
@@ -264,4 +285,12 @@ class AuthPage(ToolModulePage):
             description="SSL/TLS Scanner",
             panel=self.sslscan_panel,
             focus_widget=self.sslscan_target_input,
+        )
+        self.add_tool(
+            tool_id="sslyze",
+            icon="🔐",
+            name="SSLyze",
+            description="Full‑featured SSL scanner",
+            panel=self.sslyze_panel,
+            focus_widget=self.sslyze_target_input,
         )
