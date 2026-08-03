@@ -45,40 +45,27 @@ class MainWindow(QMainWindow):
         side_layout.setContentsMargins(8, 8, 8, 8)
         side_layout.setSpacing(6)
 
-        # Side console header with Slide Expand button
-        side_header = QWidget()
-        side_header_layout = QHBoxLayout(side_header)
-        side_header_layout.setContentsMargins(0, 0, 0, 0)
-        side_header_layout.setSpacing(6)
-
-        self.btn_slide_expand = QPushButton("⇇ Slide Panel")
-        self.btn_slide_expand.setObjectName("slideExpandBtn")
-        self.btn_slide_expand.setToolTip("Slide / Expand output panel width")
-        self.btn_slide_expand.clicked.connect(self.toggle_slide_panel_width)
-
         self.side_console_title = QLabel("Tool Output")
         self.side_console_title.setObjectName("sideConsoleTitle")
-
-        side_header_layout.addWidget(self.btn_slide_expand)
-        side_header_layout.addWidget(self.side_console_title)
-        side_header_layout.addStretch()
 
         self.side_tabs = QTabWidget()
         self.side_tabs.setObjectName("sideOutputTabs")
         self.side_tabs.setTabsClosable(True)
         self.side_tabs.tabCloseRequested.connect(self._close_output_tab)
         
-        side_layout.addWidget(side_header)
+        side_layout.addWidget(self.side_console_title)
         side_layout.addWidget(self.side_tabs)
-        self.side_console.setMinimumWidth(150)
+        self.side_console.setMinimumWidth(0)
         self.side_console.setMaximumWidth(16777215)
         self.side_console.hide()
         self.workspace.setObjectName("workspace")
+        self.workspace.setMinimumWidth(0)
 
-        # Splitter between workspace and side output panel with wide handle
+        # Splitter between workspace and side output panel with mouse drag handle
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
         self.splitter.setObjectName("mainSplitter")
-        self.splitter.setHandleWidth(10)
+        self.splitter.setHandleWidth(8)
+        self.splitter.setChildrenCollapsible(False)
         self.splitter.addWidget(self.workspace)
         self.splitter.addWidget(self.side_console)
         self.splitter.setStretchFactor(0, 3)
@@ -412,29 +399,6 @@ class MainWindow(QMainWindow):
             self.side_console.hide()
         else:
             self.set_output_panel_split(0.40)
-
-    def toggle_slide_panel_width(self):
-        if not self.side_console.isVisible():
-            self.side_console.show()
-        sizes = self.splitter.sizes()
-        if len(sizes) == 2:
-            current_side_w = sizes[1]
-            total_w = sum(sizes)
-            if total_w <= 100:
-                total_w = max(1000, self.width() - 240)
-            
-            if current_side_w < int(total_w * 0.45):
-                # Expand slide leftward (55% output width)
-                new_side = int(total_w * 0.55)
-                new_work = total_w - new_side
-                self.splitter.setSizes([new_work, new_side])
-                self.btn_slide_expand.setText("⇉ Slide Back")
-            else:
-                # Retract slide rightward (35% output width)
-                new_side = int(total_w * 0.35)
-                new_work = total_w - new_side
-                self.splitter.setSizes([new_work, new_side])
-                self.btn_slide_expand.setText("⇇ Slide Panel")
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_F11:
