@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget,
     QVBoxLayout, QHBoxLayout,
-    QLabel, QTabWidget, QSplitter
+    QLabel, QTabWidget, QSplitter, QPushButton
 )
 from PyQt6.QtCore import Qt
 
@@ -44,16 +44,53 @@ class MainWindow(QMainWindow):
         side_layout = QVBoxLayout(self.side_console)
         side_layout.setContentsMargins(8, 8, 8, 8)
         side_layout.setSpacing(6)
+
+        # Side console panel header layout with slide presets
+        side_header = QWidget()
+        side_header_layout = QHBoxLayout(side_header)
+        side_header_layout.setContentsMargins(2, 2, 2, 2)
+        side_header_layout.setSpacing(4)
+
         self.side_console_title = QLabel("Tool Output")
         self.side_console_title.setObjectName("sideConsoleTitle")
+
+        # Slide Width Presets
+        self.btn_slide_35 = QPushButton("35%")
+        self.btn_slide_35.setObjectName("slidePresetBtn")
+        self.btn_slide_35.setToolTip("Slide to 35% side panel width")
+        self.btn_slide_35.clicked.connect(lambda: self.set_output_panel_split(0.35))
+
+        self.btn_slide_50 = QPushButton("50%")
+        self.btn_slide_50.setObjectName("slidePresetBtn")
+        self.btn_slide_50.setToolTip("Slide to 50% half-screen width")
+        self.btn_slide_50.clicked.connect(lambda: self.set_output_panel_split(0.50))
+
+        self.btn_slide_80 = QPushButton("80%")
+        self.btn_slide_80.setObjectName("slidePresetBtn")
+        self.btn_slide_80.setToolTip("Slide to 80% wide screen view")
+        self.btn_slide_80.clicked.connect(lambda: self.set_output_panel_split(0.80))
+
+        self.btn_close_panel = QPushButton("✕")
+        self.btn_close_panel.setObjectName("slideCloseBtn")
+        self.btn_close_panel.setToolTip("Slide Out / Hide Output Panel")
+        self.btn_close_panel.clicked.connect(self.side_console.hide)
+
+        side_header_layout.addWidget(self.side_console_title)
+        side_header_layout.addStretch()
+        side_header_layout.addWidget(self.btn_slide_35)
+        side_header_layout.addWidget(self.btn_slide_50)
+        side_header_layout.addWidget(self.btn_slide_80)
+        side_header_layout.addWidget(self.btn_close_panel)
+
         self.side_tabs = QTabWidget()
         self.side_tabs.setObjectName("sideOutputTabs")
         self.side_tabs.setTabsClosable(True)
         self.side_tabs.tabCloseRequested.connect(self._close_output_tab)
-        side_layout.addWidget(self.side_console_title)
+        
+        side_layout.addWidget(side_header)
         side_layout.addWidget(self.side_tabs)
-        self.side_console.setMinimumWidth(450)
-        self.side_console.setMaximumWidth(1200)
+        self.side_console.setMinimumWidth(280)
+        self.side_console.setMaximumWidth(16777215)
         self.side_console.hide()
         self.workspace.setObjectName("workspace")
 
@@ -91,6 +128,7 @@ class MainWindow(QMainWindow):
         self.topbar.mode_changed.connect(
             self.workspace.pages["Recon"].update_mode
         )
+        self.topbar.toggle_output_signal.connect(self.toggle_output_panel)
 
         # =========================
         # Tool Execution Connections
@@ -377,6 +415,22 @@ class MainWindow(QMainWindow):
         self.thread = None
         super().closeEvent(event)
 
+    def set_output_panel_split(self, ratio=0.35):
+        if not self.side_console.isVisible():
+            self.side_console.show()
+        total_w = self.splitter.width()
+        if total_w <= 100:
+            total_w = max(1000, self.width() - 240)
+        side_w = int(total_w * ratio)
+        work_w = max(200, total_w - side_w)
+        self.splitter.setSizes([work_w, side_w])
+
+    def toggle_output_panel(self):
+        if self.side_console.isVisible():
+            self.side_console.hide()
+        else:
+            self.set_output_panel_split(0.40)
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_F11:
             if self.isFullScreen():
@@ -388,6 +442,8 @@ class MainWindow(QMainWindow):
         elif event.key() == Qt.Key.Key_Escape and self.isFullScreen():
             self.showMaximized()
             self._log_main("Switched to Maximized window mode.")
+        elif event.key() == Qt.Key.Key_F9 or (event.key() == Qt.Key.Key_O and (event.modifiers() & Qt.KeyboardModifier.ControlModifier)):
+            self.toggle_output_panel()
         else:
             super().keyPressEvent(event)
 
@@ -592,6 +648,38 @@ class MainWindow(QMainWindow):
 
             QSplitter::handle:hover {
                 background-color: #3b82f6;
+            }
+
+            QPushButton#slidePresetBtn {
+                padding: 3px 8px;
+                font-size: 11px;
+                font-weight: 700;
+                background-color: #192741;
+                border: 1px solid #2f4568;
+                border-radius: 4px;
+                color: #8ea2c5;
+            }
+
+            QPushButton#slidePresetBtn:hover {
+                background-color: #243b66;
+                color: #ffffff;
+                border-color: #3d78d8;
+            }
+
+            QPushButton#slideCloseBtn {
+                padding: 3px 8px;
+                font-size: 11px;
+                font-weight: bold;
+                background-color: #2a1b24;
+                border: 1px solid #572f3a;
+                border-radius: 4px;
+                color: #f87171;
+            }
+
+            QPushButton#slideCloseBtn:hover {
+                background-color: #3f2231;
+                color: #ffffff;
+                border-color: #ef4444;
             }
 
             QTabWidget#sideOutputTabs::pane {
