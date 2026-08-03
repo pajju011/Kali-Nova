@@ -45,49 +45,14 @@ class MainWindow(QMainWindow):
         side_layout.setContentsMargins(8, 8, 8, 8)
         side_layout.setSpacing(6)
 
-        # Side console panel header layout with slide presets
-        side_header = QWidget()
-        side_header_layout = QHBoxLayout(side_header)
-        side_header_layout.setContentsMargins(2, 2, 2, 2)
-        side_header_layout.setSpacing(4)
-
         self.side_console_title = QLabel("Tool Output")
         self.side_console_title.setObjectName("sideConsoleTitle")
-
-        # Slide Width Presets
-        self.btn_slide_35 = QPushButton("35%")
-        self.btn_slide_35.setObjectName("slidePresetBtn")
-        self.btn_slide_35.setToolTip("Slide to 35% side panel width")
-        self.btn_slide_35.clicked.connect(lambda: self.set_output_panel_split(0.35))
-
-        self.btn_slide_50 = QPushButton("50%")
-        self.btn_slide_50.setObjectName("slidePresetBtn")
-        self.btn_slide_50.setToolTip("Slide to 50% half-screen width")
-        self.btn_slide_50.clicked.connect(lambda: self.set_output_panel_split(0.50))
-
-        self.btn_slide_80 = QPushButton("80%")
-        self.btn_slide_80.setObjectName("slidePresetBtn")
-        self.btn_slide_80.setToolTip("Slide to 80% wide screen view")
-        self.btn_slide_80.clicked.connect(lambda: self.set_output_panel_split(0.80))
-
-        self.btn_close_panel = QPushButton("✕")
-        self.btn_close_panel.setObjectName("slideCloseBtn")
-        self.btn_close_panel.setToolTip("Slide Out / Hide Output Panel")
-        self.btn_close_panel.clicked.connect(self.side_console.hide)
-
-        side_header_layout.addWidget(self.side_console_title)
-        side_header_layout.addStretch()
-        side_header_layout.addWidget(self.btn_slide_35)
-        side_header_layout.addWidget(self.btn_slide_50)
-        side_header_layout.addWidget(self.btn_slide_80)
-        side_header_layout.addWidget(self.btn_close_panel)
-
         self.side_tabs = QTabWidget()
         self.side_tabs.setObjectName("sideOutputTabs")
         self.side_tabs.setTabsClosable(True)
         self.side_tabs.tabCloseRequested.connect(self._close_output_tab)
         
-        side_layout.addWidget(side_header)
+        side_layout.addWidget(self.side_console_title)
         side_layout.addWidget(self.side_tabs)
         self.side_console.setMinimumWidth(280)
         self.side_console.setMaximumWidth(16777215)
