@@ -322,23 +322,21 @@ class AuthPage(ToolModulePage):
         usage_label = QLabel()
         usage_label.setTextFormat(Qt.TextFormat.RichText)
         usage_label.setWordWrap(True)
-        usage_label.setText("""
-<pre style='font-family:monospace;'>
+        usage_label.setText("""<pre style='font-family:monospace;'>
 TLSSLed Usage Example
 Check SSL/TLS on the host (192.168.1.1) and port (443):
 
 root@kali:~# tlssled 192.168.1.1 443
 ------------------------------------------------------
  TLSSLed - (1.3) based on sslscan and openssl
-                 by Raul Siles (www.taddong.com)
+                  by Raul Siles (www.taddong.com)
 ------------------------------------------------------
     openssl version: OpenSSL 1.0.1e 11 Feb 2013
     sslscan version 1.8.2
 ------------------------------------------------------
 [*] Analyzing SSL/TLS on 192.168.1.1:443 ...
     ... (truncated output) ...
-</pre>
-""")
+</pre>""")
         layout.addWidget(usage_label)
         layout.addStretch()
         return panel
