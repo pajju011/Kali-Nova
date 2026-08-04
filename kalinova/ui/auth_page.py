@@ -1,4 +1,6 @@
+# pyrefly: ignore [missing-import]
 from PyQt6.QtWidgets import QLabel, QLineEdit, QComboBox, QFileDialog
+# pyrefly: ignore [missing-import]
 from PyQt6.QtCore import Qt, pyqtSignal
 
 from ui.tool_template import ToolModulePage
@@ -39,7 +41,6 @@ class AuthPage(ToolModulePage):
             panel=self.john_panel,
             focus_widget=self.hash_file,
         )
-
         self.add_tool(
             tool_id="hash_identifier",
             icon="🔎",
@@ -55,6 +56,30 @@ class AuthPage(ToolModulePage):
             description="Identify hash types (hashid)",
             panel=self.hashid_panel,
             focus_widget=self.hashid_input,
+        )
+        self.add_tool(
+            tool_id="sslscan",
+            icon="🔒",
+            name="SSLScan",
+            description="SSL/TLS Scanner",
+            panel=self.sslscan_panel,
+            focus_widget=self.sslscan_target_input,
+        )
+        self.add_tool(
+            tool_id="sslyze",
+            icon="🔐",
+            name="SSLyze",
+            description="Full-Featured SSL Scanner",
+            panel=self.sslyze_panel,
+            focus_widget=self.sslyze_target_input,
+        )
+        self.add_tool(
+            tool_id="tlssled",
+            icon="🛡️",
+            name="TLSSLed",
+            description="SSL/TLS Evaluator",
+            panel=self.tlssled_panel,
+            focus_widget=self.tlssled_host_input,
         )
 
     def _create_hydra_panel(self):
@@ -121,13 +146,6 @@ class AuthPage(ToolModulePage):
             panel=self.sslscan_panel,
             focus_widget=self.sslscan_target_input,
         )
-        self.add_tool(
-            tool_id="wfuzz",
-            icon="🕸️",
-            name="Wfuzz",
-            description="Web application fuzzer",
-            panel=self.wfuzz_panel,
-            focus_widget=self.wfuzz_url_input,
         self.add_tool(
             tool_id="wfuzz",
             icon="🕸️",
@@ -211,6 +229,21 @@ class AuthPage(ToolModulePage):
 
     def show_john_panel(self):
         self.activate_tool("john")
+
+    def show_hash_identifier_panel(self):
+        self.activate_tool("hash_identifier")
+
+    def show_hashid_panel(self):
+        self.activate_tool("hashid")
+
+    def show_sslscan_panel(self):
+        self.activate_tool("sslscan")
+
+    def show_sslyze_panel(self):
+        self.activate_tool("sslyze")
+
+    def show_tlssled_panel(self):
+        self.activate_tool("tlssled")
 
     def select_wordlist(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -359,6 +392,7 @@ class AuthPage(ToolModulePage):
             return
         self.run_command.emit(f"sslyze {target}")
 
+<<<<<<< HEAD
     def _create_wfuzz_panel(self):
         panel, layout = self.create_panel("🕸️ Wfuzz Web Fuzzer")
         self.wfuzz_url_input = QLineEdit()
@@ -380,6 +414,8 @@ class AuthPage(ToolModulePage):
         # Example default command; users can edit the command in the UI later if needed.
         cmd = f"wfuzz -c -z file,/usr/share/wfuzz/wordlist/general/common.txt --hc 404 {url}"
         self.run_command.emit(cmd)
+=======
+>>>>>>> a5e05a07bb31dd605e12183ba96bffe5e9755c50
 
     def _create_tlssled_panel(self):
         panel, layout = self.create_panel("🔐 TLSSLed")
