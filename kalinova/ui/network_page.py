@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (
     QSpinBox, QGroupBox, QHBoxLayout, QVBoxLayout,
     QPushButton, QFileDialog
 )
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal
 
 from ui.tool_template import ToolModulePage
 
@@ -22,6 +22,9 @@ class NetworkPage(ToolModulePage):
         self.netcat_panel = self._create_netcat_panel()
         self.wireshark_panel = self._create_wireshark_panel()
         self.wifite_panel = self._create_wifite_panel()
+        self.sslscan_panel = self._create_sslscan_panel()
+        self.sslyze_panel = self._create_sslyze_panel()
+        self.tlssled_panel = self._create_tlssled_panel()
 
         self.add_tool(
             tool_id="netcat",
@@ -45,6 +48,30 @@ class NetworkPage(ToolModulePage):
             description="Wireless Auditor",
             panel=self.wifite_panel,
             focus_widget=self.wifite_interface_input,
+        )
+        self.add_tool(
+            tool_id="sslscan",
+            icon="🔒",
+            name="SSLScan",
+            description="SSL/TLS Scanner",
+            panel=self.sslscan_panel,
+            focus_widget=self.sslscan_target_input,
+        )
+        self.add_tool(
+            tool_id="sslyze",
+            icon="🔐",
+            name="SSLyze",
+            description="Full-Featured SSL Scanner",
+            panel=self.sslyze_panel,
+            focus_widget=self.sslyze_target_input,
+        )
+        self.add_tool(
+            tool_id="tlssled",
+            icon="🛡️",
+            name="TLSSLed",
+            description="SSL/TLS Evaluator",
+            panel=self.tlssled_panel,
+            focus_widget=self.tlssled_host_input,
         )
 
     def _create_netcat_panel(self):
@@ -198,6 +225,69 @@ class NetworkPage(ToolModulePage):
 
         return panel
 
+    def _create_sslscan_panel(self):
+        panel, layout = self.create_panel("🔒 SSLScan")
+        self.sslscan_target_input = QLineEdit()
+        self.sslscan_target_input.setPlaceholderText("Enter host:port or host")
+        self.sslscan_btn = self.create_primary_button("Run SSLScan")
+        self.sslscan_btn.clicked.connect(self.build_sslscan)
+
+        layout.addWidget(QLabel("Target"))
+        layout.addWidget(self.sslscan_target_input)
+        layout.addWidget(self.sslscan_btn)
+        layout.addStretch()
+        return panel
+
+    def _create_sslyze_panel(self):
+        panel, layout = self.create_panel("🔐 SSLyze")
+        self.sslyze_target_input = QLineEdit()
+        self.sslyze_target_input.setPlaceholderText("Enter host (or host:port)")
+        self.sslyze_btn = self.create_primary_button("Run SSLyze")
+        self.sslyze_btn.clicked.connect(self.build_sslyze)
+
+        layout.addWidget(QLabel("Target"))
+        layout.addWidget(self.sslyze_target_input)
+        layout.addWidget(self.sslyze_btn)
+        layout.addStretch()
+        return panel
+
+    def _create_tlssled_panel(self):
+        panel, layout = self.create_panel("🛡️ TLSSLed")
+        self.tlssled_host_input = QLineEdit()
+        self.tlssled_host_input.setPlaceholderText("Enter host")
+        self.tlssled_port_input = QLineEdit()
+        self.tlssled_port_input.setPlaceholderText("Enter port")
+        self.tlssled_btn = self.create_primary_button("Run TLSSLed")
+        self.tlssled_btn.clicked.connect(self.build_tlssled)
+
+        layout.addWidget(QLabel("Host"))
+        layout.addWidget(self.tlssled_host_input)
+        layout.addWidget(QLabel("Port"))
+        layout.addWidget(self.tlssled_port_input)
+        layout.addWidget(self.tlssled_btn)
+        layout.addStretch()
+        usage_label = QLabel()
+        usage_label.setTextFormat(Qt.TextFormat.RichText)
+        usage_label.setWordWrap(True)
+        usage_label.setText("""<pre style='font-family:monospace;'>
+TLSSLed Usage Example
+Check SSL/TLS on the host (192.168.1.1) and port (443):
+
+root@kali:~# tlssled 192.168.1.1 443
+------------------------------------------------------
+ TLSSLed - (1.3) based on sslscan and openssl
+                  by Raul Siles (www.taddong.com)
+------------------------------------------------------
+    openssl version: OpenSSL 1.0.1e 11 Feb 2013
+    sslscan version 1.8.2
+------------------------------------------------------
+[*] Analyzing SSL/TLS on 192.168.1.1:443 ...
+    ... (truncated output) ...
+</pre>""")
+        layout.addWidget(usage_label)
+        layout.addStretch()
+        return panel
+
     def _on_wifite_mode_changed(self, index):
         if index == 3:  # Check .cap file
             self.wifite_check_file_input.show()
@@ -217,6 +307,15 @@ class NetworkPage(ToolModulePage):
 
     def show_wifite_panel(self):
         self.activate_tool("wifite")
+
+    def show_sslscan_panel(self):
+        self.activate_tool("sslscan")
+
+    def show_sslyze_panel(self):
+        self.activate_tool("sslyze")
+
+    def show_tlssled_panel(self):
+        self.activate_tool("tlssled")
 
     def build_netcat(self):
         target = self.netcat_target_input.text().strip()
@@ -307,3 +406,24 @@ class NetworkPage(ToolModulePage):
 
         self.run_command.emit(" ".join(cmd))
 
+    def build_sslscan(self):
+        target = self.sslscan_target_input.text().strip()
+        if not target:
+            self.emit_validation_error("Target host is required before running.")
+            return
+        self.run_command.emit(f"sslscan {target}")
+
+    def build_sslyze(self):
+        target = self.sslyze_target_input.text().strip()
+        if not target:
+            self.emit_validation_error("Target host is required before running.")
+            return
+        self.run_command.emit(f"sslyze {target}")
+
+    def build_tlssled(self):
+        host = self.tlssled_host_input.text().strip()
+        port = self.tlssled_port_input.text().strip()
+        if not host or not port:
+            self.emit_validation_error("Host and port are required before running.")
+            return
+        self.run_command.emit(f"tlssled {host} {port}")
