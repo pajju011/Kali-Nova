@@ -65,8 +65,9 @@ class ReportsPage(QWidget):
                 border: 1px solid #14213d;
                 border-radius: 8px;
                 color: #38bdf8;
-                font-family: 'Courier New', 'Consolas', monospace;
-                font-size: 11px;
+                font-family: 'Consolas', 'Cascadia Code', 'Courier New', monospace;
+                font-size: 13px;
+                padding: 8px;
             }
             
             QTextEdit#copilotAdviceBox {
@@ -74,8 +75,9 @@ class ReportsPage(QWidget):
                 border: 1px solid #1a2a42;
                 border-radius: 8px;
                 color: #10b981;
-                font-family: 'Courier New', 'Consolas', monospace;
-                font-size: 11px;
+                font-family: 'Consolas', 'Cascadia Code', 'Courier New', monospace;
+                font-size: 13px;
+                padding: 8px;
             }
             
             QPushButton#exportBtn {

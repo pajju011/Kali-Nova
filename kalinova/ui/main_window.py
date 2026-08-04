@@ -1,7 +1,8 @@
+# pyrefly: ignore [missing-import]
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget,
     QVBoxLayout, QHBoxLayout,
-    QLabel, QTabWidget
+    QLabel, QTabWidget, QSplitter, QPushButton
 )
 from PyQt6.QtCore import Qt
 
@@ -44,27 +45,41 @@ class MainWindow(QMainWindow):
         side_layout = QVBoxLayout(self.side_console)
         side_layout.setContentsMargins(8, 8, 8, 8)
         side_layout.setSpacing(6)
+
         self.side_console_title = QLabel("Tool Output")
         self.side_console_title.setObjectName("sideConsoleTitle")
+
         self.side_tabs = QTabWidget()
         self.side_tabs.setObjectName("sideOutputTabs")
         self.side_tabs.setTabsClosable(True)
         self.side_tabs.tabCloseRequested.connect(self._close_output_tab)
+        
         side_layout.addWidget(self.side_console_title)
         side_layout.addWidget(self.side_tabs)
-        self.side_console.setMinimumWidth(340)
-        self.side_console.setMaximumWidth(520)
+        self.side_console.setMinimumWidth(0)
+        self.side_console.setMaximumWidth(16777215)
         self.side_console.hide()
         self.workspace.setObjectName("workspace")
+        self.workspace.setMinimumWidth(0)
+
+        # Splitter between workspace and side output panel with mouse drag handle
+        self.splitter = QSplitter(Qt.Orientation.Horizontal)
+        self.splitter.setObjectName("mainSplitter")
+        self.splitter.setHandleWidth(8)
+        self.splitter.setChildrenCollapsible(False)
+        self.splitter.addWidget(self.workspace)
+        self.splitter.addWidget(self.side_console)
+        self.splitter.setStretchFactor(0, 3)
+        self.splitter.setStretchFactor(1, 2)
+        self.splitter.setCollapsible(0, False)
 
         # =========================
         # Layout Structure
         # =========================
         main_layout.addWidget(self.topbar)
 
-        middle_layout.addWidget(self.sidebar, 1)
-        middle_layout.addWidget(self.workspace, 4)
-        middle_layout.addWidget(self.side_console, 2)
+        middle_layout.addWidget(self.sidebar, 0)
+        middle_layout.addWidget(self.splitter, 1)
 
         main_layout.addLayout(middle_layout)
         # main_layout.addWidget(self.console)
@@ -83,6 +98,7 @@ class MainWindow(QMainWindow):
         self.topbar.mode_changed.connect(
             self.workspace.pages["Recon"].update_mode
         )
+        self.topbar.toggle_output_signal.connect(self.toggle_output_panel)
 
         # =========================
         # Tool Execution Connections
@@ -212,6 +228,15 @@ class MainWindow(QMainWindow):
             )
             return
 
+        if "autopsy" in lower_tool or "forensic" in lower_tool:
+            self._open_tool_panel(
+                page_name="Recon",
+                panel_method="show_autopsy_panel",
+                tool_name="Autopsy",
+                instruction="Configure evidence locker and port, then launch from Recon page.",
+            )
+            return
+
         if "netcat" in lower_tool:
             self._open_tool_panel(
                 page_name="Network",
@@ -227,6 +252,15 @@ class MainWindow(QMainWindow):
                 panel_method="show_wireshark_panel",
                 tool_name="Wireshark",
                 instruction="Launch it from the Network page.",
+            )
+            return
+
+        if "wifite" in lower_tool or "wifi" in lower_tool or "wpa" in lower_tool:
+            self._open_tool_panel(
+                page_name="Network",
+                panel_method="show_wifite_panel",
+                tool_name="Wifite",
+                instruction="Configure interface and wireless scan options, then run from Network page.",
             )
             return
 
@@ -351,6 +385,22 @@ class MainWindow(QMainWindow):
         self.thread = None
         super().closeEvent(event)
 
+    def set_output_panel_split(self, ratio=0.35):
+        if not self.side_console.isVisible():
+            self.side_console.show()
+        total_w = self.splitter.width()
+        if total_w <= 100:
+            total_w = max(1000, self.width() - 240)
+        side_w = int(total_w * ratio)
+        work_w = max(200, total_w - side_w)
+        self.splitter.setSizes([work_w, side_w])
+
+    def toggle_output_panel(self):
+        if self.side_console.isVisible():
+            self.side_console.hide()
+        else:
+            self.set_output_panel_split(0.40)
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_F11:
             if self.isFullScreen():
@@ -362,6 +412,8 @@ class MainWindow(QMainWindow):
         elif event.key() == Qt.Key.Key_Escape and self.isFullScreen():
             self.showMaximized()
             self._log_main("Switched to Maximized window mode.")
+        elif event.key() == Qt.Key.Key_F9 or (event.key() == Qt.Key.Key_O and (event.modifiers() & Qt.KeyboardModifier.ControlModifier)):
+            self.toggle_output_panel()
         else:
             super().keyPressEvent(event)
 
@@ -553,10 +605,38 @@ class MainWindow(QMainWindow):
 
             QLabel#consoleTitle,
             QLabel#sideConsoleTitle {
-                font-size: 12px;
+                font-size: 14px;
                 font-weight: 700;
                 color: #bcd0f5;
-                padding: 0 4px;
+                padding: 2px 4px;
+            }
+
+            QPushButton#slideExpandBtn {
+                padding: 4px 10px;
+                font-size: 11px;
+                font-weight: 700;
+                background-color: #1a273e;
+                border: 1px solid #354a70;
+                border-radius: 6px;
+                color: #38bdf8;
+            }
+            QPushButton#slideExpandBtn:hover {
+                background-color: #24385a;
+                border-color: #38bdf8;
+                color: #ffffff;
+            }
+
+            QSplitter#mainSplitter::handle:horizontal {
+                background-color: #16233b;
+                border-left: 1px solid #2b3e63;
+                border-right: 1px solid #2b3e63;
+                width: 10px;
+            }
+            QSplitter#mainSplitter::handle:horizontal:hover {
+                background-color: #3b82f6;
+            }
+            QSplitter#mainSplitter::handle:horizontal:pressed {
+                background-color: #60a5fa;
             }
 
             QTabWidget#sideOutputTabs::pane {
@@ -569,7 +649,9 @@ class MainWindow(QMainWindow):
                 background-color: #192741;
                 color: #cfe0ff;
                 border: 1px solid #2f4568;
-                padding: 6px 10px;
+                padding: 6px 12px;
+                font-size: 12px;
+                font-weight: 600;
                 margin-right: 2px;
                 border-top-left-radius: 6px;
                 border-top-right-radius: 6px;
@@ -585,8 +667,10 @@ class MainWindow(QMainWindow):
                 border: 1px solid #284f35;
                 background-color: #08100f;
                 color: #6cff9a;
-                font-family: 'Consolas';
-                font-size: 10px;
+                font-family: 'Consolas', 'Cascadia Code', 'Courier New', monospace;
+                font-size: 13px;
+                line-height: 1.5;
+                padding: 8px;
             }
             """
         )

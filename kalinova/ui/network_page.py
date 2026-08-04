@@ -1,4 +1,8 @@
-from PyQt6.QtWidgets import QLabel, QLineEdit, QComboBox
+from PyQt6.QtWidgets import (
+    QLabel, QLineEdit, QComboBox, QCheckBox,
+    QSpinBox, QGroupBox, QHBoxLayout, QVBoxLayout,
+    QPushButton, QFileDialog
+)
 from PyQt6.QtCore import pyqtSignal
 
 from ui.tool_template import ToolModulePage
@@ -17,6 +21,7 @@ class NetworkPage(ToolModulePage):
 
         self.netcat_panel = self._create_netcat_panel()
         self.wireshark_panel = self._create_wireshark_panel()
+        self.wifite_panel = self._create_wifite_panel()
 
         self.add_tool(
             tool_id="netcat",
@@ -32,6 +37,14 @@ class NetworkPage(ToolModulePage):
             name="Wireshark",
             description="Packet Analysis",
             panel=self.wireshark_panel,
+        )
+        self.add_tool(
+            tool_id="wifite",
+            icon="📡",
+            name="Wifite",
+            description="Wireless Auditor",
+            panel=self.wifite_panel,
+            focus_widget=self.wifite_interface_input,
         )
 
     def _create_netcat_panel(self):
@@ -80,11 +93,130 @@ class NetworkPage(ToolModulePage):
 
         return panel
 
+    def _create_wifite_panel(self):
+        panel, layout = self.create_panel("📡 Wifite 2 Wireless Auditor")
+
+        # Mode Selection
+        layout.addWidget(QLabel("Operation Mode"))
+        self.wifite_mode_combo = QComboBox()
+        self.wifite_mode_combo.addItems([
+            "Audit Scan (Default)",
+            "Show Cracked Networks (--cracked)",
+            "Show Ignored Networks (--ignored)",
+            "Check .cap File (--check)",
+            "Update MAC Database (--update-db)"
+        ])
+        self.wifite_mode_combo.currentIndexChanged.connect(self._on_wifite_mode_changed)
+        layout.addWidget(self.wifite_mode_combo)
+
+        # Check File Input (Hidden unless mode is Check .cap File)
+        self.wifite_check_file_input = QLineEdit()
+        self.wifite_check_file_input.setPlaceholderText("Path to .cap file (e.g. hs/*.cap)")
+        self.wifite_check_file_input.hide()
+        layout.addWidget(self.wifite_check_file_input)
+
+        # Interface & Channel
+        row_iface = QHBoxLayout()
+        v_iface = QVBoxLayout()
+        v_iface.addWidget(QLabel("Wireless Interface (-i)"))
+        self.wifite_interface_input = QLineEdit()
+        self.wifite_interface_input.setPlaceholderText("e.g. wlan0mon")
+        v_iface.addWidget(self.wifite_interface_input)
+
+        v_chan = QVBoxLayout()
+        v_chan.addWidget(QLabel("Channel (-c)"))
+        self.wifite_channel_input = QLineEdit()
+        self.wifite_channel_input.setPlaceholderText("e.g. 1,3-6")
+        v_chan.addWidget(self.wifite_channel_input)
+
+        row_iface.addLayout(v_iface)
+        row_iface.addLayout(v_chan)
+        layout.addLayout(row_iface)
+
+        # Protocol Filters Group
+        proto_group = QGroupBox("Protocol Filters")
+        proto_layout = QHBoxLayout()
+        self.chk_wep = QCheckBox("WEP (--wep)")
+        self.chk_wpa = QCheckBox("WPA/WPA2 (--wpa)")
+        self.chk_wpa3 = QCheckBox("WPA3 (--wpa3)")
+        self.chk_owe = QCheckBox("OWE (--owe)")
+        self.chk_wps = QCheckBox("WPS (--wps)")
+        self.chk_pmkid = QCheckBox("PMKID (--pmkid)")
+        proto_layout.addWidget(self.chk_wep)
+        proto_layout.addWidget(self.chk_wpa)
+        proto_layout.addWidget(self.chk_wpa3)
+        proto_layout.addWidget(self.chk_owe)
+        proto_layout.addWidget(self.chk_wps)
+        proto_layout.addWidget(self.chk_pmkid)
+        proto_group.setLayout(proto_layout)
+        layout.addWidget(proto_group)
+
+        # Attack Options Group
+        attack_group = QGroupBox("Attack & Scannning Settings")
+        attack_layout = QVBoxLayout()
+
+        row_chk1 = QHBoxLayout()
+        self.chk_verbose = QCheckBox("Verbose (-v)")
+        self.chk_kill = QCheckBox("Kill Conflicts (--kill)")
+        self.chk_random_mac = QCheckBox("Random MAC (-mac)")
+        self.chk_infinite = QCheckBox("Infinite Mode (-inf)")
+        row_chk1.addWidget(self.chk_verbose)
+        row_chk1.addWidget(self.chk_kill)
+        row_chk1.addWidget(self.chk_random_mac)
+        row_chk1.addWidget(self.chk_infinite)
+        attack_layout.addLayout(row_chk1)
+
+        row_chk2 = QHBoxLayout()
+        self.chk_ignore_cracked = QCheckBox("Hide Cracked (-ic)")
+        self.chk_clients_only = QCheckBox("Clients Only (--clients-only)")
+        self.chk_nodeauths = QCheckBox("No Deauth (--nodeauths)")
+        self.chk_skip_crack = QCheckBox("Skip Crack (--skip-crack)")
+        row_chk2.addWidget(self.chk_ignore_cracked)
+        row_chk2.addWidget(self.chk_clients_only)
+        row_chk2.addWidget(self.chk_nodeauths)
+        row_chk2.addWidget(self.chk_skip_crack)
+        attack_layout.addLayout(row_chk2)
+
+        # Wordlist
+        wordlist_layout = QHBoxLayout()
+        wordlist_layout.addWidget(QLabel("Wordlist (--dict):"))
+        self.wifite_dict_input = QLineEdit()
+        self.wifite_dict_input.setPlaceholderText("/usr/share/dict/wordlist-probable.txt")
+        self.wifite_dict_btn = QPushButton("Browse...")
+        self.wifite_dict_btn.clicked.connect(self._browse_wordlist)
+        wordlist_layout.addWidget(self.wifite_dict_input)
+        wordlist_layout.addWidget(self.wifite_dict_btn)
+        attack_layout.addLayout(wordlist_layout)
+
+        attack_group.setLayout(attack_layout)
+        layout.addWidget(attack_group)
+
+        self.wifite_btn = self.create_primary_button("Run Wifite")
+        self.wifite_btn.clicked.connect(self.build_wifite)
+        layout.addWidget(self.wifite_btn)
+        layout.addStretch()
+
+        return panel
+
+    def _on_wifite_mode_changed(self, index):
+        if index == 3:  # Check .cap file
+            self.wifite_check_file_input.show()
+        else:
+            self.wifite_check_file_input.hide()
+
+    def _browse_wordlist(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, "Select Cracking Wordlist", "", "Text Files (*.txt);;All Files (*)")
+        if file_path:
+            self.wifite_dict_input.setText(file_path)
+
     def show_netcat_panel(self):
         self.activate_tool("netcat")
 
     def show_wireshark_panel(self):
         self.activate_tool("wireshark")
+
+    def show_wifite_panel(self):
+        self.activate_tool("wifite")
 
     def build_netcat(self):
         target = self.netcat_target_input.text().strip()
@@ -107,3 +239,71 @@ class NetworkPage(ToolModulePage):
 
     def launch_wireshark(self):
         self.run_command.emit("wireshark")
+
+    def build_wifite(self):
+        mode = self.wifite_mode_combo.currentText()
+
+        if mode == "Show Cracked Networks (--cracked)":
+            self.run_command.emit("wifite --cracked")
+            return
+        elif mode == "Show Ignored Networks (--ignored)":
+            self.run_command.emit("wifite --ignored")
+            return
+        elif mode == "Update MAC Database (--update-db)":
+            self.run_command.emit("wifite --update-db")
+            return
+        elif mode == "Check .cap File (--check)":
+            cap_file = self.wifite_check_file_input.text().strip()
+            if not cap_file:
+                self.emit_validation_error("A .cap file path is required for handshake checking.")
+                return
+            self.run_command.emit(f"wifite --check {cap_file}")
+            return
+
+        # Audit Scan mode
+        cmd = ["wifite"]
+
+        iface = self.wifite_interface_input.text().strip()
+        if iface:
+            cmd.append(f"-i {iface}")
+
+        chan = self.wifite_channel_input.text().strip()
+        if chan:
+            cmd.append(f"-c {chan}")
+
+        if self.chk_verbose.isChecked():
+            cmd.append("-v")
+        if self.chk_kill.isChecked():
+            cmd.append("--kill")
+        if self.chk_random_mac.isChecked():
+            cmd.append("-mac")
+        if self.chk_infinite.isChecked():
+            cmd.append("-inf")
+        if self.chk_ignore_cracked.isChecked():
+            cmd.append("-ic")
+        if self.chk_clients_only.isChecked():
+            cmd.append("--clients-only")
+        if self.chk_nodeauths.isChecked():
+            cmd.append("--nodeauths")
+        if self.chk_skip_crack.isChecked():
+            cmd.append("--skip-crack")
+
+        if self.chk_wep.isChecked():
+            cmd.append("--wep")
+        if self.chk_wpa.isChecked():
+            cmd.append("--wpa")
+        if self.chk_wpa3.isChecked():
+            cmd.append("--wpa3")
+        if self.chk_owe.isChecked():
+            cmd.append("--owe")
+        if self.chk_wps.isChecked():
+            cmd.append("--wps")
+        if self.chk_pmkid.isChecked():
+            cmd.append("--pmkid")
+
+        dictionary = self.wifite_dict_input.text().strip()
+        if dictionary:
+            cmd.append(f"--dict {dictionary}")
+
+        self.run_command.emit(" ".join(cmd))
+

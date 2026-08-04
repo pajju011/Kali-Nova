@@ -179,6 +179,16 @@ class CommandThread(QThread):
         if "@" in clean and "." in clean and len(clean) > 5:
             app_state.add_event("EMAIL_ENUM")
 
+        # Wireless Handshake / Wifite Detection
+        if "captured" in lower_line and ("handshake" in lower_line or "pmkid" in lower_line):
+            app_state.add_event("WIRELESS_HANDSHAKE")
+            self.output_signal.emit("[ALERT] Wireless handshake/PMKID captured!")
+
+        # Autopsy Digital Forensics Detection
+        if "autopsy forensic browser" in lower_line or "evidence locker" in lower_line:
+            app_state.add_event("FORENSICS_ANALYSIS")
+            self.output_signal.emit("[INFO] Digital forensics session initiated!")
+
     def run_simulation(self, tool_binary, command_args):
         simulated_lines = []
         target = "target-system.local"
@@ -404,6 +414,56 @@ class CommandThread(QThread):
                 "[5] HTTP HTTP/1.1 401 Unauthorized",
                 "[6] TCP 192.168.1.45 -> 192.168.1.100 [FIN, ACK] Seq=1 Ack=2 Win=64240 Len=0",
                 "Capture completed. 6 packets parsed successfully."
+            ]
+
+        elif tool_binary == "wifite":
+            simulated_lines = [
+                "   .               .    ",
+                " .´  ·  .     .  ·  `.  wifite2 2.8.1",
+                " :  :  :  (¯)  :  :  :  a wireless auditor by derv82",
+                " `.  ·  ` /¯\\ ´  ·  .´  maintained by kimocoder",
+                "   `     /¯¯¯\\     ´    https://github.com/kimocoder/wifite2",
+                "",
+                "[+] enabling monitor mode on wlan0... enabled as wlan0mon",
+                "[+] scanning for wireless targets (press Ctrl+C when ready)",
+                " NUM                  ESSID   CH  ENCR  POWER  CLIENTS",
+                " ---  ---------------------  ---  ----  -----  -------",
+                "   1           Corp_Office_5G   36   WPA2    85%        3",
+                "   2           Guest_Network     6   WPA2    62%        1",
+                "   3          Legacy_IoT_AP      1    WEP    45%        0",
+                "[+] select target(s) (1-3) or type all: 1",
+                "[+] targeting Corp_Office_5G (00:11:22:33:44:55)",
+                "[+] listening for PMKID... captured PMKID for Corp_Office_5G!",
+                "[+] deauthenticating clients to capture WPA handshake...",
+                "[+] captured WPA handshake for Corp_Office_5G!",
+                "[+] saved handshake to hs/Corp_Office_5G_00-11-22-33-44-55.cap",
+                "[+] cracking handshake using wordlist...",
+                "[+] KEY FOUND! [ CorporatePass2026! ]",
+                "[+] 1 attack completed, 1 handshake captured, 1 key cracked."
+            ]
+
+        elif tool_binary == "autopsy":
+            port = "9999"
+            if "-p" in command_args:
+                try:
+                    idx = command_args.index("-p")
+                    port = command_args[idx+1]
+                except Exception:
+                    pass
+            simulated_lines = [
+                "===============================================================================",
+                "Autopsy Forensic Browser v2.24",
+                "The Sleuth Kit Graphical Interface for Digital Forensics Analysis",
+                "===============================================================================",
+                "[+] Evidence Locker Directory: /var/lib/autopsy",
+                f"[+] Starting Autopsy HTTP Server on port {port}...",
+                "[+] Host binding: localhost",
+                "[+] Initializing SleuthKit plugins (tsk_loaddb, fls, mactime, srch_strings)...",
+                "[+] Autopsy Forensic Browser server is running!",
+                "",
+                f"    Open your web browser and navigate to: http://localhost:{port}/autopsy",
+                "",
+                "[+] Waiting for incoming browser connection..."
             ]
 
         else:
