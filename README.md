@@ -17,3 +17,19 @@ source venv/bin/activate # On Linux/macOS
 pip install PyQt6 reportlab pytest
 python main.py
 ```
+
+## Authors & Contributors
+
+- **Shravyashree M S**
+- **Pooja**
+- **Shreyank**
+- **Prajwal R Poojary**
+
+## License
+
+Copyright (C) 2026 Shravyashree M S, Pooja, Shreyank, Prajwal R Poojary.
+
+
+This project is licensed under the [GNU General Public License v3.0](file:///c:/Users/ASUS/Desktop/Kali-Nova/LICENSE) - see the [LICENSE](file:///c:/Users/ASUS/Desktop/Kali-Nova/LICENSE) file for details.
+
+
