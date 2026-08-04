@@ -1,4 +1,3 @@
-# pyrefly: ignore [missing-import]
 from PyQt6.QtWidgets import (
     QLabel, QLineEdit, QComboBox, QCheckBox,
     QSpinBox, QGroupBox, QHBoxLayout, QVBoxLayout,
