@@ -1,4 +1,6 @@
+# pyrefly: ignore [missing-import]
 from PyQt6.QtWidgets import QLabel, QLineEdit, QComboBox, QFileDialog
+# pyrefly: ignore [missing-import]
 from PyQt6.QtCore import Qt, pyqtSignal
 
 from ui.tool_template import ToolModulePage
@@ -39,7 +41,6 @@ class AuthPage(ToolModulePage):
             panel=self.john_panel,
             focus_widget=self.hash_file,
         )
-
         self.add_tool(
             tool_id="hash_identifier",
             icon="🔎",
@@ -55,6 +56,30 @@ class AuthPage(ToolModulePage):
             description="Identify hash types (hashid)",
             panel=self.hashid_panel,
             focus_widget=self.hashid_input,
+        )
+        self.add_tool(
+            tool_id="sslscan",
+            icon="🔒",
+            name="SSLScan",
+            description="SSL/TLS Scanner",
+            panel=self.sslscan_panel,
+            focus_widget=self.sslscan_target_input,
+        )
+        self.add_tool(
+            tool_id="sslyze",
+            icon="🔐",
+            name="SSLyze",
+            description="Full-Featured SSL Scanner",
+            panel=self.sslyze_panel,
+            focus_widget=self.sslyze_target_input,
+        )
+        self.add_tool(
+            tool_id="tlssled",
+            icon="🛡️",
+            name="TLSSLed",
+            description="SSL/TLS Evaluator",
+            panel=self.tlssled_panel,
+            focus_widget=self.tlssled_host_input,
         )
 
     def _create_hydra_panel(self):
@@ -131,6 +156,21 @@ class AuthPage(ToolModulePage):
 
     def show_john_panel(self):
         self.activate_tool("john")
+
+    def show_hash_identifier_panel(self):
+        self.activate_tool("hash_identifier")
+
+    def show_hashid_panel(self):
+        self.activate_tool("hashid")
+
+    def show_sslscan_panel(self):
+        self.activate_tool("sslscan")
+
+    def show_sslyze_panel(self):
+        self.activate_tool("sslyze")
+
+    def show_tlssled_panel(self):
+        self.activate_tool("tlssled")
 
     def select_wordlist(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -278,23 +318,6 @@ class AuthPage(ToolModulePage):
             self.emit_validation_error("Target host is required before running.")
             return
         self.run_command.emit(f"sslyze {target}")
-
-        self.add_tool(
-            tool_id="sslscan",
-            icon="🔒",
-            name="SSLScan",
-            description="SSL/TLS Scanner",
-            panel=self.sslscan_panel,
-            focus_widget=self.sslscan_target_input,
-        )
-        self.add_tool(
-            tool_id="sslyze",
-            icon="🔐",
-            name="SSLyze",
-            description="Full‑featured SSL scanner",
-            panel=self.sslyze_panel,
-            focus_widget=self.sslyze_target_input,
-        )
 
 
     def _create_tlssled_panel(self):

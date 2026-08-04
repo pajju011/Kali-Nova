@@ -166,6 +166,33 @@ class MainWindow(QMainWindow):
             )
             return
 
+        if "sslscan" in lower_tool:
+            self._open_tool_panel(
+                page_name="Auth",
+                panel_method="show_sslscan_panel",
+                tool_name="SSLScan",
+                instruction="Enter target host and run it from the Auth page.",
+            )
+            return
+
+        if "sslyze" in lower_tool:
+            self._open_tool_panel(
+                page_name="Auth",
+                panel_method="show_sslyze_panel",
+                tool_name="SSLyze",
+                instruction="Enter target host and run it from the Auth page.",
+            )
+            return
+
+        if "tlssled" in lower_tool:
+            self._open_tool_panel(
+                page_name="Auth",
+                panel_method="show_tlssled_panel",
+                tool_name="TLSSLed",
+                instruction="Enter host and port, then run it from the Auth page.",
+            )
+            return
+
         if "nikto" in lower_tool:
             self._open_tool_panel(
                 page_name="Web",
