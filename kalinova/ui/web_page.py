@@ -19,6 +19,7 @@ class WebPage(ToolModulePage):
         self.nikto_panel = self._create_nikto_panel()
         self.sqlmap_panel = self._create_sqlmap_panel()
         self.gobuster_panel = self._create_gobuster_panel()
+        self.wfuzz_panel = self._create_wfuzz_panel()
 
         self.add_tool(
             tool_id="nikto",
@@ -43,6 +44,14 @@ class WebPage(ToolModulePage):
             description="Directory Brute Force",
             panel=self.gobuster_panel,
             focus_widget=self.gobuster_url,
+        )
+        self.add_tool(
+            tool_id="wfuzz",
+            icon="🕸️",
+            name="Wfuzz",
+            description="Web Application Fuzzer",
+            panel=self.wfuzz_panel,
+            focus_widget=self.wfuzz_url_input,
         )
 
     def _create_nikto_panel(self):
@@ -118,6 +127,22 @@ class WebPage(ToolModulePage):
 
         return panel
 
+    def _create_wfuzz_panel(self):
+        panel, layout = self.create_panel("🕸️ Wfuzz Web Fuzzer")
+
+        self.wfuzz_url_input = QLineEdit()
+        self.wfuzz_url_input.setPlaceholderText("Enter URL with FUZZ placeholder (e.g., http://example.com/FUZZ)")
+
+        self.wfuzz_btn = self.create_primary_button("Run Wfuzz")
+        self.wfuzz_btn.clicked.connect(self.build_wfuzz)
+
+        layout.addWidget(QLabel("Target URL"))
+        layout.addWidget(self.wfuzz_url_input)
+        layout.addWidget(self.wfuzz_btn)
+        layout.addStretch()
+
+        return panel
+
     def show_nikto_panel(self):
         self.activate_tool("nikto")
 
@@ -126,6 +151,9 @@ class WebPage(ToolModulePage):
 
     def show_gobuster_panel(self):
         self.activate_tool("gobuster")
+
+    def show_wfuzz_panel(self):
+        self.activate_tool("wfuzz")
 
     def build_nikto(self):
         url = self.nikto_url.text().strip()
@@ -173,6 +201,14 @@ class WebPage(ToolModulePage):
             return
 
         self.run_command.emit(f"gobuster dir -u \"{url}\" -w \"{wordlist}\"")
+
+    def build_wfuzz(self):
+        url = self.wfuzz_url_input.text().strip()
+        if not url:
+            self.emit_validation_error("Wfuzz URL is required before running.")
+            return
+        cmd = f"wfuzz -c -z file,/usr/share/wfuzz/wordlist/general/common.txt --hc 404 {url}"
+        self.run_command.emit(cmd)
 
     def select_wordlist(self):
         file_path, _ = QFileDialog.getOpenFileName(
