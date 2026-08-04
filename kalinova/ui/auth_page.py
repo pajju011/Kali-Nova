@@ -391,8 +391,6 @@ class AuthPage(ToolModulePage):
             self.emit_validation_error("Target host is required before running.")
             return
         self.run_command.emit(f"sslyze {target}")
-
-<<<<<<< HEAD
     def _create_wfuzz_panel(self):
         panel, layout = self.create_panel("🕸️ Wfuzz Web Fuzzer")
         self.wfuzz_url_input = QLineEdit()
@@ -414,8 +412,6 @@ class AuthPage(ToolModulePage):
         # Example default command; users can edit the command in the UI later if needed.
         cmd = f"wfuzz -c -z file,/usr/share/wfuzz/wordlist/general/common.txt --hc 404 {url}"
         self.run_command.emit(cmd)
-=======
->>>>>>> a5e05a07bb31dd605e12183ba96bffe5e9755c50
 
     def _create_tlssled_panel(self):
         panel, layout = self.create_panel("🔐 TLSSLed")
