@@ -19,7 +19,7 @@ class AuthPage(ToolModulePage):
         self.john_panel = self._create_john_panel()
         self.hash_identifier_panel = self._create_hash_identifier_panel()
         self.hashid_panel = self._create_hashid_panel()
-        self.sslscan_panel = self._create_sslscan_panel()
+        self.wfuzz_panel = self._create_wfuzz_panel()
         self.tlssled_panel = self._create_tlssled_panel()
         self.sslyze_panel = self._create_sslyze_panel()
 
@@ -55,6 +55,86 @@ class AuthPage(ToolModulePage):
             description="Identify hash types (hashid)",
             panel=self.hashid_panel,
             focus_widget=self.hashid_input,
+        )
+
+    def _create_hydra_panel(self):
+        panel, layout = self.create_panel("⚡ Hydra Brute Force")
+
+        self.hydra_target_input = QLineEdit()
+        self.hydra_target_input.setPlaceholderText("Enter target IP")
+
+        self.service_dropdown = QComboBox()
+        self.service_dropdown.addItems([
+            "ssh",
+            "ftp",
+            "http-get",
+            "http-post-form",
+        ])
+
+        self.username_input = QLineEdit()
+        self.username_input.setPlaceholderText("Username")
+
+        self.password_file = QLineEdit()
+        self.password_file.setPlaceholderText("Select password wordlist")
+
+        self.sslyze_panel = self._create_sslyze_panel()
+        self.sslscan_panel = self._create_sslscan_panel()
+
+        self.add_tool(
+            tool_id="hydra",
+            icon="⚡",
+            name="Hydra",
+            description="Brute Force",
+            panel=self.hydra_panel,
+            focus_widget=self.hydra_target_input,
+        )
+        self.add_tool(
+            tool_id="john",
+            icon="🔨",
+            name="John",
+            description="Hash Cracking",
+            panel=self.john_panel,
+            focus_widget=self.hash_file,
+        )
+
+        self.add_tool(
+            tool_id="hash_identifier",
+            icon="🔎",
+            name="Hash Identifier",
+            description="Identify hash types",
+            panel=self.hash_identifier_panel,
+            focus_widget=self.hash_input,
+        )
+        self.add_tool(
+            tool_id="hashid",
+            icon="🔎",
+            name="HashID",
+            description="Identify hash types (hashid)",
+            panel=self.hashid_panel,
+            focus_widget=self.hashid_input,
+        )
+        self.add_tool(
+            tool_id="sslscan",
+            icon="🔒",
+            name="SSLScan",
+            description="SSL/TLS Scanner",
+            panel=self.sslscan_panel,
+            focus_widget=self.sslscan_target_input,
+        )
+        self.add_tool(
+            tool_id="wfuzz",
+            icon="🕸️",
+            name="Wfuzz",
+            description="Web application fuzzer",
+            panel=self.wfuzz_panel,
+            focus_widget=self.wfuzz_url_input,
+        self.add_tool(
+            tool_id="wfuzz",
+            icon="🕸️",
+            name="Wfuzz",
+            description="Web Application Fuzzer",
+            panel=self.wfuzz_panel,
+            focus_widget=self.wfuzz_url_input,
         )
 
     def _create_hydra_panel(self):
@@ -279,23 +359,27 @@ class AuthPage(ToolModulePage):
             return
         self.run_command.emit(f"sslyze {target}")
 
-        self.add_tool(
-            tool_id="sslscan",
-            icon="🔒",
-            name="SSLScan",
-            description="SSL/TLS Scanner",
-            panel=self.sslscan_panel,
-            focus_widget=self.sslscan_target_input,
-        )
-        self.add_tool(
-            tool_id="sslyze",
-            icon="🔐",
-            name="SSLyze",
-            description="Full‑featured SSL scanner",
-            panel=self.sslyze_panel,
-            focus_widget=self.sslyze_target_input,
-        )
+    def _create_wfuzz_panel(self):
+        panel, layout = self.create_panel("🕸️ Wfuzz Web Fuzzer")
+        self.wfuzz_url_input = QLineEdit()
+        self.wfuzz_url_input.setPlaceholderText("Enter URL with FUZZ placeholder (e.g., http://example.com/FUZZ)")
+        self.wfuzz_btn = self.create_primary_button("Run Wfuzz")
+        self.wfuzz_btn.clicked.connect(self.build_wfuzz)
 
+        layout.addWidget(QLabel("Target URL"))
+        layout.addWidget(self.wfuzz_url_input)
+        layout.addWidget(self.wfuzz_btn)
+        layout.addStretch()
+        return panel
+
+    def build_wfuzz(self):
+        url = self.wfuzz_url_input.text().strip()
+        if not url:
+            self.emit_validation_error("Wfuzz URL is required before running.")
+            return
+        # Example default command; users can edit the command in the UI later if needed.
+        cmd = f"wfuzz -c -z file,/usr/share/wfuzz/wordlist/general/common.txt --hc 404 {url}"
+        self.run_command.emit(cmd)
 
     def _create_tlssled_panel(self):
         panel, layout = self.create_panel("🔐 TLSSLed")
@@ -341,4 +425,3 @@ root@kali:~# tlssled 192.168.1.1 443
             self.emit_validation_error("Host and port are required before running.")
             return
         self.run_command.emit(f"tlssled {host} {port}")
-
