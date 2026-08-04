@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 from PyQt6.QtWidgets import (
     QLabel, QLineEdit, QComboBox, QCheckBox,
     QSpinBox, QGroupBox, QHBoxLayout, QVBoxLayout,
@@ -17,11 +18,7 @@ class ReconPage(ToolModulePage):
         super().__init__(
             title="Reconnaissance & Forensics",
             accent_color="#4e8df8",
-<<<<<<< HEAD
-            subtitle="Select a recon tool to reveal its options and run a focused scan.",          
-=======
             subtitle="Select a recon or forensics tool to reveal its options and execute.",
->>>>>>> template1
         )
 
         self.nmap_panel = self._create_nmap_panel()
