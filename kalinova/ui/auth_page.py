@@ -21,9 +21,10 @@ class AuthPage(ToolModulePage):
         self.john_panel = self._create_john_panel()
         self.hash_identifier_panel = self._create_hash_identifier_panel()
         self.hashid_panel = self._create_hashid_panel()
+        self.sslscan_panel = self._create_sslscan_panel()
+        self.sslyze_panel = self._create_sslyze_panel()
         self.wfuzz_panel = self._create_wfuzz_panel()
         self.tlssled_panel = self._create_tlssled_panel()
-        self.sslyze_panel = self._create_sslyze_panel()
 
         self.add_tool(
             tool_id="hydra",
@@ -72,6 +73,14 @@ class AuthPage(ToolModulePage):
             description="Full-Featured SSL Scanner",
             panel=self.sslyze_panel,
             focus_widget=self.sslyze_target_input,
+        )
+        self.add_tool(
+            tool_id="wfuzz",
+            icon="🕸️",
+            name="Wfuzz",
+            description="Web Application Fuzzer",
+            panel=self.wfuzz_panel,
+            focus_widget=self.wfuzz_url_input,
         )
         self.add_tool(
             tool_id="tlssled",
