@@ -189,6 +189,10 @@ class CommandThread(QThread):
             app_state.add_event("FORENSICS_ANALYSIS")
             self.output_signal.emit("[INFO] Digital forensics session initiated!")
 
+        # Wash / Reaver WPS Detection
+        if "wps" in lower_line and ("bssid" in lower_line or "pin" in lower_line or "reaver" in lower_line or "wash" in lower_line):
+            app_state.add_event("WPS_WIFI_AUDIT")
+
     def run_simulation(self, tool_binary, command_args):
         simulated_lines = []
         target = "target-system.local"
@@ -464,6 +468,30 @@ class CommandThread(QThread):
                 f"    Open your web browser and navigate to: http://localhost:{port}/autopsy",
                 "",
                 "[+] Waiting for incoming browser connection..."
+            ]
+
+        elif tool_binary == "wash":
+            simulated_lines = [
+                "BSSID               Ch  dBm  WPS  Lck  Vendor    ESSID",
+                "--------------------------------------------------------------------------------",
+                "E0:3F:49:6A:57:78    6  -73  1.0  No   Unknown   ASUS"
+            ]
+
+        elif tool_binary == "reaver":
+            bssid = "E0:3F:49:6A:57:78"
+            if "-b" in command_args:
+                try:
+                    idx = command_args.index("-b")
+                    bssid = command_args[idx+1]
+                except Exception:
+                    pass
+            simulated_lines = [
+                "Reaver v1.6.5 WiFi Protected Setup Attack Tool",
+                "Copyright (c) 2011, Tactical Network Solutions, Craig Heffner <cheffner@tacnetsol.com>",
+                "",
+                f"[+] Waiting for beacon from {bssid}",
+                f"[+] Associated with {bssid} (ESSID: ASUS)",
+                "[+] Trying pin 12345670"
             ]
 
         else:

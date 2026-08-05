@@ -125,6 +125,87 @@ class NetworkPageWifiteBehaviorTests(unittest.TestCase):
         self.assertIn(".cap file", errors[0])
 
 
+class NetworkPageWashAndReaverBehaviorTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_wash_tool_panel_activation(self):
+        page = NetworkPage()
+        page.show()
+
+        button = page._tool_buttons["wash"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "wash")
+
+    def test_wash_command_generation(self):
+        page = NetworkPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.wash_interface_input.setText("wlan0mon")
+        page.wash_channel_input.setText("6")
+        page.chk_wash_ignore_fcs.setChecked(True)
+
+        page.build_wash()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "wash -i wlan0mon -c 6 -C")
+
+    def test_wash_validation_error(self):
+        page = NetworkPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.build_wash()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Monitor interface is required", errors[0])
+
+    def test_reaver_tool_panel_activation(self):
+        page = NetworkPage()
+        page.show()
+
+        button = page._tool_buttons["reaver"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "reaver")
+
+    def test_reaver_command_generation_with_pixie(self):
+        page = NetworkPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.reaver_interface_input.setText("wlan0mon")
+        page.reaver_bssid_input.setText("E0:3F:49:6A:57:78")
+        page.chk_reaver_pixie.setChecked(True)
+        page.chk_reaver_verbose.setChecked(True)
+
+        page.build_reaver()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "reaver -i wlan0mon -b E0:3F:49:6A:57:78 -K -v")
+
+    def test_reaver_validation_error(self):
+        page = NetworkPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.reaver_interface_input.setText("wlan0mon")
+        page.build_reaver()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Target BSSID is required", errors[0])
+
+
 if __name__ == "__main__":
     unittest.main()
+
 
