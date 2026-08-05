@@ -21,6 +21,7 @@ class AuthPage(ToolModulePage):
         self.john_panel = self._create_john_panel()
         self.hash_identifier_panel = self._create_hash_identifier_panel()
         self.hashid_panel = self._create_hashid_panel()
+        self.wordlists_panel = self._create_wordlists_panel()
 
         self.add_tool(
             tool_id="hydra",
@@ -53,6 +54,14 @@ class AuthPage(ToolModulePage):
             description="Identify hash types (hashid)",
             panel=self.hashid_panel,
             focus_widget=self.hashid_input,
+        )
+        self.add_tool(
+            tool_id="wordlists",
+            icon="📚",
+            name="Wordlists",
+            description="Wordlist Manager",
+            panel=self.wordlists_panel,
+            focus_widget=self.wordlist_action_combo,
         )
 
     def _create_hydra_panel(self):
@@ -150,6 +159,38 @@ class AuthPage(ToolModulePage):
         layout.addStretch()
         return panel
 
+    def _create_wordlists_panel(self):
+        panel, layout = self.create_panel("📚 Wordlists Manager & Helper")
+
+        self.wordlist_action_combo = QComboBox()
+        self.wordlist_action_combo.addItems([
+            "List System Wordlists",
+            "Decompress RockYou (.gz)",
+            "Wordlist Info / Line Count",
+            "Find All Wordlist Files",
+            "Install Wordlists Package",
+        ])
+
+        self.wordlist_target_path = QLineEdit()
+        self.wordlist_target_path.setText("/usr/share/wordlists/rockyou.txt")
+        self.wordlist_target_path.setPlaceholderText("Enter file or directory path")
+
+        self.wordlist_browse_btn = self.create_secondary_button("Browse Wordlist File")
+        self.wordlist_browse_btn.clicked.connect(self.select_wordlist_target)
+
+        self.wordlists_btn = self.create_primary_button("Execute Action")
+        self.wordlists_btn.clicked.connect(self.build_wordlists)
+
+        layout.addWidget(QLabel("Action"))
+        layout.addWidget(self.wordlist_action_combo)
+        layout.addWidget(QLabel("Target Wordlist File / Directory"))
+        layout.addWidget(self.wordlist_target_path)
+        layout.addWidget(self.wordlist_browse_btn)
+        layout.addWidget(self.wordlists_btn)
+        layout.addStretch()
+
+        return panel
+
     def show_hydra_panel(self):
         self.activate_tool("hydra")
 
@@ -161,6 +202,9 @@ class AuthPage(ToolModulePage):
 
     def show_hashid_panel(self):
         self.activate_tool("hashid")
+
+    def show_wordlists_panel(self):
+        self.activate_tool("wordlists")
 
     def select_wordlist(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -191,6 +235,16 @@ class AuthPage(ToolModulePage):
         )
         if file_path:
             self.john_wordlist.setText(file_path)
+
+    def select_wordlist_target(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select Wordlist File",
+            "/usr/share/wordlists",
+            "All Files (*)",
+        )
+        if file_path:
+            self.wordlist_target_path.setText(file_path)
 
     def build_hydra(self):
         target = self.hydra_target_input.text().strip()
@@ -241,3 +295,26 @@ class AuthPage(ToolModulePage):
             self.emit_validation_error("Hash value is required before running.")
             return
         self.run_command.emit(f"hashid {hash_val}")
+
+    def build_wordlists(self):
+        action = self.wordlist_action_combo.currentText()
+        target_path = self.wordlist_target_path.text().strip()
+
+        if action == "List System Wordlists":
+            path = target_path if target_path else "/usr/share/wordlists/"
+            self.run_command.emit(f"ls -lh \"{path}\"")
+        elif action == "Decompress RockYou (.gz)":
+            gz_path = target_path if target_path else "/usr/share/wordlists/rockyou.txt.gz"
+            if not gz_path.endswith(".gz"):
+                gz_path = "/usr/share/wordlists/rockyou.txt.gz"
+            self.run_command.emit(f"gunzip -k \"{gz_path}\"")
+        elif action == "Wordlist Info / Line Count":
+            if not target_path:
+                self.emit_validation_error("Target wordlist path is required for line counting.")
+                return
+            self.run_command.emit(f"wc -l \"{target_path}\"")
+        elif action == "Find All Wordlist Files":
+            search_path = target_path if target_path else "/usr/share/wordlists"
+            self.run_command.emit(f"find \"{search_path}\" -type f")
+        elif action == "Install Wordlists Package":
+            self.run_command.emit("sudo apt update && sudo apt install -y wordlists")

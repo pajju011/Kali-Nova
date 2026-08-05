@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import QApplication
 
 from ui.recon_page import ReconPage
 from ui.network_page import NetworkPage
+from ui.auth_page import AuthPage
 
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -123,6 +124,75 @@ class NetworkPageWifiteBehaviorTests(unittest.TestCase):
 
         self.assertEqual(len(errors), 1)
         self.assertIn(".cap file", errors[0])
+
+
+class AuthPageWordlistsBehaviorTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_wordlists_tool_panel_activation(self):
+        page = AuthPage()
+        page.show()
+
+        button = page._tool_buttons["wordlists"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "wordlists")
+
+    def test_wordlists_command_generation_list(self):
+        page = AuthPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.wordlist_action_combo.setCurrentIndex(0)  # List System Wordlists
+        page.wordlist_target_path.setText("/usr/share/wordlists")
+        page.build_wordlists()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], 'ls -lh "/usr/share/wordlists"')
+
+    def test_wordlists_command_generation_decompress(self):
+        page = AuthPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.wordlist_action_combo.setCurrentIndex(1)  # Decompress RockYou (.gz)
+        page.wordlist_target_path.setText("/usr/share/wordlists/rockyou.txt.gz")
+        page.build_wordlists()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], 'gunzip -k "/usr/share/wordlists/rockyou.txt.gz"')
+
+    def test_wordlists_command_generation_line_count(self):
+        page = AuthPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.wordlist_action_combo.setCurrentIndex(2)  # Wordlist Info / Line Count
+        page.wordlist_target_path.setText("/usr/share/wordlists/rockyou.txt")
+        page.build_wordlists()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], 'wc -l "/usr/share/wordlists/rockyou.txt"')
+
+    def test_wordlists_command_generation_install(self):
+        page = AuthPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.wordlist_action_combo.setCurrentIndex(4)  # Install Wordlists Package
+        page.build_wordlists()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "sudo apt update && sudo apt install -y wordlists")
 
 
 if __name__ == "__main__":

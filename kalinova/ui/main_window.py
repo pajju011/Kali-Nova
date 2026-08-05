@@ -174,6 +174,15 @@ class MainWindow(QMainWindow):
             )
             return
 
+        if "wordlist" in lower_tool:
+            self._open_tool_panel(
+                page_name="Auth",
+                panel_method="show_wordlists_panel",
+                tool_name="Wordlists",
+                instruction="Select wordlist action and run it from the Auth page.",
+            )
+            return
+
         if "sslscan" in lower_tool:
             self._open_tool_panel(
                 page_name="Auth",
