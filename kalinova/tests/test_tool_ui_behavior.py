@@ -195,6 +195,78 @@ class AuthPageWordlistsBehaviorTests(unittest.TestCase):
         self.assertEqual(commands[0], "sudo apt update && sudo apt install -y wordlists")
 
 
+class AuthPageHashcatBehaviorTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_hashcat_tool_panel_activation(self):
+        page = AuthPage()
+        page.show()
+
+        button = page._tool_buttons["hashcat"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "hashcat")
+
+    def test_hashcat_command_generation_benchmark(self):
+        page = AuthPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.hashcat_mode_combo.setCurrentIndex(1)  # Benchmark Mode (-b)
+        page.chk_hashcat_optimized.setChecked(True)
+        page.build_hashcat()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "hashcat -b -O")
+
+    def test_hashcat_command_generation_dictionary_attack(self):
+        page = AuthPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.hashcat_hash_input.setText("example500.hash")
+        page.hashcat_hash_type_combo.setCurrentText("500 - md5crypt, MD5 (Unix)")
+        page.hashcat_wordlist_input.setText("/usr/share/wordlists/sqlmap.txt")
+        page.build_hashcat()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], 'hashcat -a 0 -m 500 "example500.hash" "/usr/share/wordlists/sqlmap.txt"')
+
+    def test_hashcat_command_generation_mask_attack(self):
+        page = AuthPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.hashcat_hash_input.setText("example0.hash")
+        page.hashcat_hash_type_combo.setCurrentText("0 - MD5")
+        page.hashcat_attack_mode_combo.setCurrentText("3 | Brute-force / Mask")
+        page.hashcat_mask_rule_input.setText("?a?a?a?a?a?a")
+        page.build_hashcat()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], 'hashcat -a 3 -m 0 "example0.hash" "?a?a?a?a?a?a"')
+
+    def test_hashcat_validation_error_when_hash_missing(self):
+        page = AuthPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.build_hashcat()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Hashcat target hash or hash file is required", errors[0])
+
+
 if __name__ == "__main__":
     unittest.main()
+
 

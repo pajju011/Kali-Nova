@@ -174,6 +174,15 @@ class MainWindow(QMainWindow):
             )
             return
 
+        if "hashcat" in lower_tool:
+            self._open_tool_panel(
+                page_name="Auth",
+                panel_method="show_hashcat_panel",
+                tool_name="Hashcat",
+                instruction="Configure hash file and cracking options, then run it from the Auth page.",
+            )
+            return
+
         if "wordlist" in lower_tool:
             self._open_tool_panel(
                 page_name="Auth",
