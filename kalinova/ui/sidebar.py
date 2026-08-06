@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton
 from PyQt6.QtCore import pyqtSignal
 
