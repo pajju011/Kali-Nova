@@ -410,20 +410,22 @@ class ToolModulePage(QScrollArea):
         ai_assist_btn.setToolTip("Scan active screen parameters in background and suggest next steps")
         ai_assist_btn.setStyleSheet("""
             QPushButton {
-                background: linear-gradient(135deg, #00f0ff 0%, #3b82f6 100%);
-                color: #050b14;
-                font-weight: bold;
+                background-color: #0c2038;
+                color: #00f0ff;
+                font-weight: 800;
                 font-size: 11px;
                 border-radius: 6px;
-                padding: 5px 12px;
-                border: none;
+                padding: 6px 14px;
+                border: 1px solid #00f0ff;
             }
             QPushButton:hover {
-                background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 100%);
-                color: #000000;
+                background-color: #00f0ff;
+                color: #050b14;
+                border: 1px solid #38bdf8;
             }
         """)
         ai_assist_btn.clicked.connect(self._on_header_ai_assist_clicked)
+
 
         header_row.addWidget(title_label)
         header_row.addStretch()

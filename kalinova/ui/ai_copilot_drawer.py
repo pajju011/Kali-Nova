@@ -49,17 +49,20 @@ class AICopilotDrawer(QFrame):
                 padding: 8px;
             }
             QPushButton#reanalyzeBtn {
-                background: linear-gradient(135deg, #00f0ff 0%, #3b82f6 100%);
-                color: #050b14;
+                background-color: #0c2038;
+                color: #00f0ff;
                 font-weight: bold;
                 font-size: 12px;
                 border-radius: 6px;
                 padding: 8px 14px;
-                border: none;
+                border: 1px solid #00f0ff;
             }
             QPushButton#reanalyzeBtn:hover {
-                background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 100%);
+                background-color: #00f0ff;
+                color: #050b14;
+                border: 1px solid #38bdf8;
             }
+
             QTextEdit#drawerOutput {
                 background-color: #060c18;
                 color: #10b981;
