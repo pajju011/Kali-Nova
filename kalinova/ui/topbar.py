@@ -9,6 +9,7 @@ class TopBar(QWidget):
 
     mode_changed = pyqtSignal(str)
     toggle_output_signal = pyqtSignal()
+    toggle_ai_copilot_signal = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -21,6 +22,28 @@ class TopBar(QWidget):
 
         self.title = QLabel("KALINOVA OS")
         self.title.setObjectName("topTitle")
+
+        # Sparkle AI Copilot Button
+        self.ai_copilot_btn = QPushButton("✦ AI Copilot")
+        self.ai_copilot_btn.setObjectName("topAiCopilotBtn")
+        self.ai_copilot_btn.setToolTip("Open AI Copilot Assistant & Setup Inspector (Ctrl+I)")
+        self.ai_copilot_btn.clicked.connect(self.toggle_ai_copilot_signal.emit)
+        self.ai_copilot_btn.setStyleSheet("""
+            QPushButton#topAiCopilotBtn {
+                padding: 6px 14px;
+                font-size: 12px;
+                font-weight: bold;
+                background: linear-gradient(135deg, #00f0ff 0%, #3b82f6 100%);
+                border: 1px solid #00f0ff;
+                border-radius: 8px;
+                color: #050b14;
+            }
+            QPushButton#topAiCopilotBtn:hover {
+                background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 100%);
+                border-color: #38bdf8;
+                color: #000000;
+            }
+        """)
 
         self.output_btn = QPushButton("📟 Tool Output")
         self.output_btn.setObjectName("outputToggleBtn")
@@ -37,7 +60,7 @@ class TopBar(QWidget):
                 color: #a5c2f5;
             }
             QPushButton#outputToggleBtn:hover {
-                background-color: #243758;
+                background-color: #24385a;
                 border-color: #4d89ff;
                 color: #ffffff;
             }
@@ -54,6 +77,7 @@ class TopBar(QWidget):
 
         layout.addWidget(self.title)
         layout.addStretch()
+        layout.addWidget(self.ai_copilot_btn)
         layout.addWidget(self.output_btn)
         layout.addWidget(self.mode_selector)
         layout.addWidget(self.risk_label)

@@ -46,7 +46,20 @@ class MainWindowBehaviorTests(unittest.TestCase):
     def setUpClass(cls):
         cls.app = QApplication.instance() or QApplication([])
 
+    def test_topbar_ai_copilot_button_toggles_drawer(self):
+        window = MainWindow()
+        window.show()
+        self.assertTrue(window.ai_drawer.isHidden())
+
+        window.topbar.ai_copilot_btn.click()
+        self.assertFalse(window.ai_drawer.isHidden())
+
+        window.topbar.ai_copilot_btn.click()
+        self.assertTrue(window.ai_drawer.isHidden())
+
+
     def test_side_console_hidden_by_default_and_for_validation(self):
+
         window = MainWindow()
         window.show()
 

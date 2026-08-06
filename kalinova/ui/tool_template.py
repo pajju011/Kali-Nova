@@ -327,14 +327,10 @@ class ToolModulePage(QScrollArea):
         self.panel_stack.addWidget(self.empty_panel)
 
         panel_layout.addWidget(self.panel_stack)
-
-        # Integrated AI Copilot Tool Assistant widget
-        self.copilot_widget = ToolCopilotWidget(parent_page=self)
-        panel_layout.addWidget(self.copilot_widget)
-
         main_layout.addWidget(panel_container, 1)
 
         self.setWidget(self.container)
+
 
     def get_active_tool_context(self):
         tool_id = self._selected_tool
@@ -439,7 +435,7 @@ class ToolModulePage(QScrollArea):
         for key, button in self._tool_buttons.items():
             button.set_active(key == tool_id)
 
-        if tool_id in self._tool_names:
+        if hasattr(self, "copilot_widget") and tool_id in self._tool_names:
             tool_name = self._tool_names[tool_id]
             self.copilot_widget.set_tool(tool_id, tool_name)
 
@@ -455,8 +451,10 @@ class ToolModulePage(QScrollArea):
     def clear_tool_selection(self):
         self._selected_tool = None
         self.panel_stack.setCurrentIndex(0)
-        self.copilot_widget.set_tool("general", "Security Tools")
+        if hasattr(self, "copilot_widget"):
+            self.copilot_widget.set_tool("general", "Security Tools")
 
         for button in self._tool_buttons.values():
             button.set_active(False)
+
 
