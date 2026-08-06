@@ -222,13 +222,239 @@ const secureEmail = 'info' + '@' + 'targetdomain.com';
             return AICopilot._query_ollama(context_info, user_prompt, model, ollama_url)
 
         else:
-            # Heuristic offline fallback
+            return AICopilot._query_heuristic(context_info, user_prompt)
+
+    @staticmethod
+    def _query_heuristic(context_info: str = "", user_prompt: str = "") -> str:
+        prompt_lower = user_prompt.lower().strip()
+        context_lower = context_info.lower().strip()
+
+        tools_db = {
+            "nmap": {
+                "name": "Nmap (Network Mapper)",
+                "usage": "nmap -sV -A <target_ip>",
+                "description": "Nmap is an open-source network discovery and vulnerability scanner used to discover hosts, open ports, and running service versions.",
+                "flags": [
+                    "• `-sV`: Enable service/version detection on open ports.",
+                    "• `-A`: Aggressive scan mode (enables OS detection, version detection, script scanning, and traceroute).",
+                    "• `-p <ports>`: Specify custom target port numbers (e.g. `-p 80,443` or `-p 1-65535`).",
+                    "• `-sS`: Stealth SYN scan (requires root/sudo privileges)."
+                ],
+                "advice": "Run service detection `-sV` first to identify exposed services, then analyze specific open ports for outdated software versions."
+            },
+            "nikto": {
+                "name": "Nikto Web Scanner",
+                "usage": "nikto -h http://<target_url>",
+                "description": "Nikto performs comprehensive web server testing for dangerous files, outdated server software, and misconfigured headers.",
+                "flags": [
+                    "• `-h <host>`: Target host URL or IP address.",
+                    "• `-ssl`: Force SSL/TLS encrypted connection mode.",
+                    "• `-Call`: Test all CGI directories."
+                ],
+                "advice": "Use Nikto to audit web server headers (X-Frame-Options, CSP, HSTS) and hidden administrative directories."
+            },
+            "sqlmap": {
+                "name": "SQLmap Automatic SQL Injection Engine",
+                "usage": "sqlmap -u \"http://target.com/page.php?id=1\" --batch",
+                "description": "SQLmap detects and exploits SQL injection vulnerabilities in web application database parameters.",
+                "flags": [
+                    "• `-u <url>`: Target URL containing dynamic GET/POST parameters.",
+                    "• `--batch`: Run non-interactively with default answers.",
+                    "• `--level=1..5`: Increase test depth (Level 5 tests HTTP headers like Referer and User-Agent).",
+                    "• `--dbs`: Enumerate available database names upon successful injection."
+                ],
+                "advice": "Remediate SQL injection by converting raw SQL queries to parameterized queries (Prepared Statements)."
+            },
+            "gobuster": {
+                "name": "Gobuster Directory Brute Force",
+                "usage": "gobuster dir -u http://target.com -w /usr/share/wordlists/dirb/common.txt",
+                "description": "Gobuster performs high-speed directory and file brute-forcing on web servers to locate hidden URIs.",
+                "flags": [
+                    "• `dir`: Directory brute-forcing mode.",
+                    "• `-u <url>`: Target URL.",
+                    "• `-w <wordlist>`: Path to wordlist dictionary.",
+                    "• `-x php,txt,html`: Search for specific file extensions."
+                ],
+                "advice": "Disable directory autoindexing (`autoindex off;`) and restrict access to backup zip files or `.env` configs."
+            },
+            "wfuzz": {
+                "name": "Wfuzz Web Application Fuzzer",
+                "usage": "wfuzz -c -z file,wordlist.txt --hc 404 http://example.com/FUZZ",
+                "description": "Wfuzz is a flexible web fuzzer designed to test parameters, directories, and headers by replacing `FUZZ` placeholders.",
+                "flags": [
+                    "• `-z file,<path>`: Specify wordlist payload generator.",
+                    "• `--hc 404`: Hide response HTTP status code 404.",
+                    "• `-c`: Enable colorized output format."
+                ],
+                "advice": "Filter out common error HTTP status codes (`--hc 404,403`) to highlight valid endpoints."
+            },
+            "hydra": {
+                "name": "Hydra Network Login Cracker",
+                "usage": "hydra -l admin -P passwords.txt <target_ip> ssh",
+                "description": "Hydra is a parallelized login brute-forcer supporting SSH, FTP, HTTP-Form, SMB, MySQL, and database services.",
+                "flags": [
+                    "• `-l <user>` / `-L <userlist>`: Target username or user list file.",
+                    "• `-p <pass>` / `-P <passlist>`: Password or dictionary list file.",
+                    "• `<service>`: Protocol target (ssh, ftp, http-post-form, etc.)."
+                ],
+                "advice": "Mitigate Hydra brute forcing by enforcing Fail2ban rate-limiting and SSH key-based authentication."
+            },
+            "john": {
+                "name": "John the Ripper Password Cracker",
+                "usage": "john --wordlist=passwords.txt hash_file.txt",
+                "description": "John the Ripper cracks password hashes using dictionary, rule-based, and brute-force modes.",
+                "flags": [
+                    "• `--wordlist=<path>`: Wordlist path for dictionary attack.",
+                    "• `--format=<format>`: Explicitly define hash format (e.g. `raw-md5`, `NT`, `sha512crypt`).",
+                    "• `--show`: Display previously cracked password entries."
+                ],
+                "advice": "Migrate legacy hash algorithms (MD5, SHA1) to key-stretching hashing functions like bcrypt or Argon2id."
+            },
+            "hashid": {
+                "name": "HashID & Hash Identifier",
+                "usage": "hashid <hash_string>",
+                "description": "Identifies password hash types based on length, character set, and structural signatures.",
+                "flags": [
+                    "• `-m`: Show corresponding Hashcat mode IDs.",
+                    "• `-j`: Show corresponding John the Ripper format strings."
+                ],
+                "advice": "Use HashID to determine proper formatting before invoking John the Ripper or Hashcat."
+            },
+            "netcat": {
+                "name": "Netcat (nc) Swiss Army Knife",
+                "usage": "nc -lvnp 4444 (Listener) | nc <ip> <port> (Client)",
+                "description": "Netcat reads and writes data across network connections using TCP/UDP protocols.",
+                "flags": [
+                    "• `-l`: Listen mode for incoming connections.",
+                    "• `-v`: Verbose output mode.",
+                    "• `-n`: Skip DNS resolution.",
+                    "• `-p`: Specify local listener port number."
+                ],
+                "advice": "Ensure exposed listening ports are protected with firewall rules and encrypted payloads."
+            },
+            "wireshark": {
+                "name": "Wireshark Packet Analyzer",
+                "usage": "wireshark",
+                "description": "Wireshark provides deep packet inspection and live traffic capture across network interfaces.",
+                "flags": [
+                    "• Capture Filters: `host 192.168.1.1` or `port 80`",
+                    "• Display Filters: `http.request.method == \"POST\"` or `tcp.flags.syn == 1`"
+                ],
+                "advice": "Enforce HTTPS/TLS to prevent sensitive plaintext data leakage on packet analyzers."
+            },
+            "wifite": {
+                "name": "Wifite 2 Wireless Security Auditor",
+                "usage": "wifite -i wlan0mon --wpa",
+                "description": "Wifite automates wireless network auditing for WEP, WPA/WPA2 handshakes, WPS PINs, and PMKID capture.",
+                "flags": [
+                    "• `-i <interface>`: Specify wireless monitor-mode interface.",
+                    "• `--wpa`: Target WPA/WPA2 networks only.",
+                    "• `--kill`: Terminate conflicting background processes."
+                ],
+                "advice": "Disable WPS on wireless routers and use strong WPA3-SAE passphrases."
+            },
+            "autopsy": {
+                "name": "Autopsy Digital Forensics Browser",
+                "usage": "autopsy -d /var/lib/autopsy -p 9999",
+                "description": "Autopsy provides a web-based GUI for forensic disk analysis, evidence analysis, and deleted file recovery.",
+                "flags": [
+                    "• `-d <dir>`: Base directory for evidence storage.",
+                    "• `-p <port>`: Port number for HTML browser interface."
+                ],
+                "advice": "Use read-only forensic write-blockers when attaching target drive media."
+            },
+            "sslscan": {
+                "name": "SSLScan SSL/TLS Protocol Auditor",
+                "usage": "sslscan <target_host>:443",
+                "description": "SSLScan audits SSL/TLS services for supported ciphers, preferred protocols, and TLS vulnerabilities.",
+                "flags": [
+                    "• `--no-failed`: Hide unsupported cipher suites.",
+                    "• `--show-certificate`: Display full X.509 certificate metadata."
+                ],
+                "advice": "Disable SSLv3, TLS 1.0, and TLS 1.1; enforce TLS 1.2+ with modern ECDHE cipher suites."
+            },
+            "sslyze": {
+                "name": "SSLyze Python SSL Analyzer",
+                "usage": "sslyze <target_host>",
+                "description": "SSLyze analyzes SSL/TLS configurations, certificate validation, robot attacks, and session renegotiation.",
+                "flags": ["• `--regular`: Perform standard suite of SSL/TLS security checks."],
+                "advice": "Verify certificate chain trust and deploy HTTP Strict Transport Security (HSTS)."
+            },
+            "tlssled": {
+                "name": "TLSSLed Shell Wrapper",
+                "usage": "tlssled <host> <port>",
+                "description": "TLSSLed evaluates SSL/TLS web servers based on sslscan and openssl checks.",
+                "flags": ["• `<host> <port>`: Specify host address and target SSL port."],
+                "advice": "Review output for weak 56-bit or 40-bit export ciphers."
+            },
+            "whois": {
+                "name": "Whois Domain Lookup",
+                "usage": "whois <domain.com>",
+                "description": "Whois queries domain name registrar records, owner contact details, and DNS name servers.",
+                "flags": ["• `<domain>`: Target domain name."],
+                "advice": "Enable WHOIS privacy protection to hide owner email addresses from scrapers."
+            },
+            "harvester": {
+                "name": "theHarvester OSINT Collector",
+                "usage": "theHarvester -d <domain> -b google",
+                "description": "theHarvester gathers emails, subdomains, hosts, employee names, and open ports from public search engines.",
+                "flags": [
+                    "• `-d <domain>`: Target company domain.",
+                    "• `-b <source>`: Data source (google, bing, duckduckgo, etc.)."
+                ],
+                "advice": "Train employees to spot spear-phishing attempts leveraging OSINT email leakage."
+            }
+        }
+
+        matched_tool_key = None
+        for key in tools_db:
+            if key in prompt_lower or key in context_lower:
+                matched_tool_key = key
+                break
+
+        res = "🤖 **[Kali-Nova AI Copilot Advisory]**\n\n"
+
+        if matched_tool_key:
+            tool_info = tools_db[matched_tool_key]
+            res += f"📌 **Active Tool Context: {tool_info['name']}**\n"
+            res += f"{tool_info['description']}\n\n"
+            res += f"💻 **Recommended Command Syntax:**\n`{tool_info['usage']}`\n\n"
+            res += "⚙️ **Key Execution Flags:**\n" + "\n".join(tool_info['flags']) + "\n\n"
+            res += f"🛡️ **Remediation & Security Recommendation:**\n{tool_info['advice']}\n\n"
+
+        if "sqli" in prompt_lower or "sql injection" in prompt_lower:
+            vm = AICopilot.VULN_MAPPINGS["SQL_INJECTION"]
+            res += f"🚨 **{vm['title']}** (CVSS: {vm['cvss']} - {vm['severity']})\n"
+            res += f"{vm['description']}\n\n"
+            res += "**Python Code Remediation:**\n```python\n" + vm["remediation_python"] + "```\n\n"
+        elif "brute" in prompt_lower or "hydra" in prompt_lower or "password" in prompt_lower or "crack" in prompt_lower:
+            vm = AICopilot.VULN_MAPPINGS["BRUTE_FORCE"]
+            res += f"⚡ **{vm['title']}** (CVSS: {vm['cvss']} - {vm['severity']})\n"
+            res += f"{vm['description']}\n\n"
+            res += "**Python Code Remediation:**\n```python\n" + vm["remediation_python"] + "```\n\n"
+        elif "dir" in prompt_lower or "directory" in prompt_lower or "gobuster" in prompt_lower or "wfuzz" in prompt_lower:
+            vm = AICopilot.VULN_MAPPINGS["DIR_ENUM"]
+            res += f"📂 **{vm['title']}** (CVSS: {vm['cvss']} - {vm['severity']})\n"
+            res += f"{vm['description']}\n\n"
+            res += "**Nginx Server Remediation:**\n```nginx\n" + vm["remediation_python"] + "```\n\n"
+        elif "email" in prompt_lower or "osint" in prompt_lower or "harvester" in prompt_lower:
+            vm = AICopilot.VULN_MAPPINGS["EMAIL_ENUM"]
+            res += f"🕵️ **{vm['title']}** (CVSS: {vm['cvss']} - {vm['severity']})\n"
+            res += f"{vm['description']}\n\n"
+
+        if user_prompt:
+            res += f"❓ **User Query Answer:**\n"
+            res += f"Regarding your question *\"{user_prompt}\"*: Ensure target parameters match authorization scope. "
+            res += "Configure scan intensity according to network boundaries, and apply input validation or host hardening as recommended above.\n\n"
+        elif not matched_tool_key:
             heuristic_findings = AICopilot.diagnose(events=[], open_ports=[])
-            resp = "🔍 **[Offline Rule Diagnostics]**\n\n"
+            res += "🔍 **[Offline Rule Diagnostics]**\n\n"
             for f in heuristic_findings:
-                resp += f"• **{f['title']}** (Severity: {f['severity']})\n  {f['description']}\n\n"
-            resp += "*To enable live LLM intelligence, select Google Gemini, OpenAI, or Ollama in Kali-Nova Settings.*"
-            return resp
+                res += f"• **{f['title']}** (Severity: {f['severity']})\n  {f['description']}\n\n"
+
+        res += "*To enable live cloud LLM intelligence, select Google Gemini, OpenAI, or Ollama in Kali-Nova Settings.*"
+        return res
+
 
     @staticmethod
     def _query_gemini(context_info: str, user_prompt: str, api_key: str, model: str) -> str:
