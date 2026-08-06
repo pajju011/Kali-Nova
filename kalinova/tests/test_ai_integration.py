@@ -48,7 +48,7 @@ class TestAIIntegration(unittest.TestCase):
     def test_ai_copilot_heuristic_fallback(self):
         save_config({"ai_provider": "heuristic", "api_key": "", "model": ""})
         response = AICopilot.query_llm(context_info="Target 127.0.0.1", user_prompt="How do I use Nmap?")
-        self.assertIn("Kali-Nova AI Copilot Advisory", response)
+        self.assertIn("AI Copilot Helper", response)
         self.assertIn("Nmap", response)
 
     def test_ai_copilot_tool_specific_queries(self):
@@ -58,8 +58,9 @@ class TestAIIntegration(unittest.TestCase):
         self.assertIn("Nikto Web Scanner", nikto_resp)
 
         sqlmap_resp = AICopilot.query_llm(context_info="Active Tool: SQLmap", user_prompt="How to patch SQLi?")
-        self.assertIn("SQL Injection", sqlmap_resp)
-        self.assertIn("Python Code Remediation", sqlmap_resp)
+        self.assertIn("SQLmap", sqlmap_resp)
+        self.assertIn("Security Recommendation", sqlmap_resp)
+
 
     def test_ai_copilot_missing_gemini_key(self):
         save_config({"ai_provider": "gemini", "api_key": "", "model": "gemini-1.5-flash"})

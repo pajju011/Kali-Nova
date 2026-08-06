@@ -185,7 +185,7 @@ class SettingsPage(QWidget):
 
     def load_settings_to_ui(self):
         config = load_config()
-        provider = config.get("ai_provider", "heuristic").lower()
+        provider = config.get("ai_provider", "gemini").lower()
 
         provider_map = {
             "gemini": 0,
@@ -193,7 +193,7 @@ class SettingsPage(QWidget):
             "ollama": 2,
             "heuristic": 3
         }
-        self.provider_combo.setCurrentIndex(provider_map.get(provider, 3))
+        self.provider_combo.setCurrentIndex(provider_map.get(provider, 0))
         self.apikey_input.setText(config.get("api_key", ""))
         self.model_input.setText(config.get("model", "gemini-1.5-flash"))
         self.ollama_input.setText(config.get("ollama_url", "http://localhost:11434"))
@@ -202,6 +202,7 @@ class SettingsPage(QWidget):
         self.mode_combo.setCurrentIndex(0 if mode == "Professional" else 1)
 
         self._on_provider_changed()
+
 
     def _on_provider_changed(self):
         idx = self.provider_combo.currentIndex()

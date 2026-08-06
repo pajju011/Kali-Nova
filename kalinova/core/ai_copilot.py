@@ -418,54 +418,28 @@ const secureEmail = 'info' + '@' + 'targetdomain.com';
             if len(parts) > 1:
                 form_inputs_text = parts[1].split("\n")[0].strip()
 
-        res = "🤖 **[Kali-Nova AI Copilot Advisory]**\n\n"
-
-        if form_inputs_text and form_inputs_text != "No custom form parameters entered yet":
-            res += f"🔍 **Active Setup Analysis:**\n"
-            res += f"Detected Active Inputs: `{form_inputs_text}`\n"
-            res += "• Parameters parsed successfully. Verify target domain/IP scope authorization.\n\n"
+        res = "🤖 **AI Copilot Helper**\n\n"
 
         if matched_tool_key:
             tool_info = tools_db[matched_tool_key]
-            res += f"📌 **Active Tool Context: {tool_info['name']}**\n"
+            res += f"📌 **Tool:** {tool_info['name']}\n"
             res += f"{tool_info['description']}\n\n"
-            res += f"💻 **Recommended Command Syntax:**\n`{tool_info['usage']}`\n\n"
-            res += "⚙️ **Key Execution Flags:**\n" + "\n".join(tool_info['flags']) + "\n\n"
-            res += f"🛡️ **Remediation & Security Recommendation:**\n{tool_info['advice']}\n\n"
 
+            if form_inputs_text and form_inputs_text != "No custom form parameters entered yet":
+                res += f"🔍 **Your Active Setup:**\n`{form_inputs_text}`\n\n"
+            else:
+                res += f"🔍 **Setup Status:** No custom inputs entered yet. Type your target details in the fields above.\n\n"
 
-        if "sqli" in prompt_lower or "sql injection" in prompt_lower:
-            vm = AICopilot.VULN_MAPPINGS["SQL_INJECTION"]
-            res += f"🚨 **{vm['title']}** (CVSS: {vm['cvss']} - {vm['severity']})\n"
-            res += f"{vm['description']}\n\n"
-            res += "**Python Code Remediation:**\n```python\n" + vm["remediation_python"] + "```\n\n"
-        elif "brute" in prompt_lower or "hydra" in prompt_lower or "password" in prompt_lower or "crack" in prompt_lower:
-            vm = AICopilot.VULN_MAPPINGS["BRUTE_FORCE"]
-            res += f"⚡ **{vm['title']}** (CVSS: {vm['cvss']} - {vm['severity']})\n"
-            res += f"{vm['description']}\n\n"
-            res += "**Python Code Remediation:**\n```python\n" + vm["remediation_python"] + "```\n\n"
-        elif "dir" in prompt_lower or "directory" in prompt_lower or "gobuster" in prompt_lower or "wfuzz" in prompt_lower:
-            vm = AICopilot.VULN_MAPPINGS["DIR_ENUM"]
-            res += f"📂 **{vm['title']}** (CVSS: {vm['cvss']} - {vm['severity']})\n"
-            res += f"{vm['description']}\n\n"
-            res += "**Nginx Server Remediation:**\n```nginx\n" + vm["remediation_python"] + "```\n\n"
-        elif "email" in prompt_lower or "osint" in prompt_lower or "harvester" in prompt_lower:
-            vm = AICopilot.VULN_MAPPINGS["EMAIL_ENUM"]
-            res += f"🕵️ **{vm['title']}** (CVSS: {vm['cvss']} - {vm['severity']})\n"
-            res += f"{vm['description']}\n\n"
+            res += f"💻 **Quick Example Command:**\n`{tool_info['usage']}`\n\n"
+            res += f"🛡️ **Security Recommendation:**\n{tool_info['advice']}\n\n"
+        elif user_prompt:
+            res += f"❓ **Answer:**\n"
+            res += f"Regarding *\"{user_prompt}\"*: Ensure target parameters match your scope of authorization before running tests.\n\n"
+        else:
+            res += "🔍 **Setup Status:** Ready. Select any security tool above and configure target details.\n\n"
 
-        if user_prompt:
-            res += f"❓ **User Query Answer:**\n"
-            res += f"Regarding your question *\"{user_prompt}\"*: Ensure target parameters match authorization scope. "
-            res += "Configure scan intensity according to network boundaries, and apply input validation or host hardening as recommended above.\n\n"
-        elif not matched_tool_key:
-            heuristic_findings = AICopilot.diagnose(events=[], open_ports=[])
-            res += "🔍 **[Offline Rule Diagnostics]**\n\n"
-            for f in heuristic_findings:
-                res += f"• **{f['title']}** (Severity: {f['severity']})\n  {f['description']}\n\n"
-
-        res += "*To enable live cloud LLM intelligence, select Google Gemini, OpenAI, or Ollama in Kali-Nova Settings.*"
         return res
+
 
 
     @staticmethod
