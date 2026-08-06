@@ -1,4 +1,17 @@
+import json
+import urllib.request
+import urllib.error
+from PyQt6.QtCore import QThread, pyqtSignal
+from config import load_config
+from core.database import DatabaseManager
+
 class AICopilot:
+
+    SYSTEM_PROMPT = (
+        "You are Kali-Nova AI Copilot, a highly skilled ethical hacking advisor and penetration testing copilot on Kali Linux.\n"
+        "Your task is to analyze security tool execution outputs (such as Nmap, Nikto, Sqlmap, Whois, etc.), identify open ports and vulnerabilities, assess CVSS threat severity, and deliver actionable remediation code patches in Python, Node.js, or Bash.\n"
+        "Keep responses professional, structured, concise, and focused on defensive remediation and authorization boundary compliance."
+    )
 
     VULN_MAPPINGS = {
         "SQL_INJECTION": {
@@ -152,6 +165,7 @@ const secureEmail = 'info' + '@' + 'targetdomain.com';
 
     @staticmethod
     def diagnose(events, open_ports):
+        """Rule-based heuristic diagnostic method preserved for backward compatibility and offline mode."""
         findings = []
 
         # 1. Process Events
@@ -184,3 +198,158 @@ const secureEmail = 'info' + '@' + 'targetdomain.com';
             })
 
         return findings
+
+    @staticmethod
+    def query_llm(context_info: str = "", user_prompt: str = "") -> str:
+        """Main AI query router. Selects provider based on user config."""
+        config = load_config()
+        provider = config.get("ai_provider", "heuristic").lower()
+        api_key = config.get("api_key", "").strip()
+        model = config.get("model", "gemini-1.5-flash").strip()
+        ollama_url = config.get("ollama_url", "http://localhost:11434").strip()
+
+        if provider == "gemini":
+            if not api_key:
+                return "⚠️ [Google Gemini Error] API key is missing. Please go to Settings and enter your Gemini API key."
+            return AICopilot._query_gemini(context_info, user_prompt, api_key, model)
+
+        elif provider == "openai":
+            if not api_key:
+                return "⚠️ [OpenAI Error] API key is missing. Please go to Settings and enter your OpenAI API key."
+            return AICopilot._query_openai(context_info, user_prompt, api_key, model)
+
+        elif provider == "ollama":
+            return AICopilot._query_ollama(context_info, user_prompt, model, ollama_url)
+
+        else:
+            # Heuristic offline fallback
+            heuristic_findings = AICopilot.diagnose(events=[], open_ports=[])
+            resp = "🔍 **[Offline Rule Diagnostics]**\n\n"
+            for f in heuristic_findings:
+                resp += f"• **{f['title']}** (Severity: {f['severity']})\n  {f['description']}\n\n"
+            resp += "*To enable live LLM intelligence, select Google Gemini, OpenAI, or Ollama in Kali-Nova Settings.*"
+            return resp
+
+    @staticmethod
+    def _query_gemini(context_info: str, user_prompt: str, api_key: str, model: str) -> str:
+        model_name = model if model else "gemini-1.5-flash"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+        
+        full_text = f"{AICopilot.SYSTEM_PROMPT}\n\n--- SECURITY SCAN CONTEXT ---\n{context_info}\n\n--- USER QUESTION ---\n{user_prompt}"
+        
+        payload = {
+            "contents": [
+                {
+                    "parts": [{"text": full_text}]
+                }
+            ]
+        }
+
+        try:
+            req_data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(
+                url,
+                data=req_data,
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=30) as response:
+                result = json.loads(response.read().decode("utf-8"))
+                candidates = result.get("candidates", [])
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    if parts:
+                        return parts[0].get("text", "No content returned.")
+                return "⚠️ [Gemini] Received empty response from Google Gemini API."
+        except urllib.error.HTTPError as e:
+            err_body = e.read().decode("utf-8", errors="ignore")
+            return f"❌ [Gemini HTTP Error {e.code}]: {err_body}"
+        except Exception as e:
+            return f"❌ [Gemini Connection Error]: {str(e)}"
+
+    @staticmethod
+    def _query_openai(context_info: str, user_prompt: str, api_key: str, model: str) -> str:
+        model_name = model if model else "gpt-4o-mini"
+        url = "https://api.openai.com/v1/chat/completions"
+
+        messages = [
+            {"role": "system", "content": AICopilot.SYSTEM_PROMPT},
+            {"role": "user", "content": f"Security Scan Context:\n{context_info}\n\nUser Question:\n{user_prompt}"}
+        ]
+
+        payload = {
+            "model": model_name,
+            "messages": messages,
+            "temperature": 0.3
+        }
+
+        try:
+            req_data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(
+                url,
+                data=req_data,
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {api_key}"
+                },
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=30) as response:
+                result = json.loads(response.read().decode("utf-8"))
+                choices = result.get("choices", [])
+                if choices:
+                    return choices[0].get("message", {}).get("content", "No content returned.")
+                return "⚠️ [OpenAI] Received empty response from OpenAI API."
+        except urllib.error.HTTPError as e:
+            err_body = e.read().decode("utf-8", errors="ignore")
+            return f"❌ [OpenAI HTTP Error {e.code}]: {err_body}"
+        except Exception as e:
+            return f"❌ [OpenAI Connection Error]: {str(e)}"
+
+    @staticmethod
+    def _query_ollama(context_info: str, user_prompt: str, model: str, ollama_url: str) -> str:
+        model_name = model if model else "llama3:8b"
+        endpoint = f"{ollama_url.rstrip('/')}/api/generate"
+
+        prompt = f"{AICopilot.SYSTEM_PROMPT}\n\n--- SECURITY SCAN CONTEXT ---\n{context_info}\n\n--- USER QUESTION ---\n{user_prompt}"
+        payload = {
+            "model": model_name,
+            "prompt": prompt,
+            "stream": False
+        }
+
+        try:
+            req_data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(
+                endpoint,
+                data=req_data,
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=45) as response:
+                result = json.loads(response.read().decode("utf-8"))
+                return result.get("response", "No response generated by Ollama.")
+        except Exception as e:
+            return f"❌ [Ollama Offline Error]: Cannot connect to Ollama at `{ollama_url}`.\nMake sure Ollama is installed and running (`ollama serve`). Details: {str(e)}"
+
+
+class AIWorkerThread(QThread):
+    """Asynchronous worker thread to execute LLM API queries without locking the PyQt6 GUI loop."""
+    finished_signal = pyqtSignal(str)
+    error_signal = pyqtSignal(str)
+
+    def __init__(self, context_info: str = "", user_prompt: str = ""):
+        super().__init__()
+        self.context_info = context_info
+        self.user_prompt = user_prompt
+
+    def run(self):
+        try:
+            response = AICopilot.query_llm(self.context_info, self.user_prompt)
+            # Save message to database chat history
+            if self.user_prompt:
+                DatabaseManager.save_chat_message("user", self.user_prompt)
+            DatabaseManager.save_chat_message("assistant", response)
+            self.finished_signal.emit(response)
+        except Exception as e:
+            self.error_signal.emit(f"Worker Error: {str(e)}")

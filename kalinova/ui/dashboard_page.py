@@ -3,13 +3,13 @@ import os
 import random
 from datetime import datetime
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QFrame
+    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QFrame, QTextEdit, QLineEdit
 )
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QFont
 from core.app_state import app_state
 from ui.topology_widget import NetworkTopologyWidget
-from core.ai_copilot import AICopilot
+from core.ai_copilot import AICopilot, AIWorkerThread
 
 
 class DashboardPage(QWidget):
@@ -22,6 +22,7 @@ class DashboardPage(QWidget):
 
         self.setObjectName("dashboardPageContainer")
         self.uptime_seconds = 0
+        self.ai_worker = None
 
         # Custom Premium Cyber StyleSheets
         self.setStyleSheet("""
@@ -330,16 +331,69 @@ class DashboardPage(QWidget):
         copilot_layout.setContentsMargins(16, 16, 16, 16)
         copilot_layout.setSpacing(8)
 
-        copilot_title = QLabel("Heuristic Copilot Advisory")
+        copilot_header = QHBoxLayout()
+        copilot_title = QLabel("🤖 AI Copilot Advisory")
         copilot_title.setObjectName("hudCardTitle")
+        
+        self.ai_status_dot = QLabel("● STANDBY")
+        self.ai_status_dot.setStyleSheet("color: #10b981; font-size: 10px; font-weight: bold;")
+        copilot_header.addWidget(copilot_title)
+        copilot_header.addStretch()
+        copilot_header.addWidget(self.ai_status_dot)
 
-        self.copilot_advice = QLabel("Initializing security scan diagnostics...")
-        self.copilot_advice.setWordWrap(True)
-        self.copilot_advice.setStyleSheet("font-family: 'Courier New', monospace; font-size: 10px; color: #10b981;")
+        self.copilot_output = QTextEdit()
+        self.copilot_output.setReadOnly(True)
+        self.copilot_output.setStyleSheet("""
+            QTextEdit {
+                background-color: #060c18;
+                color: #10b981;
+                font-family: 'Courier New', monospace;
+                font-size: 11px;
+                border: 1px solid #142238;
+                border-radius: 8px;
+                padding: 8px;
+            }
+        """)
+        self.copilot_output.setText("Initializing security scan diagnostics...\nStanding by for AI copilot queries.")
 
-        copilot_layout.addWidget(copilot_title)
-        copilot_layout.addWidget(self.copilot_advice)
-        copilot_layout.addStretch()
+        prompt_layout = QHBoxLayout()
+        self.ai_prompt_input = QLineEdit()
+        self.ai_prompt_input.setPlaceholderText("Ask AI Copilot (e.g. How to patch SQLi?)...")
+        self.ai_prompt_input.setStyleSheet("""
+            QLineEdit {
+                background-color: #0b1424;
+                border: 1px solid #1e2e4a;
+                border-radius: 6px;
+                color: #e2e8f0;
+                padding: 6px;
+                font-size: 11px;
+            }
+        """)
+        self.ai_prompt_input.returnPressed.connect(self.run_ai_analysis)
+
+        self.ask_ai_btn = QPushButton("Ask AI")
+        self.ask_ai_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #00f0ff;
+                color: #0b1220;
+                font-weight: bold;
+                border-radius: 6px;
+                padding: 6px 12px;
+                font-size: 11px;
+                border: none;
+            }
+            QPushButton:hover {
+                background-color: #38bdf8;
+            }
+        """)
+        self.ask_ai_btn.clicked.connect(self.run_ai_analysis)
+
+        prompt_layout.addWidget(self.ai_prompt_input)
+        prompt_layout.addWidget(self.ask_ai_btn)
+
+        copilot_layout.addLayout(copilot_header)
+        copilot_layout.addWidget(self.copilot_output, 1)
+        copilot_layout.addLayout(prompt_layout)
 
         # Place panels in Bento Grid
         grid_layout.addWidget(self.threat_card, 0, 0, 1, 1)
@@ -364,6 +418,17 @@ class DashboardPage(QWidget):
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_dashboard)
         self.timer.start(1000)
+
+        # Load initial diagnostic findings
+        self._load_initial_diagnostics()
+
+    def _load_initial_diagnostics(self):
+        findings = AICopilot.diagnose(app_state.events, app_state.open_ports)
+        advice_parts = []
+        for f in findings[:2]:
+            advice_parts.append(f"● {f['title']} [{f['severity']}]\n  {f['description']}")
+        
+        self.copilot_output.setText("\n\n".join(advice_parts))
 
     # ========================
     # Update Dashboard Data
@@ -427,7 +492,6 @@ class DashboardPage(QWidget):
             if port in open_ports:
                 cell.setText(f"{service} : {port}\n[OPEN ●]")
                 cell.setObjectName("portCellOpen")
-                # Force CSS polish update
                 cell.style().unpolish(cell)
                 cell.style().polish(cell)
             else:
@@ -451,13 +515,42 @@ class DashboardPage(QWidget):
             self.next_tool_label.setText("RECOMMENDED DIRECTIVE: STANDBY")
             self.run_suggested_btn.setEnabled(False)
 
-        # 8. Query Heuristic Diagnostics Copilot
-        findings = AICopilot.diagnose(app_state.events, app_state.open_ports)
-        advice_parts = []
-        for f in findings[:2]: # Show up to 2 key findings in dashboard to save space
-            advice_parts.append(f"● {f['title']} [{f['severity']}]\n  {f['description']}")
-        
-        self.copilot_advice.setText("\n\n".join(advice_parts))
+    # ========================
+    # Interactive AI Copilot Querying
+    # ========================
+
+    def run_ai_analysis(self):
+        user_prompt = self.ai_prompt_input.text().strip()
+        context_parts = [
+            f"Global Threat Level: {app_state.global_risk} (Score: {app_state.risk_score}/100)",
+            f"Active Discovered Open Ports: {app_state.open_ports}",
+            f"Vulnerability Events Detected: {app_state.events}",
+            f"Active Recommendation: {app_state.suggestion}"
+        ]
+        context_info = "\n".join(context_parts)
+
+        self.ai_status_dot.setText("● THINKING...")
+        self.ai_status_dot.setStyleSheet("color: #f59e0b; font-size: 10px; font-weight: bold;")
+        self.ask_ai_btn.setEnabled(False)
+        self.copilot_output.setText("🧠 AI Copilot is analyzing scan metrics and crafting analysis response...")
+
+        self.ai_worker = AIWorkerThread(context_info=context_info, user_prompt=user_prompt)
+        self.ai_worker.finished_signal.connect(self._on_ai_analysis_finished)
+        self.ai_worker.error_signal.connect(self._on_ai_analysis_error)
+        self.ai_worker.start()
+
+    def _on_ai_analysis_finished(self, response: str):
+        self.ask_ai_btn.setEnabled(True)
+        self.ai_prompt_input.clear()
+        self.ai_status_dot.setText("● READY")
+        self.ai_status_dot.setStyleSheet("color: #10b981; font-size: 10px; font-weight: bold;")
+        self.copilot_output.setText(response)
+
+    def _on_ai_analysis_error(self, err_msg: str):
+        self.ask_ai_btn.setEnabled(True)
+        self.ai_status_dot.setText("● ERROR")
+        self.ai_status_dot.setStyleSheet("color: #f43f5e; font-size: 10px; font-weight: bold;")
+        self.copilot_output.setText(f"❌ AI Analysis Error:\n{err_msg}")
 
     # ========================
     # Trigger suggested tool routing
