@@ -17,7 +17,20 @@ class ReconPageUiBehaviorTests(unittest.TestCase):
     def setUpClass(cls):
         cls.app = QApplication.instance() or QApplication([])
 
+    def test_get_active_tool_context_harvests_form_inputs(self):
+        page = ReconPage()
+        page.show()
+        page.activate_tool("nmap")
+        page.nmap_target.setText("192.168.1.100")
+        page.port_input.setText("80,443")
+
+        ctx = page.get_active_tool_context()
+        self.assertEqual(ctx["tool_id"], "nmap")
+        self.assertIn("192.168.1.100", str(ctx["inputs"]))
+        self.assertIn("80,443", str(ctx["inputs"]))
+
     def test_repeated_tool_click_keeps_panel_open(self):
+
         page = ReconPage()
         page.show()
 

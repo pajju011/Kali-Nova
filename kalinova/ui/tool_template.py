@@ -11,7 +11,10 @@ from PyQt6.QtWidgets import (
     QScrollArea,
     QTextEdit,
     QLineEdit,
+    QComboBox,
+    QCheckBox,
 )
+
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QFont
 
@@ -23,11 +26,12 @@ from core.ai_copilot import AICopilot, AIWorkerThread
 class ToolCopilotWidget(QFrame):
     """
     Embedded AI Copilot assistant panel presented alongside every security tool.
-    Allows users to query tool parameters, flag explanations, scan recommendations,
-    and security remediation directly within the active tool page.
+    Activates on-demand when user clicks 'Analyze Active Setup & Suggest Next Steps' or asks a question,
+    automatically inspecting form field inputs, active target, and scan logs.
     """
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self, parent_page=None):
+        super().__init__()
+        self._parent_page = parent_page
         self.setObjectName("toolCopilotWidget")
         self.active_tool_id = "general"
         self.active_tool_name = "Security Tools"
@@ -38,14 +42,26 @@ class ToolCopilotWidget(QFrame):
                 background-color: #0b1424;
                 border: 1px solid #1c2a47;
                 border-radius: 10px;
-                padding: 10px;
+                padding: 12px;
                 margin-top: 10px;
             }
             QLabel#copilotTitle {
                 color: #00f0ff;
                 font-weight: bold;
-                font-size: 12px;
+                font-size: 13px;
                 letter-spacing: 0.5px;
+            }
+            QPushButton#analyzeBtn {
+                background: linear-gradient(135deg, #00f0ff 0%, #3b82f6 100%);
+                color: #050b14;
+                font-weight: bold;
+                font-size: 12px;
+                border-radius: 6px;
+                padding: 8px 16px;
+                border: none;
+            }
+            QPushButton#analyzeBtn:hover {
+                background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 100%);
             }
             QTextEdit#copilotOutput {
                 background-color: #060c18;
@@ -54,7 +70,7 @@ class ToolCopilotWidget(QFrame):
                 font-size: 11px;
                 border: 1px solid #142238;
                 border-radius: 6px;
-                padding: 8px;
+                padding: 10px;
             }
             QPushButton.quickChip {
                 background-color: #16243b;
@@ -101,21 +117,27 @@ class ToolCopilotWidget(QFrame):
         self.title_label = QLabel("🤖 AI COPILOT TOOL ASSISTANT")
         self.title_label.setObjectName("copilotTitle")
         
-        self.status_label = QLabel("● READY")
-        self.status_label.setStyleSheet("color: #10b981; font-size: 10px; font-weight: bold;")
+        self.status_label = QLabel("● STANDBY")
+        self.status_label.setStyleSheet("color: #64748b; font-size: 10px; font-weight: bold;")
         
         header_layout.addWidget(self.title_label)
         header_layout.addStretch()
         header_layout.addWidget(self.status_label)
         layout.addLayout(header_layout)
 
-        # Output text
+        # Primary Trigger Button: Analyze active setup
+        self.btn_analyze = QPushButton("🤖 Analyze Active Setup & Suggest Next Steps")
+        self.btn_analyze.setObjectName("analyzeBtn")
+        self.btn_analyze.clicked.connect(self._on_analyze_clicked)
+        layout.addWidget(self.btn_analyze)
+
+        # Output text box
         self.output_text = QTextEdit()
         self.output_text.setObjectName("copilotOutput")
         self.output_text.setReadOnly(True)
-        self.output_text.setMinimumHeight(120)
+        self.output_text.setMinimumHeight(110)
         self.output_text.setMaximumHeight(180)
-        self.output_text.setText("Select any tool above to view AI guidance and ask questions.")
+        self.output_text.setText("💡 Enter your parameters above and click 'Analyze Active Setup & Suggest Next Steps' to get AI guidance.")
         layout.addWidget(self.output_text)
 
         # Quick action chips
@@ -160,14 +182,38 @@ class ToolCopilotWidget(QFrame):
         self.active_tool_name = tool_name
         self.title_label.setText(f"🤖 AI COPILOT TOOL ASSISTANT — {tool_name.upper()}")
         self.input_field.setPlaceholderText(f"Ask AI about {tool_name} (e.g. flags, parameters)...")
-        self.ask_question(f"Explain {tool_name} usage and options")
+        self.status_label.setText("● STANDBY")
+        self.status_label.setStyleSheet("color: #64748b; font-size: 10px; font-weight: bold;")
+        self.output_text.setText(f"💡 Click '🤖 Analyze Active Setup & Suggest Next Steps' to inspect {tool_name} parameters and receive recommendations.")
+
+    def _on_analyze_clicked(self):
+        self.ask_question(f"Analyze my active setup for {self.active_tool_name} and suggest next steps.")
 
     def ask_question(self, question_text: str):
-        context = f"Active Tool: {self.active_tool_name} (ID: {self.active_tool_id})\nGlobal Threat: {app_state.global_risk}\nDiscovered Ports: {app_state.open_ports}"
+        # Gather active form inputs from parent page
+        form_context_str = ""
+        if self._parent_page and hasattr(self._parent_page, "get_active_tool_context"):
+            ctx_data = self._parent_page.get_active_tool_context()
+            inputs_dict = ctx_data.get("inputs", {})
+            if inputs_dict:
+                form_context_str = ", ".join([f"{k}={v}" for k, v in inputs_dict.items()])
+            else:
+                form_context_str = "No custom form parameters entered yet"
+
+        context_parts = [
+            f"Active Tool: {self.active_tool_name} (ID: {self.active_tool_id})",
+            f"User Form Inputs: {form_context_str}",
+            f"Global Threat Level: {app_state.global_risk} (Score: {app_state.risk_score}/100)",
+            f"Discovered Open Ports: {app_state.open_ports}",
+            f"Current Recommendation: {app_state.suggestion}"
+        ]
+        context = "\n".join(context_parts)
+
         self.status_label.setText("● THINKING...")
         self.status_label.setStyleSheet("color: #f59e0b; font-size: 10px; font-weight: bold;")
         self.ask_btn.setEnabled(False)
-        self.output_text.setText(f"🧠 AI Copilot is generating assistance for {self.active_tool_name}...")
+        self.btn_analyze.setEnabled(False)
+        self.output_text.setText(f"🧠 AI Copilot is inspecting {self.active_tool_name} parameters and crafting analysis...")
 
         if self.ai_worker is not None and self.ai_worker.isRunning():
             self.ai_worker.quit()
@@ -181,8 +227,6 @@ class ToolCopilotWidget(QFrame):
         if os.environ.get("QT_QPA_PLATFORM") == "offscreen":
             self.ai_worker.wait(2000)
 
-
-
     def _on_ask_clicked(self):
         query = self.input_field.text().strip()
         if not query:
@@ -192,15 +236,18 @@ class ToolCopilotWidget(QFrame):
 
     def _on_ai_finished(self, response: str):
         self.ask_btn.setEnabled(True)
+        self.btn_analyze.setEnabled(True)
         self.status_label.setText("● READY")
         self.status_label.setStyleSheet("color: #10b981; font-size: 10px; font-weight: bold;")
         self.output_text.setText(response)
 
     def _on_ai_error(self, err_msg: str):
         self.ask_btn.setEnabled(True)
+        self.btn_analyze.setEnabled(True)
         self.status_label.setText("● ERROR")
         self.status_label.setStyleSheet("color: #f43f5e; font-size: 10px; font-weight: bold;")
         self.output_text.setText(f"❌ AI Error: {err_msg}")
+
 
 
 class ToolModulePage(QScrollArea):
@@ -282,14 +329,47 @@ class ToolModulePage(QScrollArea):
         panel_layout.addWidget(self.panel_stack)
 
         # Integrated AI Copilot Tool Assistant widget
-        self.copilot_widget = ToolCopilotWidget()
+        self.copilot_widget = ToolCopilotWidget(parent_page=self)
         panel_layout.addWidget(self.copilot_widget)
 
         main_layout.addWidget(panel_container, 1)
 
         self.setWidget(self.container)
 
+    def get_active_tool_context(self):
+        tool_id = self._selected_tool
+        if not tool_id or tool_id not in self._tool_panel_index:
+            return {
+                "tool_id": "none",
+                "tool_name": "No Tool Selected",
+                "inputs": {}
+            }
+
+        panel_index = self._tool_panel_index[tool_id]
+        panel_widget = self.panel_stack.widget(panel_index)
+
+        inputs = {}
+        if panel_widget:
+            for le in panel_widget.findChildren(QLineEdit):
+                name = le.placeholderText() or le.objectName() or "Input"
+                val = le.text().strip()
+                if val:
+                    inputs[name] = val
+            for cb in panel_widget.findChildren(QComboBox):
+                name = cb.objectName() or "Option"
+                inputs[name] = cb.currentText()
+            for chk in panel_widget.findChildren(QCheckBox):
+                if chk.isChecked():
+                    inputs[chk.text()] = "Enabled"
+
+        return {
+            "tool_id": tool_id,
+            "tool_name": self._tool_names.get(tool_id, tool_id),
+            "inputs": inputs
+        }
+
     def _build_empty_panel(self):
+
         empty = QWidget()
         layout = QVBoxLayout(empty)
         layout.setContentsMargins(24, 40, 24, 40)

@@ -412,7 +412,18 @@ const secureEmail = 'info' + '@' + 'targetdomain.com';
                 matched_tool_key = key
                 break
 
+        form_inputs_text = ""
+        if "User Form Inputs:" in context_info:
+            parts = context_info.split("User Form Inputs:")
+            if len(parts) > 1:
+                form_inputs_text = parts[1].split("\n")[0].strip()
+
         res = "🤖 **[Kali-Nova AI Copilot Advisory]**\n\n"
+
+        if form_inputs_text and form_inputs_text != "No custom form parameters entered yet":
+            res += f"🔍 **Active Setup Analysis:**\n"
+            res += f"Detected Active Inputs: `{form_inputs_text}`\n"
+            res += "• Parameters parsed successfully. Verify target domain/IP scope authorization.\n\n"
 
         if matched_tool_key:
             tool_info = tools_db[matched_tool_key]
@@ -421,6 +432,7 @@ const secureEmail = 'info' + '@' + 'targetdomain.com';
             res += f"💻 **Recommended Command Syntax:**\n`{tool_info['usage']}`\n\n"
             res += "⚙️ **Key Execution Flags:**\n" + "\n".join(tool_info['flags']) + "\n\n"
             res += f"🛡️ **Remediation & Security Recommendation:**\n{tool_info['advice']}\n\n"
+
 
         if "sqli" in prompt_lower or "sql injection" in prompt_lower:
             vm = AICopilot.VULN_MAPPINGS["SQL_INJECTION"]
