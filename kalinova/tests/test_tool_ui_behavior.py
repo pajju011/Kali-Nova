@@ -80,6 +80,71 @@ class ReconPageUiBehaviorTests(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn("Live analysis requires", errors[0])
 
+    def test_photon_tool_panel_activation(self):
+        page = ReconPage()
+        page.show()
+
+        button = page._tool_buttons["photon"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "photon")
+
+    def test_photon_command_generation(self):
+        page = ReconPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.photon_url_input.setText("http://example.com")
+        page.photon_level_spin.setValue(3)
+        page.chk_photon_dns.setChecked(True)
+        page.chk_photon_keys.setChecked(True)
+
+        page.build_photon()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "photon -u http://example.com -l 3 --dns --keys")
+
+    def test_photon_validation_error_when_url_missing(self):
+        page = ReconPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.build_photon()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Target URL is required", errors[0])
+
+    def test_photon_complex_command_generation(self):
+        page = ReconPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.photon_url_input.setText("https://target.org")
+        page.photon_level_spin.setValue(4)
+        page.photon_threads_spin.setValue(20)
+        page.photon_delay_spin.setValue(2)
+        page.photon_output_input.setText("/tmp/photon_out")
+        page.photon_regex_input.setText("[a-z0-9_-]+@example\\.com")
+        page.photon_cookie_input.setText("sessionid=xyz123")
+        page.photon_user_agent_input.setText("Mozilla/5.0")
+        page.photon_export_combo.setCurrentIndex(2)  # json
+        page.chk_photon_dns.setChecked(True)
+        page.chk_photon_keys.setChecked(True)
+        page.chk_photon_wayback.setChecked(True)
+        page.chk_photon_clone.setChecked(True)
+        page.chk_photon_ninja.setChecked(True)
+
+        page.build_photon()
+
+        self.assertEqual(len(commands), 1)
+        expected_cmd = "photon -u https://target.org -l 4 -t 20 -d 2 -o /tmp/photon_out -r [a-z0-9_-]+@example\\.com -c sessionid=xyz123 --user-agent Mozilla/5.0 -e json --dns --keys --wayback --clone --ninja"
+        self.assertEqual(commands[0], expected_cmd)
+
 
 class NetworkPageWifiteBehaviorTests(unittest.TestCase):
     @classmethod

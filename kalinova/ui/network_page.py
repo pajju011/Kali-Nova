@@ -546,7 +546,7 @@ root@kali:~# tlssled 192.168.1.1 443
 
         pcap = self.wash_pcap_input.text().strip()
         if pcap:
-            cmd.extend(["-O", pcap])
+            cmd.extend(["-o", pcap])
 
         if self.chk_wash_ignore_fcs.isChecked():
             cmd.append("-C")

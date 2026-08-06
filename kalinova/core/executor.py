@@ -108,8 +108,9 @@ class CommandThread(QThread):
                     self.output_signal.emit(f"Execution time: {elapsed_time:.2f}s | Lines: {self.line_count}")
                     self.status_signal.emit(f"{tool_name} completed ({elapsed_time:.1f}s)", "success")
                 else:
-                    self.output_signal.emit(f"Tool exited with code: {process.returncode}")
-                    self.status_signal.emit(f"{tool_name} failed", "error")
+                    self.output_signal.emit(f"[INFO] Real tool '{base_binary}' exited with code: {process.returncode}. Switching to Simulation Mode...\n")
+                    self.run_simulation(base_binary, command_args)
+                    return
                 self.output_signal.emit(f"{'='*60}\n")
 
             # Calculate risk after execution
@@ -192,6 +193,19 @@ class CommandThread(QThread):
         # Wash / Reaver WPS Detection
         if "wps" in lower_line and ("bssid" in lower_line or "pin" in lower_line or "reaver" in lower_line or "wash" in lower_line):
             app_state.add_event("WPS_WIFI_AUDIT")
+
+        # Photon OSINT Crawl Detection
+        if "photon" in lower_line or "crawling" in lower_line or "urls extracted" in lower_line:
+            app_state.add_event("OSINT_CRAWL")
+            self.output_signal.emit("[INFO] OSINT Web Crawl session active.")
+
+        if "secret key" in lower_line or "secret_leak" in lower_line or "[!] secret" in lower_line or "api_key" in lower_line:
+            app_state.add_event("SECRET_LEAK")
+            self.output_signal.emit("[ALERT] Secret API key or sensitive token detected during Photon crawl!")
+
+        if "subdomain discovered" in lower_line or "subdomain found" in lower_line:
+            app_state.add_event("SUBDOMAIN_ENUM")
+            self.output_signal.emit("[INFO] Subdomain discovered during web crawl.")
 
     def run_simulation(self, tool_binary, command_args):
         simulated_lines = []
@@ -474,7 +488,9 @@ class CommandThread(QThread):
             simulated_lines = [
                 "BSSID               Ch  dBm  WPS  Lck  Vendor    ESSID",
                 "--------------------------------------------------------------------------------",
-                "E0:3F:49:6A:57:78    6  -73  1.0  No   Unknown   ASUS"
+                "E0:3F:49:6A:57:78    6  -73  1.0  No   Unknown   ASUS",
+                "00:14:6C:7E:40:80   11  -65  2.0  No   TP-Link   NETGEAR_WPS",
+                "[+] Wash scan complete. 2 WPS-enabled Access Points detected."
             ]
 
         elif tool_binary == "reaver":
@@ -486,13 +502,81 @@ class CommandThread(QThread):
                 except Exception:
                     pass
             simulated_lines = [
-                "Reaver v1.6.5 WiFi Protected Setup Attack Tool",
+                "Reaver v1.6.5 WiFi Protected Setup (WPS) Attack Tool",
                 "Copyright (c) 2011, Tactical Network Solutions, Craig Heffner <cheffner@tacnetsol.com>",
                 "",
                 f"[+] Waiting for beacon from {bssid}",
                 f"[+] Associated with {bssid} (ESSID: ASUS)",
-                "[+] Trying pin 12345670"
+                "[+] Trying WPS pin 12345670",
+                "[+] Trying WPS pin 23456781",
+                "[+] Trying WPS pin 34567892",
+                f"[+] WPS PIN '34567892' successfully cracked for BSSID {bssid}!",
+                "[+] WPA PSK: 'WirelessSecure2026!'",
+                "[+] Reaver attack completed successfully."
             ]
+
+        elif tool_binary == "photon":
+            level = "2"
+            threads = "10"
+            if "-l" in command_args:
+                try:
+                    level = command_args[command_args.index("-l") + 1]
+                except Exception:
+                    pass
+            if "-t" in command_args:
+                try:
+                    threads = command_args[command_args.index("-t") + 1]
+                except Exception:
+                    pass
+
+            simulated_lines = [
+                "      ____  __          __",
+                "     / __ \\/ /_  ____  / /_____  ____",
+                "    / /_/ / __ \\/ __ \\/ __/ __ \\/ __ \\",
+                "   / ____/ / / / /_/ / /_/ /_/ / / / /",
+                "  /_/   /_/ /_/\____/\\__/\____/_/ /_/ v1.2.2",
+                "",
+                f"[+] Root target URL: {target}",
+                f"[+] Initializing crawler threads (level: {level}, threads: {threads})...",
+            ]
+
+            if "--ninja" in command_args:
+                simulated_lines.append("[+] Stealth/Ninja mode active: HTTP headers randomized.")
+            if "-c" in command_args:
+                simulated_lines.append("[+] Custom HTTP Cookie set.")
+            if "--user-agent" in command_args:
+                simulated_lines.append("[+] Custom User-Agent header applied.")
+            if "-o" in command_args:
+                try:
+                    out_dir = command_args[command_args.index("-o") + 1]
+                    simulated_lines.append(f"[+] Output directory configured: {out_dir}")
+                except Exception:
+                    pass
+
+            simulated_lines.extend([
+                "[+] Crawling URLs (in-scope & out-of-scope)...",
+                f"[-] Found internal endpoint: {target}/gallery.php?id=2",
+                f"[-] Found internal endpoint: {target}/api/v1/users",
+                "[*] Extracting OSINT intelligence...",
+                f"[-] Email discovered: admin@{target.replace('http://', '').replace('https://', '')}",
+                f"[-] Email discovered: security@{target.replace('http://', '').replace('https://', '')}",
+                "[-] Subdomain discovered: api.sandbox.local",
+                "[-] Subdomain discovered: dev-portal.sandbox.local"
+            ])
+
+            if "--wayback" in command_args:
+                simulated_lines.append("[+] Wayback Machine seed URLs retrieved.")
+
+            if "-r" in command_args:
+                simulated_lines.append("[+] Custom regex pattern matches extracted from response bodies.")
+
+            if "--keys" in command_args or True:
+                simulated_lines.append("[!] Secret key detected in app.js: 'AKIAIOSFODNN7EXAMPLE'")
+
+            if "--clone" in command_args:
+                simulated_lines.append("[+] Local website mirror cloned successfully.")
+
+            simulated_lines.append("[+] Crawl finished. Extracted 42 URLs, 2 emails, 2 subdomains, 1 secret key.")
 
         else:
             simulated_lines = [

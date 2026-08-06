@@ -23,6 +23,7 @@ class ReconPage(ToolModulePage):
         self.nmap_panel = self._create_nmap_panel()
         self.whois_panel = self._create_whois_panel()          
         self.harvester_panel = self._create_harvester_panel()
+        self.photon_panel = self._create_photon_panel()
         self.autopsy_panel = self._create_autopsy_panel()
 
         self.add_tool(
@@ -48,6 +49,14 @@ class ReconPage(ToolModulePage):
             description="OSINT",
             panel=self.harvester_panel,
             focus_widget=self.harvester_domain,
+        )
+        self.add_tool(
+            tool_id="photon",
+            icon="⚡",
+            name="Photon",
+            description="OSINT Crawler",
+            panel=self.photon_panel,
+            focus_widget=self.photon_url_input,
         )
         self.add_tool(
             tool_id="autopsy",
@@ -128,6 +137,88 @@ class ReconPage(ToolModulePage):
         layout.addWidget(QLabel("Data Source"))
         layout.addWidget(self.harvester_source)
         layout.addWidget(self.harvester_btn)
+        layout.addStretch()
+
+        return panel
+
+    def _create_photon_panel(self):
+        panel, layout = self.create_panel("⚡ Photon - OSINT Web Crawler")
+
+        self.photon_url_input = QLineEdit()
+        self.photon_url_input.setPlaceholderText("Root URL (e.g. http://example.com)")
+
+        self.photon_level_spin = QSpinBox()
+        self.photon_level_spin.setRange(1, 10)
+        self.photon_level_spin.setValue(2)
+        self.photon_level_spin.setSuffix(" crawl depth level (-l)")
+
+        self.photon_threads_spin = QSpinBox()
+        self.photon_threads_spin.setRange(1, 100)
+        self.photon_threads_spin.setValue(10)
+        self.photon_threads_spin.setSuffix(" threads (-t)")
+
+        self.photon_delay_spin = QSpinBox()
+        self.photon_delay_spin.setRange(0, 60)
+        self.photon_delay_spin.setValue(0)
+        self.photon_delay_spin.setSuffix(" s delay between requests (-d)")
+
+        output_layout = QHBoxLayout()
+        self.photon_output_input = QLineEdit()
+        self.photon_output_input.setPlaceholderText("Custom output directory (-o) (optional)")
+        self.photon_output_btn = QPushButton("Browse...")
+        self.photon_output_btn.clicked.connect(self._browse_photon_output)
+        output_layout.addWidget(self.photon_output_input)
+        output_layout.addWidget(self.photon_output_btn)
+
+        self.photon_regex_input = QLineEdit()
+        self.photon_regex_input.setPlaceholderText("Custom regex pattern (-r) (optional)")
+
+        self.photon_cookie_input = QLineEdit()
+        self.photon_cookie_input.setPlaceholderText("Custom cookie header (-c) (optional)")
+
+        self.photon_user_agent_input = QLineEdit()
+        self.photon_user_agent_input.setPlaceholderText("Custom User-Agent header (--user-agent) (optional)")
+
+        self.photon_export_combo = QComboBox()
+        self.photon_export_combo.addItems(["none", "csv", "json"])
+
+        self.chk_photon_dns = QCheckBox("Enumerate subdomains & DNS data (--dns)")
+        self.chk_photon_keys = QCheckBox("Find secret keys & API tokens (--keys)")
+        self.chk_photon_only_urls = QCheckBox("Only extract URLs (--only-urls)")
+        self.chk_photon_wayback = QCheckBox("Fetch seed URLs from archive.org (--wayback)")
+        self.chk_photon_clone = QCheckBox("Clone website locally (--clone)")
+        self.chk_photon_ninja = QCheckBox("Ninja / Stealth mode (--ninja)")
+        self.chk_photon_verbose = QCheckBox("Verbose output (-v)")
+
+        self.photon_btn = self.create_primary_button("Run Photon Crawler")
+        self.photon_btn.clicked.connect(self.build_photon)
+
+        layout.addWidget(QLabel("Target URL"))
+        layout.addWidget(self.photon_url_input)
+        layout.addWidget(QLabel("Crawl Level"))
+        layout.addWidget(self.photon_level_spin)
+        layout.addWidget(QLabel("Threads"))
+        layout.addWidget(self.photon_threads_spin)
+        layout.addWidget(QLabel("Request Delay"))
+        layout.addWidget(self.photon_delay_spin)
+        layout.addWidget(QLabel("Output Directory"))
+        layout.addLayout(output_layout)
+        layout.addWidget(QLabel("Regex Extraction"))
+        layout.addWidget(self.photon_regex_input)
+        layout.addWidget(QLabel("Cookie Header"))
+        layout.addWidget(self.photon_cookie_input)
+        layout.addWidget(QLabel("User Agent"))
+        layout.addWidget(self.photon_user_agent_input)
+        layout.addWidget(QLabel("Export Format"))
+        layout.addWidget(self.photon_export_combo)
+        layout.addWidget(self.chk_photon_dns)
+        layout.addWidget(self.chk_photon_keys)
+        layout.addWidget(self.chk_photon_only_urls)
+        layout.addWidget(self.chk_photon_wayback)
+        layout.addWidget(self.chk_photon_clone)
+        layout.addWidget(self.chk_photon_ninja)
+        layout.addWidget(self.chk_photon_verbose)
+        layout.addWidget(self.photon_btn)
         layout.addStretch()
 
         return panel
@@ -328,4 +419,67 @@ class ReconPage(ToolModulePage):
             cmd.append(remote)
 
         self.run_command.emit(" ".join(cmd))
+
+    def _browse_photon_output(self):
+        folder = QFileDialog.getExistingDirectory(self, "Select Output Directory")
+        if folder:
+            self.photon_output_input.setText(folder)
+
+    def build_photon(self):
+        url = self.photon_url_input.text().strip()
+        if not url:
+            self.emit_validation_error("Target URL is required before running Photon.")
+            return
+
+        cmd = ["photon", "-u", url]
+
+        level = self.photon_level_spin.value()
+        if level != 2:
+            cmd.extend(["-l", str(level)])
+
+        threads = self.photon_threads_spin.value()
+        if threads != 10:
+            cmd.extend(["-t", str(threads)])
+
+        delay = self.photon_delay_spin.value()
+        if delay > 0:
+            cmd.extend(["-d", str(delay)])
+
+        output_dir = self.photon_output_input.text().strip()
+        if output_dir:
+            cmd.extend(["-o", output_dir])
+
+        regex_pat = self.photon_regex_input.text().strip()
+        if regex_pat:
+            cmd.extend(["-r", regex_pat])
+
+        cookie = self.photon_cookie_input.text().strip()
+        if cookie:
+            cmd.extend(["-c", cookie])
+
+        user_agent = self.photon_user_agent_input.text().strip()
+        if user_agent:
+            cmd.extend(["--user-agent", user_agent])
+
+        export_fmt = self.photon_export_combo.currentText()
+        if export_fmt != "none":
+            cmd.extend(["-e", export_fmt])
+
+        if self.chk_photon_dns.isChecked():
+            cmd.append("--dns")
+        if self.chk_photon_keys.isChecked():
+            cmd.append("--keys")
+        if self.chk_photon_only_urls.isChecked():
+            cmd.append("--only-urls")
+        if self.chk_photon_wayback.isChecked():
+            cmd.append("--wayback")
+        if self.chk_photon_clone.isChecked():
+            cmd.append("--clone")
+        if self.chk_photon_ninja.isChecked():
+            cmd.append("--ninja")
+        if self.chk_photon_verbose.isChecked():
+            cmd.append("-v")
+
+        self.run_command.emit(" ".join(cmd))
+
 
