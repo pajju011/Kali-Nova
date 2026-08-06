@@ -131,7 +131,12 @@ class MainWindow(QMainWindow):
         dashboard = self.workspace.pages["Dashboard"]
         dashboard.run_suggested_signal.connect(self.handle_suggested_tool)
 
+        for page in [recon, web, auth, network]:
+            if hasattr(page, "ai_assist_requested"):
+                page.ai_assist_requested.connect(self._handle_in_tool_ai_assist)
+
         self._apply_theme()
+
 
     # =========================
     # Command Execution
@@ -363,6 +368,10 @@ class MainWindow(QMainWindow):
             self.ai_drawer.hide()
         else:
             self.ai_drawer.inspect_and_open()
+
+    def _handle_in_tool_ai_assist(self, ctx_dict):
+        self.ai_drawer.inspect_and_open()
+
 
 
 

@@ -29,7 +29,23 @@ class ReconPageUiBehaviorTests(unittest.TestCase):
         self.assertIn("192.168.1.100", str(ctx["inputs"]))
         self.assertIn("80,443", str(ctx["inputs"]))
 
+    def test_in_tool_header_ai_assist_emits_signal(self):
+        page = ReconPage()
+        page.show()
+        page.activate_tool("nmap")
+        page.nmap_target.setText("10.0.0.1")
+
+        received_ctx = []
+        page.ai_assist_requested.connect(lambda ctx: received_ctx.append(ctx))
+
+        page._on_header_ai_assist_clicked()
+
+        self.assertEqual(len(received_ctx), 1)
+        self.assertEqual(received_ctx[0]["tool_id"], "nmap")
+        self.assertIn("10.0.0.1", str(received_ctx[0]["inputs"]))
+
     def test_repeated_tool_click_keeps_panel_open(self):
+
 
         page = ReconPage()
         page.show()

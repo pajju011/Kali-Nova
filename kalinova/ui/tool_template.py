@@ -390,13 +390,53 @@ class ToolModulePage(QScrollArea):
 
         return empty
 
+    ai_assist_requested = pyqtSignal(dict)
+
     def create_panel(self, title):
-        panel = QGroupBox(title)
+        panel = QGroupBox()
         panel.setProperty("class", "toolPanelGroup")
         panel_layout = QVBoxLayout(panel)
         panel_layout.setSpacing(10)
-        panel_layout.setContentsMargins(14, 18, 14, 14)
+        panel_layout.setContentsMargins(14, 14, 14, 14)
+
+        header_row = QHBoxLayout()
+        header_row.setContentsMargins(0, 0, 0, 4)
+        
+        title_label = QLabel(title)
+        title_label.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
+        title_label.setStyleSheet("color: #00f0ff; letter-spacing: 0.5px;")
+
+        ai_assist_btn = QPushButton("✨ AI Assist")
+        ai_assist_btn.setToolTip("Scan active screen parameters in background and suggest next steps")
+        ai_assist_btn.setStyleSheet("""
+            QPushButton {
+                background: linear-gradient(135deg, #00f0ff 0%, #3b82f6 100%);
+                color: #050b14;
+                font-weight: bold;
+                font-size: 11px;
+                border-radius: 6px;
+                padding: 5px 12px;
+                border: none;
+            }
+            QPushButton:hover {
+                background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 100%);
+                color: #000000;
+            }
+        """)
+        ai_assist_btn.clicked.connect(self._on_header_ai_assist_clicked)
+
+        header_row.addWidget(title_label)
+        header_row.addStretch()
+        header_row.addWidget(ai_assist_btn)
+
+        panel_layout.addLayout(header_row)
+
         return panel, panel_layout
+
+    def _on_header_ai_assist_clicked(self):
+        ctx = self.get_active_tool_context()
+        self.ai_assist_requested.emit(ctx)
+
 
     def create_primary_button(self, text):
         button = QPushButton(text)
