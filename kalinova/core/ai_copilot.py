@@ -10,7 +10,7 @@ class AICopilot:
 import sqlite3
 
 def secure_query(user_input):
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect("database.db")             
     cursor = conn.cursor()        
     # SECURE: Always use placeholders (?) instead of string interpolation
     cursor.execute("SELECT * FROM users WHERE username = ?", (user_input,))             
