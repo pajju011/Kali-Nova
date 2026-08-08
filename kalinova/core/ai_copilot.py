@@ -12,11 +12,11 @@ import sqlite3
 def secure_query(user_input):
     conn = sqlite3.connect("database.db")             
     cursor = conn.cursor()        
-    # SECURE: Always use placeholders (?) instead of string interpolation
+    # SECURE: Always use placeholders (?) instead of string interpolation             
     cursor.execute("SELECT * FROM users WHERE username = ?", (user_input,))             
     return cursor.fetchall()
 """,
-            "remediation_node": """// [REMEDIATION] Node.js Safe SQL Statement       
+            "remediation_node": """// [REMEDIATION] Node.js Safe SQL Statement              
 const { Client } = require('pg');
 
 async function secureQuery(userInput) {
