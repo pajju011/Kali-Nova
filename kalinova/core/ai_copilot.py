@@ -2,7 +2,7 @@ class AICopilot:
 
     VULN_MAPPINGS = {
         "SQL_INJECTION": {
-            "title": "SQL Injection Vulnerability",
+            "title": "SQL Injection Vulnerability",                         
             "cvss": 9.8,
             "severity": "CRITICAL",
             "description": "Untrusted input was directly concatenated into a database SQL query, enabling unauthorized remote code execution, database leakage, or data tampering.",
@@ -12,17 +12,17 @@ import sqlite3
 def secure_query(user_input):
     conn = sqlite3.connect("database.db")             
     cursor = conn.cursor()        
-    # SECURE: Always use placeholders (?) instead of string interpolation             
-    cursor.execute("SELECT * FROM users WHERE username = ?", (user_input,))             
+    # SECURE: Always use placeholders (?) instead of string interpolation                      
+    cursor.execute("SELECT * FROM users WHERE username = ?", (user_input,))                           
     return cursor.fetchall()
 """,
             "remediation_node": """// [REMEDIATION] Node.js Safe SQL Statement              
-const { Client } = require('pg');
+const { Client } = require('pg');                 
 
 async function secureQuery(userInput) {
     const client = new Client();
     await client.connect();
-    // SECURE: Use parameterized query object
+    // SECURE: Use parameterized query object            
     const query = {
         text: 'SELECT * FROM users WHERE username = $1',
         values: [userInput],
