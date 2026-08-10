@@ -27,6 +27,10 @@ class RiskEngine:
                 score += 3
             elif event == "EMAIL_ENUM":
                 score += 2
+            elif event == "SECRET_LEAK":
+                score += 5
+            elif event == "SUBDOMAIN_ENUM":
+                score += 2
 
         app_state.risk_score = score
 

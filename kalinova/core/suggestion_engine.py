@@ -40,6 +40,12 @@ class SuggestionEngine:
             elif event == "EMAIL_ENUM":
                 suggestions.append("Email addresses discovered → Possible phishing vector.")
 
+            elif event == "SECRET_LEAK":
+                suggestions.append("Secret API keys/tokens exposed in web assets → Revoke keys and sanitize source files.")
+
+            elif event == "SUBDOMAIN_ENUM":
+                suggestions.append("Subdomains discovered → Audit DNS records & perform port scanning on subdomains.")
+
         # ========================
         # Risk Based Suggestions
         # ========================
