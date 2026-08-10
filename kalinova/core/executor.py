@@ -189,6 +189,11 @@ class CommandThread(QThread):
             app_state.add_event("FORENSICS_ANALYSIS")
             self.output_signal.emit("[INFO] Digital forensics session initiated!")
 
+        # Bettercap Recon & MITM Event Detection
+        if "bettercap" in lower_line or "endpoint.new" in lower_line:
+            app_state.add_event("NETWORK_RECON")
+            self.output_signal.emit("[INFO] Bettercap network recon event logged.")
+
     def run_simulation(self, tool_binary, command_args):
         simulated_lines = []
         target = "target-system.local"
@@ -440,6 +445,24 @@ class CommandThread(QThread):
                 "[+] cracking handshake using wordlist...",
                 "[+] KEY FOUND! [ CorporatePass2026! ]",
                 "[+] 1 attack completed, 1 handshake captured, 1 key cracked."
+            ]
+
+        elif tool_binary == "bettercap":
+            simulated_lines = [
+                "bettercap v2.11 (type 'help' for a list of commands)",
+                "",
+                "172.16.10.0/24 > 172.16.10.212  » [12:34:15] [endpoint.new] endpoint 172.16.10.254 detected as 00:50:56:01:33:70 (VMware, Inc.).",
+                "172.16.10.0/24 > 172.16.10.212  » net.show",
+                "",
+                "+-----------------+--------------------+----------+-------------------------+---------+---------+------------+",
+                "|       IP        |        MAC         |  Name    |         Vendor          | Sent    | Recvd  | Last Seen  |",
+                "+-----------------+--------------------+----------+-------------------------+---------+---------+------------+",
+                "| 172.16.10.212   | 00:b0:52:af:4a:50  | eth0     | Atheros Communications  | 0 B     | 0 B     | 12:34:15   |",
+                "| 172.16.10.2     | 00:50:56:13:37:0a  | gateway  | VMware, Inc.            | 49 kB   | 20 kB   | 12:34:15   |",
+                "| 172.16.10.254   | 00:50:56:01:33:70  |          | VMware, Inc.            | 2.4 kB  | 2.4 kB  | 12:35:15   |",
+                "+-----------------+--------------------+----------+-------------------------+---------+---------+------------+",
+                "",
+                "↑ 0 B / ↓ 3.2 MB / 11354 pkts / 0 errs"
             ]
 
         elif tool_binary == "autopsy":

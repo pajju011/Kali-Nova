@@ -70,6 +70,18 @@ class MainWindowBehaviorTests(unittest.TestCase):
         self.assertIs(current_page, web_page)
         self.assertEqual(web_page._selected_tool, "gobuster")
 
+    def test_handle_suggested_tool_opens_bettercap_panel(self):
+        window = MainWindow()
+        window.show()
+
+        window.handle_suggested_tool("Bettercap")
+
+        current_page = window.workspace.currentWidget()
+        network_page = window.workspace.pages["Network"]
+
+        self.assertIs(current_page, network_page)
+        self.assertEqual(network_page._selected_tool, "bettercap")
+
     def test_side_console_stays_visible_after_command_execution(self):
         window = MainWindow()
         window.show()

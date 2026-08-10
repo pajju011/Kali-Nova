@@ -126,6 +126,37 @@ class NetworkPageWifiteBehaviorTests(unittest.TestCase):
         self.assertIn(".cap file", errors[0])
 
 
+class NetworkPageBettercapBehaviorTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_bettercap_tool_panel_activation(self):
+        page = NetworkPage()
+        page.show()
+
+        button = page._tool_buttons["bettercap"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "bettercap")
+
+    def test_bettercap_command_generation(self):
+        page = NetworkPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.bettercap_iface_input.setText("eth0")
+        page.bettercap_autostart_input.setText("events.stream")
+        page.bettercap_eval_input.setText("net.show")
+        page.chk_bettercap_silent.setChecked(True)
+
+        page.build_bettercap()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], 'bettercap -iface eth0 -autostart events.stream -eval "net.show" -silent')
+
+
 class AuthPageWordlistsBehaviorTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

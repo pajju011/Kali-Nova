@@ -22,6 +22,7 @@ class NetworkPage(ToolModulePage):
         self.netcat_panel = self._create_netcat_panel()
         self.wireshark_panel = self._create_wireshark_panel()
         self.wifite_panel = self._create_wifite_panel()
+        self.bettercap_panel = self._create_bettercap_panel()
         self.sslscan_panel = self._create_sslscan_panel()
         self.sslyze_panel = self._create_sslyze_panel()
         self.tlssled_panel = self._create_tlssled_panel()
@@ -48,6 +49,14 @@ class NetworkPage(ToolModulePage):
             description="Wireless Auditor",
             panel=self.wifite_panel,
             focus_widget=self.wifite_interface_input,
+        )
+        self.add_tool(
+            tool_id="bettercap",
+            icon="⚡",
+            name="Bettercap",
+            description="MITM & Recon",
+            panel=self.bettercap_panel,
+            focus_widget=self.bettercap_iface_input,
         )
         self.add_tool(
             tool_id="sslscan",
@@ -225,6 +234,84 @@ class NetworkPage(ToolModulePage):
 
         return panel
 
+    def _create_bettercap_panel(self):
+        panel, layout = self.create_panel("⚡ Bettercap Framework")
+
+        row_iface = QHBoxLayout()
+        v_iface = QVBoxLayout()
+        v_iface.addWidget(QLabel("Network Interface (-iface)"))
+        self.bettercap_iface_input = QLineEdit()
+        self.bettercap_iface_input.setPlaceholderText("e.g. eth0 or wlan0")
+        v_iface.addWidget(self.bettercap_iface_input)
+
+        v_auto = QVBoxLayout()
+        v_auto.addWidget(QLabel("Auto-start Modules (-autostart)"))
+        self.bettercap_autostart_input = QLineEdit()
+        self.bettercap_autostart_input.setPlaceholderText("e.g. net.recon, events.stream")
+        v_auto.addWidget(self.bettercap_autostart_input)
+
+        row_iface.addLayout(v_iface)
+        row_iface.addLayout(v_auto)
+        layout.addLayout(row_iface)
+
+        row_cmd = QHBoxLayout()
+        v_eval = QVBoxLayout()
+        v_eval.addWidget(QLabel("Evaluate Commands (-eval)"))
+        self.bettercap_eval_input = QLineEdit()
+        self.bettercap_eval_input.setPlaceholderText("e.g. net.probe on; net.show")
+        v_eval.addWidget(self.bettercap_eval_input)
+
+        v_caplet = QVBoxLayout()
+        v_caplet.addWidget(QLabel("Caplet File (-caplet)"))
+        self.bettercap_caplet_input = QLineEdit()
+        self.bettercap_caplet_input.setPlaceholderText("Path to .caplet file")
+        v_caplet.addWidget(self.bettercap_caplet_input)
+
+        row_cmd.addLayout(v_eval)
+        row_cmd.addLayout(v_caplet)
+        layout.addLayout(row_cmd)
+
+        flags_group = QGroupBox("Execution Options")
+        flags_layout = QHBoxLayout()
+        self.chk_bettercap_silent = QCheckBox("Quiet / Silent Mode (-silent)")
+        self.chk_bettercap_debug = QCheckBox("Debug Mode (-debug)")
+        self.chk_bettercap_nocolors = QCheckBox("Disable Colors (-no-colors)")
+        flags_layout.addWidget(self.chk_bettercap_silent)
+        flags_layout.addWidget(self.chk_bettercap_debug)
+        flags_layout.addWidget(self.chk_bettercap_nocolors)
+        flags_group.setLayout(flags_layout)
+        layout.addWidget(flags_group)
+
+        self.bettercap_btn = self.create_primary_button("Run Bettercap")
+        self.bettercap_btn.clicked.connect(self.build_bettercap)
+        layout.addWidget(self.bettercap_btn)
+
+        usage_label = QLabel()
+        usage_label.setTextFormat(Qt.TextFormat.RichText)
+        usage_label.setWordWrap(True)
+        usage_label.setText("""<pre style='font-family:monospace;'>
+Bettercap Usage Example
+Scan the system in quiet mode (-silent) and evaluate commands:
+
+root@kali:~# bettercap
+bettercap v2.11 (type 'help' for a list of commands)
+
+172.16.10.0/24 > 172.16.10.212  » [12:34:15] [endpoint.new] endpoint 172.16.10.254 detected as 00:50:56:01:33:70 (VMware, Inc.).
+172.16.10.0/24 > 172.16.10.212  » net.show
+
++-----------------+--------------------+----------+-------------------------+---------+---------+------------+
+|       IP        |        MAC         |  Name    |         Vendor          | Sent    | Recvd  | Last Seen  |
++-----------------+--------------------+----------+-------------------------+---------+---------+------------+
+| 172.16.10.212   | 00:b0:52:af:4a:50  | eth0     | Atheros Communications  | 0 B     | 0 B     | 12:34:15   |
+| 172.16.10.2     | 00:50:56:13:37:0a  | gateway  | VMware, Inc.            | 49 kB   | 20 kB   | 12:34:15   |
+| 172.16.10.254   | 00:50:56:01:33:70  |          | VMware, Inc.            | 2.4 kB  | 2.4 kB  | 12:35:15   |
++-----------------+--------------------+----------+-------------------------+---------+---------+------------+
+</pre>""")
+        layout.addWidget(usage_label)
+        layout.addStretch()
+
+        return panel
+
     def _create_sslscan_panel(self):
         panel, layout = self.create_panel("🔒 SSLScan")
         self.sslscan_target_input = QLineEdit()
@@ -307,6 +394,9 @@ root@kali:~# tlssled 192.168.1.1 443
 
     def show_wifite_panel(self):
         self.activate_tool("wifite")
+
+    def show_bettercap_panel(self):
+        self.activate_tool("bettercap")
 
     def show_sslscan_panel(self):
         self.activate_tool("sslscan")
@@ -403,6 +493,34 @@ root@kali:~# tlssled 192.168.1.1 443
         dictionary = self.wifite_dict_input.text().strip()
         if dictionary:
             cmd.append(f"--dict {dictionary}")
+
+        self.run_command.emit(" ".join(cmd))
+
+    def build_bettercap(self):
+        cmd = ["bettercap"]
+
+        iface = self.bettercap_iface_input.text().strip()
+        if iface:
+            cmd.append(f"-iface {iface}")
+
+        autostart = self.bettercap_autostart_input.text().strip()
+        if autostart:
+            cmd.append(f"-autostart {autostart}")
+
+        eval_cmds = self.bettercap_eval_input.text().strip()
+        if eval_cmds:
+            cmd.append(f'-eval "{eval_cmds}"')
+
+        caplet = self.bettercap_caplet_input.text().strip()
+        if caplet:
+            cmd.append(f"-caplet {caplet}")
+
+        if self.chk_bettercap_silent.isChecked():
+            cmd.append("-silent")
+        if self.chk_bettercap_debug.isChecked():
+            cmd.append("-debug")
+        if self.chk_bettercap_nocolors.isChecked():
+            cmd.append("-no-colors")
 
         self.run_command.emit(" ".join(cmd))
 

@@ -309,6 +309,15 @@ class MainWindow(QMainWindow):
             )
             return
 
+        if "bettercap" in lower_tool or "mitm" in lower_tool:
+            self._open_tool_panel(
+                page_name="Network",
+                panel_method="show_bettercap_panel",
+                tool_name="Bettercap",
+                instruction="Configure interface and network reconnaissance options, then run from Network page.",
+            )
+            return
+
         self._log_main(
             f"Suggested action: {suggested_tool}. Please open the appropriate tool page."
         )
