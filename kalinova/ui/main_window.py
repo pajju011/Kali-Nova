@@ -10,6 +10,7 @@ from ui.sidebar import Sidebar
 from ui.topbar import TopBar
 from ui.workspace import Workspace
 from ui.console import Console
+from ui.ai_copilot_drawer import AICopilotDrawer
 from core.executor import CommandThread
 
 
@@ -39,6 +40,10 @@ class MainWindow(QMainWindow):
         self.topbar = TopBar()
         self.sidebar = Sidebar()
         self.workspace = Workspace()
+        self.ai_drawer = AICopilotDrawer(workspace=self.workspace)
+        self.ai_drawer.setMinimumWidth(360)
+        self.ai_drawer.hide()
+
         self.console = Console(panel_title="Bottom Console", output_height=150)
         self.side_console = QWidget()
         self.side_console.setObjectName("sideConsolePanel")
@@ -62,15 +67,17 @@ class MainWindow(QMainWindow):
         self.workspace.setObjectName("workspace")
         self.workspace.setMinimumWidth(0)
 
-        # Splitter between workspace and side output panel with mouse drag handle
+        # Splitter between workspace, side output panel, and AI drawer
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
         self.splitter.setObjectName("mainSplitter")
         self.splitter.setHandleWidth(8)
         self.splitter.setChildrenCollapsible(False)
         self.splitter.addWidget(self.workspace)
         self.splitter.addWidget(self.side_console)
+        self.splitter.addWidget(self.ai_drawer)
         self.splitter.setStretchFactor(0, 3)
         self.splitter.setStretchFactor(1, 2)
+        self.splitter.setStretchFactor(2, 2)
         self.splitter.setCollapsible(0, False)
 
         # =========================
@@ -82,7 +89,6 @@ class MainWindow(QMainWindow):
         middle_layout.addWidget(self.splitter, 1)
 
         main_layout.addLayout(middle_layout)
-        # main_layout.addWidget(self.console)
 
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
@@ -99,6 +105,8 @@ class MainWindow(QMainWindow):
             self.workspace.pages["Recon"].update_mode
         )
         self.topbar.toggle_output_signal.connect(self.toggle_output_panel)
+        self.topbar.toggle_ai_copilot_signal.connect(self.toggle_ai_copilot)
+
 
         # =========================
         # Tool Execution Connections
@@ -123,7 +131,12 @@ class MainWindow(QMainWindow):
         dashboard = self.workspace.pages["Dashboard"]
         dashboard.run_suggested_signal.connect(self.handle_suggested_tool)
 
+        for page in [recon, web, auth, network]:
+            if hasattr(page, "ai_assist_requested"):
+                page.ai_assist_requested.connect(self._handle_in_tool_ai_assist)
+
         self._apply_theme()
+
 
     # =========================
     # Command Execution
@@ -349,6 +362,18 @@ class MainWindow(QMainWindow):
 
     def _show_side_output_panel(self):
         self.side_console.show()
+
+    def toggle_ai_copilot(self):
+        if not self.ai_drawer.isHidden():
+            self.ai_drawer.hide()
+        else:
+            self.ai_drawer.inspect_and_open()
+
+    def _handle_in_tool_ai_assist(self, ctx_dict):
+        self.ai_drawer.inspect_and_open()
+
+
+
 
     def _set_thread_tab_running(self, thread, is_running):
         tab_console = self._thread_consoles.get(thread)

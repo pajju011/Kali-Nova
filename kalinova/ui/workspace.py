@@ -30,3 +30,24 @@ class Workspace(QStackedWidget):
     def switch_page(self, page_name):
         if page_name in self.pages:
             self.setCurrentWidget(self.pages[page_name])
+
+    def get_active_context(self):
+        current_widget = self.currentWidget()
+        page_name = "Dashboard"
+        for name, widget in self.pages.items():
+            if widget == current_widget:
+                page_name = name
+                break
+
+        context = {
+            "page_name": page_name,
+            "tool_id": "none",
+            "tool_name": page_name,
+            "inputs": {}
+        }
+
+        if hasattr(current_widget, "get_active_tool_context"):
+            tool_ctx = current_widget.get_active_tool_context()
+            context.update(tool_ctx)
+
+        return context

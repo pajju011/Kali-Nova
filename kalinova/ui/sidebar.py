@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton
 from PyQt6.QtCore import pyqtSignal
 
@@ -69,6 +70,17 @@ class Sidebar(QWidget):
         )
         layout.addWidget(self.reports_btn)
 
+        # -----------------------
+        # Settings
+        # -----------------------
+        self.settings_btn = QPushButton("Settings")
+        self.settings_btn.setObjectName("navButton")
+        self.settings_btn.clicked.connect(
+            lambda: self.navigate.emit("Settings")
+        )
+        layout.addWidget(self.settings_btn)
+
         layout.addStretch()
 
         self.setLayout(layout)
+

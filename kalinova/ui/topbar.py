@@ -9,6 +9,7 @@ class TopBar(QWidget):
 
     mode_changed = pyqtSignal(str)
     toggle_output_signal = pyqtSignal()
+    toggle_ai_copilot_signal = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -37,7 +38,7 @@ class TopBar(QWidget):
                 color: #a5c2f5;
             }
             QPushButton#outputToggleBtn:hover {
-                background-color: #243758;
+                background-color: #24385a;
                 border-color: #4d89ff;
                 color: #ffffff;
             }
@@ -57,6 +58,7 @@ class TopBar(QWidget):
         layout.addWidget(self.output_btn)
         layout.addWidget(self.mode_selector)
         layout.addWidget(self.risk_label)
+
 
         self.setLayout(layout)
 

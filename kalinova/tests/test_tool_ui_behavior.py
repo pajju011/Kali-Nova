@@ -17,7 +17,36 @@ class ReconPageUiBehaviorTests(unittest.TestCase):
     def setUpClass(cls):
         cls.app = QApplication.instance() or QApplication([])
 
+    def test_get_active_tool_context_harvests_form_inputs(self):
+        page = ReconPage()
+        page.show()
+        page.activate_tool("nmap")
+        page.nmap_target.setText("192.168.1.100")
+        page.port_input.setText("80,443")
+
+        ctx = page.get_active_tool_context()
+        self.assertEqual(ctx["tool_id"], "nmap")
+        self.assertIn("192.168.1.100", str(ctx["inputs"]))
+        self.assertIn("80,443", str(ctx["inputs"]))
+
+    def test_in_tool_header_ai_assist_emits_signal(self):
+        page = ReconPage()
+        page.show()
+        page.activate_tool("nmap")
+        page.nmap_target.setText("10.0.0.1")
+
+        received_ctx = []
+        page.ai_assist_requested.connect(lambda ctx: received_ctx.append(ctx))
+
+        page._on_header_ai_assist_clicked()
+
+        self.assertEqual(len(received_ctx), 1)
+        self.assertEqual(received_ctx[0]["tool_id"], "nmap")
+        self.assertIn("10.0.0.1", str(received_ctx[0]["inputs"]))
+
     def test_repeated_tool_click_keeps_panel_open(self):
+
+
         page = ReconPage()
         page.show()
 
@@ -80,6 +109,71 @@ class ReconPageUiBehaviorTests(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn("Live analysis requires", errors[0])
 
+    def test_photon_tool_panel_activation(self):
+        page = ReconPage()
+        page.show()
+
+        button = page._tool_buttons["photon"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "photon")
+
+    def test_photon_command_generation(self):
+        page = ReconPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.photon_url_input.setText("http://example.com")
+        page.photon_level_spin.setValue(3)
+        page.chk_photon_dns.setChecked(True)
+        page.chk_photon_keys.setChecked(True)
+
+        page.build_photon()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "photon -u http://example.com -l 3 --dns --keys")
+
+    def test_photon_validation_error_when_url_missing(self):
+        page = ReconPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.build_photon()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Target URL is required", errors[0])
+
+    def test_photon_complex_command_generation(self):
+        page = ReconPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.photon_url_input.setText("https://target.org")
+        page.photon_level_spin.setValue(4)
+        page.photon_threads_spin.setValue(20)
+        page.photon_delay_spin.setValue(2)
+        page.photon_output_input.setText("/tmp/photon_out")
+        page.photon_regex_input.setText("[a-z0-9_-]+@example\\.com")
+        page.photon_cookie_input.setText("sessionid=xyz123")
+        page.photon_user_agent_input.setText("Mozilla/5.0")
+        page.photon_export_combo.setCurrentIndex(2)  # json
+        page.chk_photon_dns.setChecked(True)
+        page.chk_photon_keys.setChecked(True)
+        page.chk_photon_wayback.setChecked(True)
+        page.chk_photon_clone.setChecked(True)
+        page.chk_photon_ninja.setChecked(True)
+
+        page.build_photon()
+
+        self.assertEqual(len(commands), 1)
+        expected_cmd = "photon -u https://target.org -l 4 -t 20 -d 2 -o /tmp/photon_out -r [a-z0-9_-]+@example\\.com -c sessionid=xyz123 --user-agent Mozilla/5.0 -e json --dns --keys --wayback --clone --ninja"
+        self.assertEqual(commands[0], expected_cmd)
+
 
 class NetworkPageWifiteBehaviorTests(unittest.TestCase):
     @classmethod
@@ -125,6 +219,87 @@ class NetworkPageWifiteBehaviorTests(unittest.TestCase):
         self.assertIn(".cap file", errors[0])
 
 
+class NetworkPageWashAndReaverBehaviorTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_wash_tool_panel_activation(self):
+        page = NetworkPage()
+        page.show()
+
+        button = page._tool_buttons["wash"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "wash")
+
+    def test_wash_command_generation(self):
+        page = NetworkPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.wash_interface_input.setText("wlan0mon")
+        page.wash_channel_input.setText("6")
+        page.chk_wash_ignore_fcs.setChecked(True)
+
+        page.build_wash()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "wash -i wlan0mon -c 6 -C")
+
+    def test_wash_validation_error(self):
+        page = NetworkPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.build_wash()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Monitor interface is required", errors[0])
+
+    def test_reaver_tool_panel_activation(self):
+        page = NetworkPage()
+        page.show()
+
+        button = page._tool_buttons["reaver"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "reaver")
+
+    def test_reaver_command_generation_with_pixie(self):
+        page = NetworkPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.reaver_interface_input.setText("wlan0mon")
+        page.reaver_bssid_input.setText("E0:3F:49:6A:57:78")
+        page.chk_reaver_pixie.setChecked(True)
+        page.chk_reaver_verbose.setChecked(True)
+
+        page.build_reaver()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "reaver -i wlan0mon -b E0:3F:49:6A:57:78 -K -v")
+
+    def test_reaver_validation_error(self):
+        page = NetworkPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.reaver_interface_input.setText("wlan0mon")
+        page.build_reaver()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Target BSSID is required", errors[0])
+
+
 if __name__ == "__main__":
     unittest.main()
+
 

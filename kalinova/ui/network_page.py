@@ -22,6 +22,8 @@ class NetworkPage(ToolModulePage):
         self.netcat_panel = self._create_netcat_panel()
         self.wireshark_panel = self._create_wireshark_panel()
         self.wifite_panel = self._create_wifite_panel()
+        self.wash_panel = self._create_wash_panel()
+        self.reaver_panel = self._create_reaver_panel()
         self.sslscan_panel = self._create_sslscan_panel()
         self.sslyze_panel = self._create_sslyze_panel()
         self.tlssled_panel = self._create_tlssled_panel()
@@ -48,6 +50,22 @@ class NetworkPage(ToolModulePage):
             description="Wireless Auditor",
             panel=self.wifite_panel,
             focus_widget=self.wifite_interface_input,
+        )
+        self.add_tool(
+            tool_id="wash",
+            icon="📶",
+            name="Wash",
+            description="WPS Scanner",
+            panel=self.wash_panel,
+            focus_widget=self.wash_interface_input,
+        )
+        self.add_tool(
+            tool_id="reaver",
+            icon="🔨",
+            name="Reaver",
+            description="WPS PIN Cracker",
+            panel=self.reaver_panel,
+            focus_widget=self.reaver_interface_input,
         )
         self.add_tool(
             tool_id="sslscan",
@@ -406,6 +424,195 @@ root@kali:~# tlssled 192.168.1.1 443
 
         self.run_command.emit(" ".join(cmd))
 
+    def _create_wash_panel(self):
+        panel, layout = self.create_panel("📶 Wash - WPS WiFi Scanner")
+
+        self.wash_interface_input = QLineEdit()
+        self.wash_interface_input.setPlaceholderText("Monitor Interface (e.g. wlan0mon)")
+
+        self.wash_channel_input = QLineEdit()
+        self.wash_channel_input.setPlaceholderText("Channel (e.g. 6) [Optional]")
+
+        self.wash_pcap_input = QLineEdit()
+        self.wash_pcap_input.setPlaceholderText("Output pcap filename [Optional]")
+
+        self.chk_wash_ignore_fcs = QCheckBox("Ignore frame checksum errors (-C)")
+        self.chk_wash_ignore_fcs.setChecked(True)
+        self.chk_wash_2ghz = QCheckBox("2.4GHz channels (-2)")
+        self.chk_wash_5ghz = QCheckBox("5GHz channels (-5)")
+        self.chk_wash_all = QCheckBox("Show all APs including non-WPS (-a)")
+        self.chk_wash_json = QCheckBox("JSON output (-j)")
+        self.chk_wash_progress = QCheckBox("Show crack progress (-p)")
+
+        self.wash_btn = self.create_primary_button("Run Wash Scan")
+        self.wash_btn.clicked.connect(self.build_wash)
+
+        layout.addWidget(QLabel("Interface"))
+        layout.addWidget(self.wash_interface_input)
+        layout.addWidget(QLabel("Channel"))
+        layout.addWidget(self.wash_channel_input)
+        layout.addWidget(QLabel("Output Pcap"))
+        layout.addWidget(self.wash_pcap_input)
+        layout.addWidget(self.chk_wash_ignore_fcs)
+        layout.addWidget(self.chk_wash_2ghz)
+        layout.addWidget(self.chk_wash_5ghz)
+        layout.addWidget(self.chk_wash_all)
+        layout.addWidget(self.chk_wash_json)
+        layout.addWidget(self.chk_wash_progress)
+        layout.addWidget(self.wash_btn)
+        layout.addStretch()
+
+        return panel
+
+    def _create_reaver_panel(self):
+        panel, layout = self.create_panel("🔨 Reaver - WPS Attack & PIN Cracker")
+
+        self.reaver_interface_input = QLineEdit()
+        self.reaver_interface_input.setPlaceholderText("Monitor Interface (e.g. wlan0mon)")
+
+        self.reaver_bssid_input = QLineEdit()
+        self.reaver_bssid_input.setPlaceholderText("Target BSSID (MAC e.g. E0:3F:49:6A:57:78)")
+
+        self.reaver_essid_input = QLineEdit()
+        self.reaver_essid_input.setPlaceholderText("Target ESSID [Optional]")
+
+        self.reaver_channel_input = QLineEdit()
+        self.reaver_channel_input.setPlaceholderText("Channel [Optional]")
+
+        self.reaver_pin_input = QLineEdit()
+        self.reaver_pin_input.setPlaceholderText("Specific WPS PIN [Optional]")
+
+        self.reaver_delay_spin = QSpinBox()
+        self.reaver_delay_spin.setRange(0, 300)
+        self.reaver_delay_spin.setValue(1)
+        self.reaver_delay_spin.setSuffix(" sec delay between attempts")
+
+        self.reaver_lock_delay_spin = QSpinBox()
+        self.reaver_lock_delay_spin.setRange(0, 3600)
+        self.reaver_lock_delay_spin.setValue(60)
+        self.reaver_lock_delay_spin.setSuffix(" sec lock delay")
+
+        self.chk_reaver_pixie = QCheckBox("Pixie Dust Attack (-K)")
+        self.chk_reaver_verbose = QCheckBox("Verbose output (-v)")
+        self.chk_reaver_verbose.setChecked(True)
+        self.chk_reaver_ignore_fcs = QCheckBox("Ignore FCS errors (-F)")
+        self.chk_reaver_ignore_locks = QCheckBox("Ignore AP lock state (-L)")
+        self.chk_reaver_dh_small = QCheckBox("Use small DH keys (-S)")
+        self.chk_reaver_5ghz = QCheckBox("5GHz channels (-5)")
+        self.chk_reaver_fixed = QCheckBox("Fixed channel / no hopping (-f)")
+        self.chk_reaver_no_assoc = QCheckBox("Do not associate (-A)")
+
+        self.reaver_btn = self.create_primary_button("Run Reaver Attack")
+        self.reaver_btn.clicked.connect(self.build_reaver)
+
+        layout.addWidget(QLabel("Interface"))
+        layout.addWidget(self.reaver_interface_input)
+        layout.addWidget(QLabel("Target BSSID"))
+        layout.addWidget(self.reaver_bssid_input)
+        layout.addWidget(QLabel("Target ESSID"))
+        layout.addWidget(self.reaver_essid_input)
+        layout.addWidget(QLabel("Channel"))
+        layout.addWidget(self.reaver_channel_input)
+        layout.addWidget(QLabel("WPS PIN"))
+        layout.addWidget(self.reaver_pin_input)
+        layout.addWidget(QLabel("Attempt Delay"))
+        layout.addWidget(self.reaver_delay_spin)
+        layout.addWidget(QLabel("Lock Wait Time"))
+        layout.addWidget(self.reaver_lock_delay_spin)
+        layout.addWidget(self.chk_reaver_pixie)
+        layout.addWidget(self.chk_reaver_verbose)
+        layout.addWidget(self.chk_reaver_ignore_fcs)
+        layout.addWidget(self.chk_reaver_ignore_locks)
+        layout.addWidget(self.chk_reaver_dh_small)
+        layout.addWidget(self.chk_reaver_5ghz)
+        layout.addWidget(self.chk_reaver_fixed)
+        layout.addWidget(self.chk_reaver_no_assoc)
+        layout.addWidget(self.reaver_btn)
+        layout.addStretch()
+
+        return panel
+
+    def build_wash(self):
+        iface = self.wash_interface_input.text().strip()
+        if not iface:
+            self.emit_validation_error("Monitor interface is required before running Wash.")
+            return
+
+        cmd = ["wash", "-i", iface]
+
+        chan = self.wash_channel_input.text().strip()
+        if chan:
+            cmd.extend(["-c", chan])
+
+        pcap = self.wash_pcap_input.text().strip()
+        if pcap:
+            cmd.extend(["-o", pcap])
+
+        if self.chk_wash_ignore_fcs.isChecked():
+            cmd.append("-C")
+        if self.chk_wash_2ghz.isChecked():
+            cmd.append("-2")
+        if self.chk_wash_5ghz.isChecked():
+            cmd.append("-5")
+        if self.chk_wash_all.isChecked():
+            cmd.append("-a")
+        if self.chk_wash_json.isChecked():
+            cmd.append("-j")
+        if self.chk_wash_progress.isChecked():
+            cmd.append("-p")
+
+        self.run_command.emit(" ".join(cmd))
+
+    def build_reaver(self):
+        iface = self.reaver_interface_input.text().strip()
+        bssid = self.reaver_bssid_input.text().strip()
+
+        if not iface:
+            self.emit_validation_error("Monitor interface is required before running Reaver.")
+            return
+        if not bssid:
+            self.emit_validation_error("Target BSSID is required before running Reaver.")
+            return
+
+        cmd = ["reaver", "-i", iface, "-b", bssid]
+
+        essid = self.reaver_essid_input.text().strip()
+        if essid:
+            cmd.extend(["-e", essid])
+
+        chan = self.reaver_channel_input.text().strip()
+        if chan:
+            cmd.extend(["-c", chan])
+
+        pin = self.reaver_pin_input.text().strip()
+        if pin:
+            cmd.extend(["-p", pin])
+
+        if self.reaver_delay_spin.value() != 1:
+            cmd.extend(["-d", str(self.reaver_delay_spin.value())])
+
+        if self.reaver_lock_delay_spin.value() != 60:
+            cmd.extend(["-l", str(self.reaver_lock_delay_spin.value())])
+
+        if self.chk_reaver_pixie.isChecked():
+            cmd.append("-K")
+        if self.chk_reaver_verbose.isChecked():
+            cmd.append("-v")
+        if self.chk_reaver_ignore_fcs.isChecked():
+            cmd.append("-F")
+        if self.chk_reaver_ignore_locks.isChecked():
+            cmd.append("-L")
+        if self.chk_reaver_dh_small.isChecked():
+            cmd.append("-S")
+        if self.chk_reaver_5ghz.isChecked():
+            cmd.append("-5")
+        if self.chk_reaver_fixed.isChecked():
+            cmd.append("-f")
+        if self.chk_reaver_no_assoc.isChecked():
+            cmd.append("-A")
+
+        self.run_command.emit(" ".join(cmd))
+
     def build_sslscan(self):
         target = self.sslscan_target_input.text().strip()
         if not target:
@@ -427,3 +634,4 @@ root@kali:~# tlssled 192.168.1.1 443
             self.emit_validation_error("Host and port are required before running.")
             return
         self.run_command.emit(f"tlssled {host} {port}")
+
