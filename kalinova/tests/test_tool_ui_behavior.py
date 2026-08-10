@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import QApplication
 
 from ui.recon_page import ReconPage
 from ui.network_page import NetworkPage
+from ui.auth_page import AuthPage
 
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -268,6 +269,44 @@ class NetworkPageWashAndReaverBehaviorTests(unittest.TestCase):
 
         self.assertEqual(len(errors), 1)
         self.assertIn("Target BSSID is required", errors[0])
+
+    def test_ncrack_tool_panel_activation(self):
+        page = AuthPage()
+        page.show()
+
+        button = page._tool_buttons["ncrack"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "ncrack")
+
+    def test_ncrack_command_generation(self):
+        page = AuthPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.ncrack_target_input.setText("192.168.1.200")
+        page.ncrack_service_combo.setCurrentText("rdp")
+        page.ncrack_user_input.setText("victim")
+        page.ncrack_pass_file.setText("passes.txt")
+        page.ncrack_cl_input.setText("1")
+
+        page.build_ncrack()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], 'ncrack -v --user victim -P "passes.txt" -p rdp CL=1 192.168.1.200')
+
+    def test_ncrack_validation_error(self):
+        page = AuthPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.build_ncrack()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("target IP / Host is required", errors[0])
 
 
 if __name__ == "__main__":

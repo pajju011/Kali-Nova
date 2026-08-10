@@ -167,10 +167,10 @@ class CommandThread(QThread):
             app_state.add_event("SQL_INJECTION")
             self.output_signal.emit("[ALERT] SQL Injection vulnerability detected!")
 
-        # Hydra / Brute Force Detection
-        if "hydra" in lower_line or "login:" in lower_line:
+        # Hydra / Ncrack / Brute Force Detection
+        if "hydra" in lower_line or "ncrack" in lower_line or "login:" in lower_line or "discovered credentials on" in lower_line:
             app_state.add_event("BRUTE_FORCE")
-            self.output_signal.emit("[ALERT] Brute force attempt detected!")
+            self.output_signal.emit("[ALERT] Brute force / credential cracking attempt active!")
 
         # Gobuster Directory Enumeration
         if "found:" in lower_line:
@@ -386,6 +386,28 @@ class CommandThread(QThread):
                 "[ALERT] Brute force attempt detected!",
                 f"[22][ssh] host: {target}   login: {username}   password: admin",
                 "[STATUS] attack finished. 1 target successfully cracked."
+            ]
+
+        elif tool_binary == "ncrack":
+            username = "victim"
+            service = "rdp"
+            if "--user" in command_args:
+                try:
+                    idx = command_args.index("--user")
+                    username = command_args[idx+1]
+                except Exception:
+                    pass
+            if "-p" in command_args:
+                try:
+                    idx = command_args.index("-p")
+                    service = command_args[idx+1]
+                except Exception:
+                    pass
+            simulated_lines = [
+                f"Starting Ncrack 0.7 ( http://ncrack.org ) at {datetime.now().strftime('%Y-%m-%d %H:%M')}",
+                f"Discovered credentials on {service}://{target} '{username}' 's3cr3t'",
+                f"{service}://{target} finished.",
+                "Ncrack done: 1 service scanned in 4.21 seconds."
             ]
 
         elif tool_binary == "john":

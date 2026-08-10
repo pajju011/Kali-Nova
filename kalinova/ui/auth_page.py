@@ -19,6 +19,7 @@ class AuthPage(ToolModulePage):
 
         self.hydra_panel = self._create_hydra_panel()
         self.john_panel = self._create_john_panel()
+        self.ncrack_panel = self._create_ncrack_panel()
         self.hash_identifier_panel = self._create_hash_identifier_panel()
         self.hashid_panel = self._create_hashid_panel()
 
@@ -37,6 +38,14 @@ class AuthPage(ToolModulePage):
             description="Hash Cracking",
             panel=self.john_panel,
             focus_widget=self.hash_file,
+        )
+        self.add_tool(
+            tool_id="ncrack",
+            icon="🔓",
+            name="Ncrack",
+            description="Network Auth Cracker",
+            panel=self.ncrack_panel,
+            focus_widget=self.ncrack_target_input,
         )
         self.add_tool(
             tool_id="hash_identifier",
@@ -150,11 +159,64 @@ class AuthPage(ToolModulePage):
         layout.addStretch()
         return panel
 
+    def _create_ncrack_panel(self):
+        panel, layout = self.create_panel("🔓 Ncrack Network Auth Cracker")
+
+        self.ncrack_target_input = QLineEdit()
+        self.ncrack_target_input.setPlaceholderText("Target IP / Host (e.g. 192.168.1.200)")
+
+        self.ncrack_service_combo = QComboBox()
+        self.ncrack_service_combo.addItems([
+            "rdp",
+            "ssh",
+            "ftp",
+            "smb",
+            "http",
+            "vnc",
+            "telnet",
+            "pop3",
+        ])
+
+        self.ncrack_user_input = QLineEdit()
+        self.ncrack_user_input.setPlaceholderText("Username (e.g. victim)")
+
+        self.ncrack_pass_file = QLineEdit()
+        self.ncrack_pass_file.setPlaceholderText("Select password dictionary (-P)")
+
+        self.browse_ncrack_pass_btn = self.create_secondary_button("Browse Passwords")
+        self.browse_ncrack_pass_btn.clicked.connect(self.select_ncrack_pass_file)
+
+        self.ncrack_cl_input = QLineEdit()
+        self.ncrack_cl_input.setPlaceholderText("Max Connection Limit (e.g. 1)")
+        self.ncrack_cl_input.setText("1")
+
+        self.ncrack_btn = self.create_primary_button("Run Ncrack")
+        self.ncrack_btn.clicked.connect(self.build_ncrack)
+
+        layout.addWidget(QLabel("Target Host / IP"))
+        layout.addWidget(self.ncrack_target_input)
+        layout.addWidget(QLabel("Protocol / Service (-p)"))
+        layout.addWidget(self.ncrack_service_combo)
+        layout.addWidget(QLabel("Username (--user)"))
+        layout.addWidget(self.ncrack_user_input)
+        layout.addWidget(QLabel("Password Dictionary (-P)"))
+        layout.addWidget(self.ncrack_pass_file)
+        layout.addWidget(self.browse_ncrack_pass_btn)
+        layout.addWidget(QLabel("Max Connection Limit (CL=)"))
+        layout.addWidget(self.ncrack_cl_input)
+        layout.addWidget(self.ncrack_btn)
+        layout.addStretch()
+
+        return panel
+
     def show_hydra_panel(self):
         self.activate_tool("hydra")
 
     def show_john_panel(self):
         self.activate_tool("john")
+
+    def show_ncrack_panel(self):
+        self.activate_tool("ncrack")
 
     def show_hash_identifier_panel(self):
         self.activate_tool("hash_identifier")
@@ -192,6 +254,16 @@ class AuthPage(ToolModulePage):
         if file_path:
             self.john_wordlist.setText(file_path)
 
+    def select_ncrack_pass_file(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select Password Dictionary",
+            "",
+            "Text Files (*.txt)",
+        )
+        if file_path:
+            self.ncrack_pass_file.setText(file_path)
+
     def build_hydra(self):
         target = self.hydra_target_input.text().strip()
         service = self.service_dropdown.currentText()
@@ -227,6 +299,32 @@ class AuthPage(ToolModulePage):
             command += f" --wordlist=\"{wordlist}\""
 
         self.run_command.emit(command)
+
+    def build_ncrack(self):
+        target = self.ncrack_target_input.text().strip()
+        service = self.ncrack_service_combo.currentText().strip()
+        user = self.ncrack_user_input.text().strip()
+        pass_file = self.ncrack_pass_file.text().strip()
+        cl_limit = self.ncrack_cl_input.text().strip()
+
+        if not target:
+            self.emit_validation_error("Ncrack target IP / Host is required before running.")
+            return
+
+        if not user:
+            self.emit_validation_error("Ncrack username is required before running.")
+            return
+
+        if not pass_file:
+            self.emit_validation_error("Ncrack password dictionary is required before running.")
+            return
+
+        cmd = f"ncrack -v --user {user} -P \"{pass_file}\" -p {service}"
+        if cl_limit:
+            cmd += f" CL={cl_limit}"
+        cmd += f" {target}"
+
+        self.run_command.emit(cmd)
 
     def build_hash_identifier(self):
         hash_val = self.hash_input.text().strip()

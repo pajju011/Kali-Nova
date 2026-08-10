@@ -174,6 +174,15 @@ class MainWindow(QMainWindow):
             )
             return
 
+        if "ncrack" in lower_tool:
+            self._open_tool_panel(
+                page_name="Auth",
+                panel_method="show_ncrack_panel",
+                tool_name="Ncrack",
+                instruction="Configure host, service and wordlist on the Auth page.",
+            )
+            return
+
         if "sslscan" in lower_tool:
             self._open_tool_panel(
                 page_name="Auth",
