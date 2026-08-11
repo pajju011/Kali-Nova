@@ -299,7 +299,55 @@ class NetworkPageWashAndReaverBehaviorTests(unittest.TestCase):
         self.assertIn("Target BSSID is required", errors[0])
 
 
+class NetworkPageSparrowWifiBehaviorTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_sparrowwifi_tool_panel_activation(self):
+        page = NetworkPage()
+        page.show()
+
+        button = page._tool_buttons["sparrowwifi"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "sparrowwifi")
+
+    def test_sparrowwifi_gui_command_generation(self):
+        page = NetworkPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.build_sparrowwifi()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "sparrow-wifi")
+
+    def test_sparrowwifi_agent_command_generation(self):
+        page = NetworkPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.sparrow_mode_combo.setCurrentIndex(1)  # Agent Mode
+        page.sparrow_port_spin.setValue(9090)
+        page.sparrow_allowed_ips_input.setText("192.168.1.10")
+        page.sparrow_static_coord_input.setText("40.1,-75.3,150")
+        page.sparrow_mavlink_input.setText("sitl")
+        page.chk_sparrow_announce.setChecked(True)
+        page.chk_sparrow_cors.setChecked(True)
+
+        page.build_sparrowwifi()
+
+        self.assertEqual(len(commands), 1)
+        expected_cmd = "sparrowwifiagent --port 9090 --allowedips 192.168.1.10 --staticcoord 40.1,-75.3,150 --mavlinkgps sitl --sendannounce --allowcors"
+        self.assertEqual(commands[0], expected_cmd)
+
+
 if __name__ == "__main__":
     unittest.main()
+
 
 

@@ -24,6 +24,7 @@ class NetworkPage(ToolModulePage):
         self.wifite_panel = self._create_wifite_panel()
         self.wash_panel = self._create_wash_panel()
         self.reaver_panel = self._create_reaver_panel()
+        self.sparrowwifi_panel = self._create_sparrowwifi_panel()
         self.sslscan_panel = self._create_sslscan_panel()
         self.sslyze_panel = self._create_sslyze_panel()
         self.tlssled_panel = self._create_tlssled_panel()
@@ -66,6 +67,13 @@ class NetworkPage(ToolModulePage):
             description="WPS PIN Cracker",
             panel=self.reaver_panel,
             focus_widget=self.reaver_interface_input,
+        )
+        self.add_tool(
+            tool_id="sparrowwifi",
+            icon="🛰️",
+            name="Sparrow-WiFi",
+            description="Wi-Fi & Spectrum Analyzer",
+            panel=self.sparrowwifi_panel,
         )
         self.add_tool(
             tool_id="sslscan",
@@ -634,4 +642,172 @@ root@kali:~# tlssled 192.168.1.1 443
             self.emit_validation_error("Host and port are required before running.")
             return
         self.run_command.emit(f"tlssled {host} {port}")
+
+    def _create_sparrowwifi_panel(self):
+        panel, layout = self.create_panel("🛰️ Sparrow-WiFi Analyzer & Agent")
+
+        layout.addWidget(QLabel("Execution Target / Launcher Mode"))
+        self.sparrow_mode_combo = QComboBox()
+        self.sparrow_mode_combo.addItems([
+            "Launch Graphical Wi-Fi Analyzer (sparrow-wifi)",
+            "Run Sparrow-WiFi Agent (sparrowwifiagent)"
+        ])
+        self.sparrow_mode_combo.currentIndexChanged.connect(self._on_sparrow_mode_changed)
+        layout.addWidget(self.sparrow_mode_combo)
+
+        # Agent Configuration Group
+        self.sparrow_agent_group = QGroupBox("Sparrow-WiFi Agent Settings (sparrowwifiagent)")
+        agent_layout = QVBoxLayout()
+
+        # Port & Delay Start
+        row_port_delay = QHBoxLayout()
+        v_port = QVBoxLayout()
+        v_port.addWidget(QLabel("HTTP Server Port (--port)"))
+        self.sparrow_port_spin = QSpinBox()
+        self.sparrow_port_spin.setRange(1, 65535)
+        self.sparrow_port_spin.setValue(8020)
+        v_port.addWidget(self.sparrow_port_spin)
+
+        v_delay = QVBoxLayout()
+        v_delay.addWidget(QLabel("Delay Start (sec) (--delaystart)"))
+        self.sparrow_delay_spin = QSpinBox()
+        self.sparrow_delay_spin.setRange(0, 300)
+        self.sparrow_delay_spin.setValue(0)
+        v_delay.addWidget(self.sparrow_delay_spin)
+
+        row_port_delay.addLayout(v_port)
+        row_port_delay.addLayout(v_delay)
+        agent_layout.addLayout(row_port_delay)
+
+        # Allowed IPs
+        agent_layout.addWidget(QLabel("Allowed IPs (--allowedips) [Comma separated]"))
+        self.sparrow_allowed_ips_input = QLineEdit()
+        self.sparrow_allowed_ips_input.setPlaceholderText("e.g. 127.0.0.1,192.168.1.50 (Default: any)")
+        agent_layout.addWidget(self.sparrow_allowed_ips_input)
+
+        # Static Coord & Mavlink GPS
+        row_gps = QHBoxLayout()
+        v_coord = QVBoxLayout()
+        v_coord.addWidget(QLabel("Static Coords (--staticcoord)"))
+        self.sparrow_static_coord_input = QLineEdit()
+        self.sparrow_static_coord_input.setPlaceholderText("lat,long,alt(m) e.g. 40.1,-75.3,150")
+        v_coord.addWidget(self.sparrow_static_coord_input)
+
+        v_mavlink = QVBoxLayout()
+        v_mavlink.addWidget(QLabel("Mavlink GPS (--mavlinkgps)"))
+        self.sparrow_mavlink_input = QLineEdit()
+        self.sparrow_mavlink_input.setPlaceholderText("3dr, sitl, or udp:10.1.1.10:14550")
+        v_mavlink.addWidget(self.sparrow_mavlink_input)
+
+        row_gps.addLayout(v_coord)
+        row_gps.addLayout(v_mavlink)
+        agent_layout.addLayout(row_gps)
+
+        # Recording Interface & Config file
+        row_cfg = QHBoxLayout()
+        v_rec = QVBoxLayout()
+        v_rec.addWidget(QLabel("Recording Interface (--recordinterface)"))
+        self.sparrow_record_iface_input = QLineEdit()
+        self.sparrow_record_iface_input.setPlaceholderText("e.g. wlan0mon")
+        v_rec.addWidget(self.sparrow_record_iface_input)
+
+        v_cfgfile = QVBoxLayout()
+        v_cfgfile.addWidget(QLabel("Config File (--cfgfile)"))
+        self.sparrow_cfgfile_input = QLineEdit()
+        self.sparrow_cfgfile_input.setPlaceholderText("e.g. custom_sparrow.cfg")
+        v_cfgfile.addWidget(self.sparrow_cfgfile_input)
+
+        row_cfg.addLayout(v_rec)
+        row_cfg.addLayout(v_cfgfile)
+        agent_layout.addLayout(row_cfg)
+
+        # Options Checkboxes
+        row_chk1 = QHBoxLayout()
+        self.chk_sparrow_announce = QCheckBox("Send Announcement Broadcast (--sendannounce)")
+        self.chk_sparrow_leds = QCheckBox("Use RPi LEDs (--userpileds)")
+        self.chk_sparrow_ignorecfg = QCheckBox("Ignore Config Files (--ignorecfg)")
+        row_chk1.addWidget(self.chk_sparrow_announce)
+        row_chk1.addWidget(self.chk_sparrow_leds)
+        row_chk1.addWidget(self.chk_sparrow_ignorecfg)
+        agent_layout.addLayout(row_chk1)
+
+        row_chk2 = QHBoxLayout()
+        self.chk_sparrow_cors = QCheckBox("Allow CORS (--allowcors)")
+        self.chk_sparrow_debughttp = QCheckBox("Debug HTTP (--debughttp)")
+        row_chk2.addWidget(self.chk_sparrow_cors)
+        row_chk2.addWidget(self.chk_sparrow_debughttp)
+        row_chk2.addStretch()
+        agent_layout.addLayout(row_chk2)
+
+        self.sparrow_agent_group.setLayout(agent_layout)
+        self.sparrow_agent_group.hide()
+        layout.addWidget(self.sparrow_agent_group)
+
+        self.sparrow_btn = self.create_primary_button("Launch Sparrow-WiFi")
+        self.sparrow_btn.clicked.connect(self.build_sparrowwifi)
+        layout.addWidget(self.sparrow_btn)
+        layout.addStretch()
+
+        return panel
+
+    def _on_sparrow_mode_changed(self, index):
+        if index == 1:
+            self.sparrow_agent_group.show()
+            self.sparrow_btn.setText("Run Sparrow-WiFi Agent")
+        else:
+            self.sparrow_agent_group.hide()
+            self.sparrow_btn.setText("Launch Sparrow-WiFi")
+
+    def show_sparrowwifi_panel(self):
+        self.activate_tool("sparrowwifi")
+
+    def build_sparrowwifi(self):
+        mode = self.sparrow_mode_combo.currentIndex()
+        if mode == 0:
+            self.run_command.emit("sparrow-wifi")
+            return
+
+        cmd = ["sparrowwifiagent"]
+
+        port = self.sparrow_port_spin.value()
+        if port != 8020:
+            cmd.extend(["--port", str(port)])
+
+        ips = self.sparrow_allowed_ips_input.text().strip()
+        if ips:
+            cmd.extend(["--allowedips", ips])
+
+        coords = self.sparrow_static_coord_input.text().strip()
+        if coords:
+            cmd.extend(["--staticcoord", coords])
+
+        mavlink = self.sparrow_mavlink_input.text().strip()
+        if mavlink:
+            cmd.extend(["--mavlinkgps", mavlink])
+
+        rec_iface = self.sparrow_record_iface_input.text().strip()
+        if rec_iface:
+            cmd.extend(["--recordinterface", rec_iface])
+
+        cfgfile = self.sparrow_cfgfile_input.text().strip()
+        if cfgfile:
+            cmd.extend(["--cfgfile", cfgfile])
+
+        delay = self.sparrow_delay_spin.value()
+        if delay > 0:
+            cmd.extend(["--delaystart", str(delay)])
+
+        if self.chk_sparrow_announce.isChecked():
+            cmd.append("--sendannounce")
+        if self.chk_sparrow_leds.isChecked():
+            cmd.append("--userpileds")
+        if self.chk_sparrow_ignorecfg.isChecked():
+            cmd.append("--ignorecfg")
+        if self.chk_sparrow_cors.isChecked():
+            cmd.append("--allowcors")
+        if self.chk_sparrow_debughttp.isChecked():
+            cmd.append("--debughttp")
+
+        self.run_command.emit(" ".join(cmd))
+
 

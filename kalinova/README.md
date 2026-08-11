@@ -26,7 +26,7 @@ As of code inspection on 2026-07-29:
   - `ui/recon_page.py`: Reconnaissance tools (Nmap, Whois, theHarvester).
   - `ui/web_page.py`: Web security audit tools (Nikto, Sqlmap, Gobuster).
   - `ui/auth_page.py`: Authentication & cracking tools (Hydra, John the Ripper).
-  - `ui/network_page.py`: Packet & network analysis tools (Netcat, Wireshark, Wifite, Autopsy).
+  - `ui/network_page.py`: Packet & network analysis tools (Netcat, Wireshark, Wifite, Wash, Reaver, Sparrow-WiFi, SSLScan, SSLyze, TLSSLed).
   - `ui/reports_page.py`: Scan history database management, filterable scan tables, HTML/PDF export.
   - `ui/settings_page.py`: Application mode (Beginner / Professional) and execution settings.
 - **Core Engine**:
