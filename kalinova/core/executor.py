@@ -3,6 +3,7 @@ import shlex
 import subprocess
 import shutil
 import random
+# pyrefly: ignore [missing-import]
 from PyQt6.QtCore import QThread, pyqtSignal
 from datetime import datetime
 import time
@@ -13,6 +14,7 @@ from core.risk_engine import RiskEngine
 from core.suggestion_engine import SuggestionEngine
 from core.app_state import app_state
 from core.database import DatabaseManager
+from core.pipeline_manager import PipelineManager
 
 
 
@@ -113,10 +115,14 @@ class CommandThread(QThread):
                     return
                 self.output_signal.emit(f"{'='*60}\n")
 
+            # Ingest output into pipeline manager for inter-tool data handoff
+            PipelineManager.ingest_output(base_binary, "\n".join(self.stdout_lines), target)
+            app_state.record_tool_execution(base_binary, target, self.command)
+
             # Calculate risk after execution
             RiskEngine.calculate()
 
-            # Generate suggestions
+            # Generate suggestions & ML recommendations
             SuggestionEngine.generate()
 
             # Save scan to database

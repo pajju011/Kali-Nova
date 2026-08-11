@@ -7,6 +7,8 @@ from PyQt6.QtCore import pyqtSignal
 
 from core.app_state import app_state
 from ui.tool_template import ToolModulePage
+from ui.components.tool_helper_widget import ToolHelperWidget
+from ui.components.port_advisor_widget import PortAdvisorWidget
 
 
 class ReconPage(ToolModulePage):
@@ -75,6 +77,12 @@ class ReconPage(ToolModulePage):
         self.nmap_target = QLineEdit()
         self.nmap_target.setPlaceholderText("Enter target IP or domain")
 
+        self.nmap_helper = ToolHelperWidget("nmap")
+        self.nmap_target.textChanged.connect(self.nmap_helper.validate_text)
+
+        self.port_advisor = PortAdvisorWidget()
+        self.port_advisor.port_profile_selected.connect(lambda p: self.port_input.setText(p))
+
         self.scan_type = QComboBox()
         self.scan_type.addItems([
             "Quick Scan",
@@ -83,16 +91,18 @@ class ReconPage(ToolModulePage):
         ])
 
         self.port_input = QLineEdit()
-        self.port_input.setPlaceholderText("Custom Port (optional)")
+        self.port_input.setPlaceholderText("Custom Port (e.g. 80,443,8080)")
 
         self.nmap_btn = self.create_primary_button("Run Nmap")
         self.nmap_btn.clicked.connect(self.build_nmap)
 
         layout.addWidget(QLabel("Target IP / Domain"))
         layout.addWidget(self.nmap_target)
+        layout.addWidget(self.nmap_helper)
+        layout.addWidget(self.port_advisor)
         layout.addWidget(QLabel("Scan Type"))
         layout.addWidget(self.scan_type)
-        layout.addWidget(QLabel("Custom Port"))
+        layout.addWidget(QLabel("Target Ports"))
         layout.addWidget(self.port_input)
         layout.addWidget(self.nmap_btn)
         layout.addStretch()
@@ -105,11 +115,15 @@ class ReconPage(ToolModulePage):
         self.whois_target = QLineEdit()
         self.whois_target.setPlaceholderText("Enter domain (example.com)")
 
+        self.whois_helper = ToolHelperWidget("whois")
+        self.whois_target.textChanged.connect(self.whois_helper.validate_text)
+
         self.whois_btn = self.create_primary_button("Run Whois")
         self.whois_btn.clicked.connect(self.build_whois)
 
         layout.addWidget(QLabel("Domain"))
         layout.addWidget(self.whois_target)
+        layout.addWidget(self.whois_helper)
         layout.addWidget(self.whois_btn)
         layout.addStretch()
 
@@ -119,7 +133,10 @@ class ReconPage(ToolModulePage):
         panel, layout = self.create_panel("🕵️ theHarvester OSINT")
 
         self.harvester_domain = QLineEdit()
-        self.harvester_domain.setPlaceholderText("Enter domain")
+        self.harvester_domain.setPlaceholderText("Enter domain (e.g. target.com)")
+
+        self.harvester_helper = ToolHelperWidget("theharvester")
+        self.harvester_domain.textChanged.connect(self.harvester_helper.validate_text)
 
         self.harvester_source = QComboBox()
         self.harvester_source.addItems([
@@ -134,6 +151,7 @@ class ReconPage(ToolModulePage):
 
         layout.addWidget(QLabel("Domain"))
         layout.addWidget(self.harvester_domain)
+        layout.addWidget(self.harvester_helper)
         layout.addWidget(QLabel("Data Source"))
         layout.addWidget(self.harvester_source)
         layout.addWidget(self.harvester_btn)

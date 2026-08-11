@@ -1,6 +1,7 @@
 import json
 import urllib.request
 import urllib.error
+# pyrefly: ignore [missing-import]
 from PyQt6.QtCore import QThread, pyqtSignal
 from config import load_config
 from core.database import DatabaseManager
