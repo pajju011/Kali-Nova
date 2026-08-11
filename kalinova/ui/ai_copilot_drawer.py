@@ -166,15 +166,15 @@ class AICopilotDrawer(QFrame):
 
         self.chip_usage = QPushButton("💡 Explain Usage")
         self.chip_usage.setProperty("class", "quickChip")
-        self.chip_usage.clicked.connect(lambda: self.ask_question("How do I use this active tool?"))
+        self.chip_usage.clicked.connect(self._on_chip_usage_clicked)
 
         self.chip_flags = QPushButton("🚀 Recommend Flags")
         self.chip_flags.setProperty("class", "quickChip")
-        self.chip_flags.clicked.connect(lambda: self.ask_question("What are the best execution flags for this setup?"))
+        self.chip_flags.clicked.connect(self._on_chip_flags_clicked)
 
         self.chip_remed = QPushButton("🛡️ Security Remediation")
         self.chip_remed.setProperty("class", "quickChip")
-        self.chip_remed.clicked.connect(lambda: self.ask_question("How to fix vulnerabilities found during this scan?"))
+        self.chip_remed.clicked.connect(self._on_chip_remed_clicked)
 
         chips_layout.addWidget(self.chip_usage)
         chips_layout.addWidget(self.chip_flags)
@@ -197,11 +197,33 @@ class AICopilotDrawer(QFrame):
         prompt_layout.addWidget(self.ask_btn)
         layout.addLayout(prompt_layout)
 
-    def inspect_and_open(self):
-        """Called when user opens AI Copilot from TopBar or shortcut."""
+    def inspect_and_open(self, custom_ctx=None):
+        """Called when user opens AI Copilot from TopBar, shortcut, or in-tool AI Assist button."""
         self.show()
         self.raise_()
-        self.run_screen_analysis()
+        if custom_ctx:
+            self.active_context = custom_ctx
+            page_name = custom_ctx.get("page_name", "Web")
+            tool_name = custom_ctx.get("tool_name", custom_ctx.get("tool_id", page_name))
+            inputs_dict = custom_ctx.get("inputs", {})
+            inputs_str = ", ".join([f"{k}={v}" for k, v in inputs_dict.items()]) if inputs_dict else "No custom inputs entered"
+            self.context_label.setText(f"Active Page: {page_name} | Active Tool: {tool_name}\nInputs: {inputs_str}")
+            query = f"Analyze active setup for tool {tool_name} with inputs: {inputs_str}. What are the recommended next steps?"
+            self.ask_question(query)
+        else:
+            self.run_screen_analysis()
+
+    def _on_chip_usage_clicked(self):
+        tool_name = self.active_context.get("tool_name", "active tool")
+        self.ask_question(f"Explain usage and step-by-step workflow for {tool_name}.")
+
+    def _on_chip_flags_clicked(self):
+        tool_name = self.active_context.get("tool_name", "active tool")
+        self.ask_question(f"Recommend best execution flags and parameters for {tool_name}.")
+
+    def _on_chip_remed_clicked(self):
+        tool_name = self.active_context.get("tool_name", "active tool")
+        self.ask_question(f"Provide security remediation and defensive code patches for vulnerabilities associated with {tool_name}.")
 
     def run_screen_analysis(self):
         if self.workspace and hasattr(self.workspace, "get_active_context"):

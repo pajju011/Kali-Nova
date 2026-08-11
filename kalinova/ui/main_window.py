@@ -370,7 +370,7 @@ class MainWindow(QMainWindow):
             self.ai_drawer.inspect_and_open()
 
     def _handle_in_tool_ai_assist(self, ctx_dict):
-        self.ai_drawer.inspect_and_open()
+        self.ai_drawer.inspect_and_open(custom_ctx=ctx_dict)
 
 
 
