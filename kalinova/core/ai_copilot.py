@@ -356,6 +356,41 @@ app.use(express.static('public', {
 }));
 """
             },
+            "whatweb": {
+                "name": "WhatWeb Next Generation Web Scanner",
+                "usage": "whatweb -v -a 3 <target_url>",
+                "description": "WhatWeb identifies websites, web technologies, CMS frameworks, server software versions, embedded scripts, and HTTP headers.",
+                "flags": [
+                    "• `-a <level>`: Aggression level (1=Stealthy, 3=Aggressive, 4=Heavy).",
+                    "• `-v`: Verbose output containing detailed plugin descriptions.",
+                    "• `-U <agent>`: Custom User-Agent identification string.",
+                    "• `-H <header>`: Custom HTTP request header (e.g. `Authorization: Bearer key`).",
+                    "• `-c <cookies>`: Custom HTTP cookies string."
+                ],
+                "advice": "Scrub sensitive web server technology tokens (`Server`, `X-Powered-By`) and suppress verbose backend versions to prevent targeted exploit profiling.",
+                "remediation_python": """# [REMEDIATION] Remove Server Tokens in Python Flask & Nginx
+# In Nginx configuration (/etc/nginx/nginx.conf):
+# server_tokens off;
+
+from flask import Flask
+
+app = Flask(__name__)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
+@app.after_request
+def remove_version_headers(response):
+    response.headers.pop('Server', None)
+    response.headers.pop('X-Powered-By', None)
+    return response
+""",
+                "remediation_node": """// [REMEDIATION] Express Banner Masking
+const express = require('express');
+const app = express();
+
+// SECURE: Disable X-Powered-By header
+app.disable('x-powered-by');
+"""
+            },
             "wfuzz": {
                 "name": "Wfuzz Web Application Fuzzer",
                 "usage": "wfuzz -c -z file,wordlist.txt --hc 404 http://example.com/FUZZ",

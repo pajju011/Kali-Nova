@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import QApplication
 
 from ui.recon_page import ReconPage
 from ui.network_page import NetworkPage
+from ui.web_page import WebPage
 
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -346,8 +347,68 @@ class NetworkPageSparrowWifiBehaviorTests(unittest.TestCase):
         self.assertEqual(commands[0], expected_cmd)
 
 
+class WebPageWhatWebBehaviorTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_whatweb_tool_panel_activation(self):
+        page = WebPage()
+        page.show()
+
+        button = page._tool_buttons["whatweb"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "whatweb")
+
+    def test_whatweb_command_generation_stealthy(self):
+        page = WebPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.whatweb_url.setText("192.168.0.102")
+        page.build_whatweb()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "whatweb -a 1 -v 192.168.0.102")
+
+    def test_whatweb_command_generation_aggressive(self):
+        page = WebPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.whatweb_url.setText("http://example.com")
+        page.whatweb_aggression.setCurrentIndex(1)  # Aggressive (Level 3)
+        page.whatweb_user_agent.setText("CustomAgent/1.0")
+        page.whatweb_header.setText("Foo:Bar")
+        page.whatweb_cookie.setText("session=123")
+        page.chk_whatweb_no_errors.setChecked(True)
+
+        page.build_whatweb()
+
+        self.assertEqual(len(commands), 1)
+        expected_cmd = 'whatweb -a 3 -U "CustomAgent/1.0" -H "Foo:Bar" -c "session=123" -v --no-errors http://example.com'
+        self.assertEqual(commands[0], expected_cmd)
+
+    def test_whatweb_validation_error(self):
+        page = WebPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.build_whatweb()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("WhatWeb target URL", errors[0])
+
+
 if __name__ == "__main__":
     unittest.main()
+
 
 
 

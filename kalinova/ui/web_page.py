@@ -1,4 +1,7 @@
-from PyQt6.QtWidgets import QLabel, QLineEdit, QComboBox, QFileDialog
+from PyQt6.QtWidgets import (
+    QLabel, QLineEdit, QComboBox, QFileDialog,
+    QCheckBox, QPushButton, QGroupBox, QHBoxLayout, QVBoxLayout
+)
 from PyQt6.QtCore import pyqtSignal
 
 from core.app_state import app_state
@@ -20,6 +23,7 @@ class WebPage(ToolModulePage):
         self.sqlmap_panel = self._create_sqlmap_panel()
         self.gobuster_panel = self._create_gobuster_panel()
         self.wfuzz_panel = self._create_wfuzz_panel()
+        self.whatweb_panel = self._create_whatweb_panel()
 
         self.add_tool(
             tool_id="nikto",
@@ -52,6 +56,14 @@ class WebPage(ToolModulePage):
             description="Web Application Fuzzer",
             panel=self.wfuzz_panel,
             focus_widget=self.wfuzz_url_input,
+        )
+        self.add_tool(
+            tool_id="whatweb",
+            icon="🌐",
+            name="WhatWeb",
+            description="Web Tech Scanner",
+            panel=self.whatweb_panel,
+            focus_widget=self.whatweb_url,
         )
 
     def _create_nikto_panel(self):
@@ -220,3 +232,107 @@ class WebPage(ToolModulePage):
 
         if file_path:
             self.wordlist_path.setText(file_path)
+
+    def _create_whatweb_panel(self):
+        panel, layout = self.create_panel("🌐 WhatWeb - Next Generation Web Scanner")
+
+        self.whatweb_url = QLineEdit()
+        self.whatweb_url.setPlaceholderText("Enter Target URL, IP, or range (e.g. 192.168.0.102)")
+
+        # Aggression dropdown
+        self.whatweb_aggression = QComboBox()
+        self.whatweb_aggression.addItems([
+            "Stealthy (Level 1)",
+            "Aggressive (Level 3)",
+            "Heavy (Level 4)"
+        ])
+
+        # HTTP Options group
+        http_group = QGroupBox("HTTP Options")
+        http_layout = QVBoxLayout()
+
+        self.whatweb_user_agent = QLineEdit()
+        self.whatweb_user_agent.setPlaceholderText("Custom User-Agent [Optional]")
+
+        self.whatweb_header = QLineEdit()
+        self.whatweb_header.setPlaceholderText("Custom HTTP Header, e.g. Foo:Bar [Optional]")
+
+        self.whatweb_cookie = QLineEdit()
+        self.whatweb_cookie.setPlaceholderText("Custom Cookies, e.g. name=value [Optional]")
+
+        http_layout.addWidget(QLabel("User-Agent"))
+        http_layout.addWidget(self.whatweb_user_agent)
+        http_layout.addWidget(QLabel("Header"))
+        http_layout.addWidget(self.whatweb_header)
+        http_layout.addWidget(QLabel("Cookies"))
+        http_layout.addWidget(self.whatweb_cookie)
+        http_group.setLayout(http_layout)
+
+        # Output / Formatting group
+        out_group = QGroupBox("Output Settings")
+        out_layout = QHBoxLayout()
+        self.chk_whatweb_verbose = QCheckBox("Verbose Output (-v)")
+        self.chk_whatweb_verbose.setChecked(True)
+        self.chk_whatweb_no_errors = QCheckBox("Suppress Errors (--no-errors)")
+        out_layout.addWidget(self.chk_whatweb_verbose)
+        out_layout.addWidget(self.chk_whatweb_no_errors)
+        out_group.setLayout(out_layout)
+
+        self.whatweb_btn = self.create_primary_button("Run WhatWeb")
+        self.whatweb_btn.clicked.connect(self.build_whatweb)
+
+        layout.addWidget(QLabel("Target URL/IP"))
+        layout.addWidget(self.whatweb_url)
+        layout.addWidget(QLabel("Aggression Level"))
+        layout.addWidget(self.whatweb_aggression)
+        layout.addWidget(http_group)
+        layout.addWidget(out_group)
+        layout.addWidget(self.whatweb_btn)
+        layout.addStretch()
+
+        return panel
+
+    def show_whatweb_panel(self):
+        self.activate_tool("whatweb")
+
+    def build_whatweb(self):
+        target = self.whatweb_url.text().strip()
+        if not target:
+            self.emit_validation_error("WhatWeb target URL, IP, or range is required before running.")
+            return
+
+        cmd = ["whatweb"]
+
+        # Aggression
+        agg = self.whatweb_aggression.currentText()
+        if "Level 3" in agg:
+            cmd.extend(["-a", "3"])
+        elif "Level 4" in agg:
+            cmd.extend(["-a", "4"])
+        else:
+            cmd.extend(["-a", "1"])
+
+        # User-Agent
+        ua = self.whatweb_user_agent.text().strip()
+        if ua:
+            cmd.extend(["-U", f"\"{ua}\""])
+
+        # Header
+        hdr = self.whatweb_header.text().strip()
+        if hdr:
+            cmd.extend(["-H", f"\"{hdr}\""])
+
+        # Cookie
+        cookie = self.whatweb_cookie.text().strip()
+        if cookie:
+            cmd.extend(["-c", f"\"{cookie}\""])
+
+        # Flags
+        if self.chk_whatweb_verbose.isChecked():
+            cmd.append("-v")
+        if self.chk_whatweb_no_errors.isChecked():
+            cmd.append("--no-errors")
+
+        cmd.append(target)
+
+        self.run_command.emit(" ".join(cmd))

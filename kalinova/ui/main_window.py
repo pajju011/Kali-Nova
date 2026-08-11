@@ -241,6 +241,15 @@ class MainWindow(QMainWindow):
             )
             return
 
+        if "whatweb" in lower_tool:
+            self._open_tool_panel(
+                page_name="Web",
+                panel_method="show_whatweb_panel",
+                tool_name="WhatWeb",
+                instruction="Configure target and aggression level, then run from Web page.",
+            )
+            return
+
         if "nmap" in lower_tool:
             self._open_tool_panel(
                 page_name="Recon",
