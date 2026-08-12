@@ -10,6 +10,7 @@ from PyQt6.QtGui import QFont
 from core.app_state import app_state
 from ui.topology_widget import NetworkTopologyWidget
 from core.ai_copilot import AICopilot, AIWorkerThread
+from ui.components.next_step_card import NextStepCard
 
 
 class DashboardPage(QWidget):
@@ -410,6 +411,11 @@ class DashboardPage(QWidget):
         grid_layout.setColumnStretch(1, 1)
         grid_layout.setColumnStretch(2, 1)
 
+        # ML Scenario Next-Step Guidance Card
+        self.next_step_card = NextStepCard()
+        self.next_step_card.execute_step_signal.connect(self._handle_execute_next_step)
+        main_layout.addWidget(self.next_step_card)
+
         main_layout.addLayout(grid_layout)
 
         self.setLayout(main_layout)
@@ -559,3 +565,8 @@ class DashboardPage(QWidget):
     def run_suggested_tool(self):
         if app_state.next_tool:
             self.run_suggested_signal.emit(app_state.next_tool)
+
+    def _handle_execute_next_step(self, page_name: str, sub_tool_key: str, suggested_target: str, suggested_flags: str):
+        """Handler for one-click ML next step button."""
+        tool_name = app_state.next_tool or sub_tool_key
+        self.run_suggested_signal.emit(tool_name)
