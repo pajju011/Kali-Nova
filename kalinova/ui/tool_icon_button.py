@@ -117,8 +117,10 @@ class ToolIconButton(QWidget):
         self._apply_style()
 
     def eventFilter(self, watched, event):
+        icon_btn = getattr(self, "icon_btn", None)
         if (
-            watched is not self.icon_btn
+            icon_btn is not None
+            and watched is not icon_btn
             and event.type() == QEvent.Type.MouseButtonRelease
             and event.button() == Qt.MouseButton.LeftButton
         ):
