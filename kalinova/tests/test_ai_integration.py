@@ -6,7 +6,7 @@ import tempfile
 # Ensure kalinova is in Python path for test execution
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from config import load_config, save_config
+from config import load_config, save_config, resolve_api_key
 from core.database import DatabaseManager
 from core.ai_copilot import AICopilot
 
@@ -33,7 +33,7 @@ class TestAIIntegration(unittest.TestCase):
         test_data = {
             "ai_provider": "gemini",
             "api_key": "TEST_KEY_12345",
-            "model": "gemini-1.5-flash",
+            "model": "gemini-2.0-flash",
             "ollama_url": "http://localhost:11434",
             "app_mode": "Professional"
         }
@@ -43,7 +43,13 @@ class TestAIIntegration(unittest.TestCase):
         loaded = load_config()
         self.assertEqual(loaded["ai_provider"], "gemini")
         self.assertEqual(loaded["api_key"], "TEST_KEY_12345")
-        self.assertEqual(loaded["model"], "gemini-1.5-flash")
+        self.assertEqual(loaded["model"], "gemini-2.0-flash")
+
+    def test_environment_api_key_resolution(self):
+        os.environ["GEMINI_API_KEY"] = "ENV_GEMINI_KEY_999"
+        key = resolve_api_key("gemini", explicit_key="")
+        self.assertEqual(key, "ENV_GEMINI_KEY_999")
+        os.environ.pop("GEMINI_API_KEY", None)
 
     def test_ai_copilot_heuristic_fallback(self):
         save_config({"ai_provider": "heuristic", "api_key": "", "model": ""})
@@ -61,11 +67,26 @@ class TestAIIntegration(unittest.TestCase):
         self.assertIn("SQLmap", sqlmap_resp)
         self.assertIn("Security Recommendation", sqlmap_resp)
 
+    def test_ai_copilot_expanded_vulnerability_topics(self):
+        save_config({"ai_provider": "heuristic", "api_key": "", "model": ""})
+        
+        xss_resp = AICopilot.query_llm(context_info="", user_prompt="How to patch XSS vulnerability?")
+        self.assertIn("Cross-Site Scripting", xss_resp)
+        self.assertIn("html.escape", xss_resp)
 
-    def test_ai_copilot_missing_gemini_key(self):
-        save_config({"ai_provider": "gemini", "api_key": "", "model": "gemini-1.5-flash"})
+        rce_resp = AICopilot.query_llm(context_info="", user_prompt="Explain RCE command injection remediation")
+        self.assertIn("Remote Code Execution", rce_resp)
+        self.assertIn("subprocess.run", rce_resp)
+
+        priv_resp = AICopilot.query_llm(context_info="", user_prompt="How to check for Linux privilege escalation?")
+        self.assertIn("Privilege Escalation", priv_resp)
+        self.assertIn("sudo -l", priv_resp)
+
+    def test_ai_copilot_missing_gemini_key_resilient_fallback(self):
+        save_config({"ai_provider": "gemini", "api_key": "", "model": "gemini-2.0-flash"})
         response = AICopilot.query_llm(context_info="Nmap scan logs", user_prompt="Explain vulnerability")
         self.assertIn("API key is missing", response)
+        self.assertIn("OFFLINE SECURITY ADVISORY FALLBACK", response)
 
     def test_chat_history_persistence(self):
         DatabaseManager.clear_chat_history()
@@ -78,4 +99,5 @@ class TestAIIntegration(unittest.TestCase):
         self.assertEqual(history[0]["message"], "Hello AI Copilot")
         self.assertEqual(history[1]["role"], "assistant")
         self.assertEqual(history[1]["message"], "Hello Security Analyst")
+
 

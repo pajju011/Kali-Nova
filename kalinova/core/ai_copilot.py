@@ -1,12 +1,23 @@
 import json
+import os
+import ssl
 import urllib.request
 import urllib.error
 # pyrefly: ignore [missing-import]
 from PyQt6.QtCore import QThread, pyqtSignal
-from config import load_config
+from config import load_config, resolve_api_key
 from core.database import DatabaseManager
 
 class AICopilot:
+
+    @staticmethod
+    def _get_ssl_context():
+        """Create SSL context handling certificate store fallbacks on Windows."""
+        try:
+            return ssl.create_default_context()
+        except Exception:
+            return ssl._create_unverified_context()
+
 
     SYSTEM_PROMPT = (
         "You are Kali-Nova AI Copilot, a highly skilled ethical hacking advisor and penetration testing copilot on Kali Linux.\n"
@@ -202,28 +213,46 @@ const secureEmail = 'info' + '@' + 'targetdomain.com';
 
     @staticmethod
     def query_llm(context_info: str = "", user_prompt: str = "") -> str:
-        """Main AI query router. Selects provider based on user config."""
+        """Main AI query router. Selects provider based on user config with environment fallback."""
         config = load_config()
         provider = config.get("ai_provider", "heuristic").lower()
-        api_key = config.get("api_key", "").strip()
-        model = config.get("model", "gemini-1.5-flash").strip()
+        explicit_key = config.get("api_key", "").strip()
+        api_key = resolve_api_key(provider, explicit_key)
+        model = config.get("model", "gemini-2.0-flash").strip()
         ollama_url = config.get("ollama_url", "http://localhost:11434").strip()
 
         if provider == "gemini":
             if not api_key:
-                return "⚠️ [Google Gemini Error] API key is missing. Please go to Settings and enter your Gemini API key."
-            return AICopilot._query_gemini(context_info, user_prompt, api_key, model)
+                fallback_header = "⚠️ [Google Gemini Warning]: API key is missing (neither entered in Settings nor found in environment variables `GEMINI_API_KEY`/`GOOGLE_API_KEY`)."
+                fallback_ans = AICopilot._query_heuristic(context_info, user_prompt)
+                return f"{fallback_header}\n\n--- 🛡️ OFFLINE SECURITY ADVISORY FALLBACK ---\n\n{fallback_ans}"
+            res = AICopilot._query_gemini(context_info, user_prompt, api_key, model)
+            if res.startswith("❌"):
+                fallback_ans = AICopilot._query_heuristic(context_info, user_prompt)
+                return f"{res}\n\n--- 🛡️ OFFLINE SECURITY ADVISORY FALLBACK ---\n\n{fallback_ans}"
+            return res
 
         elif provider == "openai":
             if not api_key:
-                return "⚠️ [OpenAI Error] API key is missing. Please go to Settings and enter your OpenAI API key."
-            return AICopilot._query_openai(context_info, user_prompt, api_key, model)
+                fallback_header = "⚠️ [OpenAI Warning]: API key is missing (neither entered in Settings nor found in environment variable `OPENAI_API_KEY`)."
+                fallback_ans = AICopilot._query_heuristic(context_info, user_prompt)
+                return f"{fallback_header}\n\n--- 🛡️ OFFLINE SECURITY ADVISORY FALLBACK ---\n\n{fallback_ans}"
+            res = AICopilot._query_openai(context_info, user_prompt, api_key, model)
+            if res.startswith("❌"):
+                fallback_ans = AICopilot._query_heuristic(context_info, user_prompt)
+                return f"{res}\n\n--- 🛡️ OFFLINE SECURITY ADVISORY FALLBACK ---\n\n{fallback_ans}"
+            return res
 
         elif provider == "ollama":
-            return AICopilot._query_ollama(context_info, user_prompt, model, ollama_url)
+            res = AICopilot._query_ollama(context_info, user_prompt, model, ollama_url)
+            if res.startswith("❌"):
+                fallback_ans = AICopilot._query_heuristic(context_info, user_prompt)
+                return f"{res}\n\n--- 🛡️ OFFLINE SECURITY ADVISORY FALLBACK ---\n\n{fallback_ans}"
+            return res
 
         else:
             return AICopilot._query_heuristic(context_info, user_prompt)
+
 
     @staticmethod
     def _query_heuristic(context_info: str = "", user_prompt: str = "") -> str:
@@ -716,15 +745,50 @@ async function hashPassword(password) {
                 res += f"🛡️ **Security Recommendation:**\n{tool_info['advice']}\n\n"
 
         elif user_prompt:
-            res += f"❓ **AI Security Advisor Analysis:**\n\n"
-            if "port" in prompt_lower or "open" in prompt_lower:
-                res += f"🔍 **Port & Service Guidance:**\nOpen ports indicate listening services. For web services (80/443), run Nikto/Wfuzz. For databases (3306/5432), ensure internal localhost binding.\n\n"
+            res += "❓ **AI Security Advisor Analysis:**\n\n"
+            if any(w in prompt_lower for w in ["xss", "cross-site scripting", "scripting"]):
+                res += "💉 **Cross-Site Scripting (XSS) Vulnerability Remediation:**\n"
+                res += "Reflected or Stored XSS occurs when untrusted user input is rendered directly into HTML without contextual encoding.\n\n"
+                res += "🐍 **Python Flask Remediation Patch:**\n"
+                res += "```python\nimport html\n\ndef sanitize_input(user_data):\n    return html.escape(user_data)\n```\n\n"
+                res += "🟢 **Node.js / Express Security Patch:**\n"
+                res += "```javascript\nconst validator = require('validator');\n\nfunction sanitizeInput(userData) {\n    return validator.escape(userData);\n}\n```\n\n"
+            elif any(w in prompt_lower for w in ["rce", "command injection", "shell injection"]):
+                res += "⚡ **Remote Code Execution (RCE) / Command Injection Remediation:**\n"
+                res += "Occurs when user-controlled data is passed to system shell functions (`os.system`, `subprocess(shell=True)`, `eval`).\n\n"
+                res += "🐍 **Python Secure Execution Patch:**\n"
+                res += "```python\nimport subprocess\n\ndef safe_ping(target_ip):\n    subprocess.run(['ping', '-c', '1', target_ip], check=True)\n```\n\n"
+                res += "🟢 **Node.js Child Process Patch:**\n"
+                res += "```javascript\nconst { execFile } = require('child_process');\n\nfunction safePing(targetIp) {\n    execFile('ping', ['-c', '1', targetIp], (err, stdout) => {\n        console.log(stdout);\n    });\n}\n```\n\n"
+            elif any(w in prompt_lower for w in ["ssrf", "server-side request"]):
+                res += "🌐 **Server-Side Request Forgery (SSRF) Remediation:**\n"
+                res += "SSRF occurs when a web application fetches a remote resource without validating the target URL.\n\n"
+                res += "🐍 **Python SSRF URL Validator:**\n"
+                res += "```python\nimport urllib.parse\n\nALLOWED_DOMAINS = ['api.example.com']\n\ndef validate_url(url):\n    parsed = urllib.parse.urlparse(url)\n    if parsed.scheme not in ['http', 'https']:\n        raise ValueError('Invalid protocol scheme')\n    if parsed.hostname not in ALLOWED_DOMAINS:\n        raise ValueError('Unauthorized host domain')\n```\n\n"
+            elif any(w in prompt_lower for w in ["lfi", "rfi", "file inclusion", "path traversal"]):
+                res += "📁 **Local File Inclusion (LFI) & Path Traversal Remediation:**\n"
+                res += "Prevent path traversal (`../`) by normalizing path strings and checking directory bounds.\n\n"
+                res += "🐍 **Python Safe File Path Resolution:**\n"
+                res += "```python\nimport os\n\nBASE_DIR = '/var/www/uploads'\n\ndef get_safe_filepath(filename):\n    safe_name = os.path.basename(filename)\n    target_path = os.path.abspath(os.path.join(BASE_DIR, safe_name))\n    if not target_path.startswith(BASE_DIR):\n        raise PermissionError('Path traversal attempt detected')\n    return target_path\n```\n\n"
+            elif any(w in prompt_lower for w in ["privilege", "escalat", "suid", "sudo"]):
+                res += "🔑 **Privilege Escalation & System Hardening:**\n"
+                res += "Audit SUID binaries, misconfigured sudoers rules (`sudo -l`), Linux capabilities (`getcap -r /`), and cron jobs.\n\n"
+                res += "💻 **Audit Commands:**\n"
+                res += "```bash\n# Find SUID binaries\nfind / -perm -4000 -type f 2>/dev/null\n# Check Sudo permissions\nsudo -l\n```\n\n"
+            elif any(w in prompt_lower for w in ["reverse shell", "listener", "shell"]):
+                res += "🐚 **Reverse Shell & Socket Management:**\n"
+                res += "For authorized penetration testing, establish Netcat listeners (`nc -lvnp 4444`) or wrap relays in encrypted SSL/TLS channels.\n\n"
+                res += "💻 **Netcat Encrypted Listener:**\n"
+                res += "```bash\nncat --ssl -lvnp 4444\n```\n\n"
+            elif "port" in prompt_lower or "open" in prompt_lower:
+                res += "🔍 **Port & Service Guidance:**\nOpen ports indicate listening services. For web services (80/443), run Nikto/Wfuzz. For databases (3306/5432), ensure internal localhost binding.\n\n"
             elif "hash" in prompt_lower or "password" in prompt_lower:
-                res += f"🔑 **Credential Security:**\nIdentify hash format using HashID before running John the Ripper (`john --wordlist=pass.txt hash.txt`). Migrate legacy MD5/SHA1 hashes to Argon2id.\n\n"
+                res += "🔑 **Credential Security:**\nIdentify hash format using HashID before running John the Ripper (`john --wordlist=pass.txt hash.txt`). Migrate legacy MD5/SHA1 hashes to Argon2id.\n\n"
             elif "sql" in prompt_lower or "inject" in prompt_lower:
-                res += f"💉 **SQL Injection Remediation:**\nUse parameterized queries (prepared statements) with placeholders (`?` in Python, `$1` in Node.js) to isolate SQL code from user inputs.\n\n"
+                res += "💉 **SQL Injection Remediation:**\nUse parameterized queries (prepared statements) with placeholders (`?` in Python, `$1` in Node.js) to isolate SQL code from user inputs.\n\n"
             else:
                 res += f"Regarding *\"{user_prompt}\"*: Select any security tool above and configure target details. Ensure all testing strictly adheres to your authorized scope.\n\n"
+
         else:
             res += "🔍 **Setup Status:** Ready. Select any security tool above to begin analysis.\n\n"
 
@@ -734,8 +798,9 @@ async function hashPassword(password) {
 
     @staticmethod
     def _query_gemini(context_info: str, user_prompt: str, api_key: str, model: str) -> str:
-        model_name = model if model else "gemini-1.5-flash"
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+        model_name = model if model else "gemini-2.0-flash"
+        clean_model = model_name.replace("models/", "")
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{clean_model}:generateContent?key={api_key}"
         
         full_text = f"{AICopilot.SYSTEM_PROMPT}\n\n--- SECURITY SCAN CONTEXT ---\n{context_info}\n\n--- USER QUESTION ---\n{user_prompt}"
         
@@ -755,7 +820,8 @@ async function hashPassword(password) {
                 headers={"Content-Type": "application/json"},
                 method="POST"
             )
-            with urllib.request.urlopen(req, timeout=30) as response:
+            ssl_ctx = AICopilot._get_ssl_context()
+            with urllib.request.urlopen(req, context=ssl_ctx, timeout=30) as response:
                 result = json.loads(response.read().decode("utf-8"))
                 candidates = result.get("candidates", [])
                 if candidates:
@@ -796,7 +862,8 @@ async function hashPassword(password) {
                 },
                 method="POST"
             )
-            with urllib.request.urlopen(req, timeout=30) as response:
+            ssl_ctx = AICopilot._get_ssl_context()
+            with urllib.request.urlopen(req, context=ssl_ctx, timeout=30) as response:
                 result = json.loads(response.read().decode("utf-8"))
                 choices = result.get("choices", [])
                 if choices:
@@ -811,28 +878,60 @@ async function hashPassword(password) {
     @staticmethod
     def _query_ollama(context_info: str, user_prompt: str, model: str, ollama_url: str) -> str:
         model_name = model if model else "llama3:8b"
-        endpoint = f"{ollama_url.rstrip('/')}/api/generate"
+        base_url = ollama_url.rstrip('/')
+        ssl_ctx = AICopilot._get_ssl_context()
 
+        # 1. Try modern /api/chat endpoint
+        chat_endpoint = f"{base_url}/api/chat"
+        messages = [
+            {"role": "system", "content": AICopilot.SYSTEM_PROMPT},
+            {"role": "user", "content": f"Security Context:\n{context_info}\n\nQuestion:\n{user_prompt}"}
+        ]
+        chat_payload = {
+            "model": model_name,
+            "messages": messages,
+            "stream": False
+        }
+
+        try:
+            req_data = json.dumps(chat_payload).encode("utf-8")
+            req = urllib.request.Request(
+                chat_endpoint,
+                data=req_data,
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            with urllib.request.urlopen(req, context=ssl_ctx, timeout=45) as response:
+                result = json.loads(response.read().decode("utf-8"))
+                msg_content = result.get("message", {}).get("content", "")
+                if msg_content:
+                    return msg_content
+        except Exception:
+            pass
+
+        # 2. Fallback to /api/generate endpoint
+        gen_endpoint = f"{base_url}/api/generate"
         prompt = f"{AICopilot.SYSTEM_PROMPT}\n\n--- SECURITY SCAN CONTEXT ---\n{context_info}\n\n--- USER QUESTION ---\n{user_prompt}"
-        payload = {
+        gen_payload = {
             "model": model_name,
             "prompt": prompt,
             "stream": False
         }
 
         try:
-            req_data = json.dumps(payload).encode("utf-8")
+            req_data = json.dumps(gen_payload).encode("utf-8")
             req = urllib.request.Request(
-                endpoint,
+                gen_endpoint,
                 data=req_data,
                 headers={"Content-Type": "application/json"},
                 method="POST"
             )
-            with urllib.request.urlopen(req, timeout=45) as response:
+            with urllib.request.urlopen(req, context=ssl_ctx, timeout=45) as response:
                 result = json.loads(response.read().decode("utf-8"))
                 return result.get("response", "No response generated by Ollama.")
         except Exception as e:
             return f"❌ [Ollama Offline Error]: Cannot connect to Ollama at `{ollama_url}`.\nMake sure Ollama is installed and running (`ollama serve`). Details: {str(e)}"
+
 
 
 class AIWorkerThread(QThread):

@@ -24,6 +24,19 @@ DEFAULT_CONFIG = {
     "app_mode": "Professional"
 }
 
+def resolve_api_key(provider: str, explicit_key: str = "") -> str:
+    """Resolve API key for a provider from explicit config or system environment variables."""
+    key = explicit_key.strip() if explicit_key else ""
+    if key:
+        return key
+
+    provider_clean = (provider or "").lower().strip()
+    if provider_clean == "gemini":
+        return os.environ.get("GEMINI_API_KEY", os.environ.get("GOOGLE_API_KEY", "")).strip()
+    elif provider_clean == "openai":
+        return os.environ.get("OPENAI_API_KEY", "").strip()
+    return ""
+
 def load_config() -> dict:
     """Load configuration from user-isolated JSON file, creating default if not exists."""
     config_file = get_config_file()
@@ -52,3 +65,4 @@ def save_config(config_data: dict) -> bool:
     except Exception as e:
         print(f"[Config] Error saving config: {e}")
         return False
+

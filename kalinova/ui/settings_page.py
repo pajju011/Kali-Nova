@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (
 )
 # pyrefly: ignore [missing-import]
 from PyQt6.QtCore import Qt
-from config import load_config, save_config
+from config import load_config, save_config, resolve_api_key
 from core.ai_copilot import AIWorkerThread
 
 class SettingsPage(QWidget):
@@ -210,24 +210,35 @@ class SettingsPage(QWidget):
             self.apikey_input.setEnabled(True)
             self.model_input.setEnabled(True)
             self.ollama_input.setEnabled(False)
-            if not self.model_input.text() or self.model_input.text() in ["gpt-4o-mini", "llama3:8b"]:
-                self.model_input.setText("gemini-1.5-flash")
+            env_key = resolve_api_key("gemini")
+            if env_key and not self.apikey_input.text():
+                self.apikey_input.setPlaceholderText("Loaded from environment (GEMINI_API_KEY / GOOGLE_API_KEY)")
+            else:
+                self.apikey_input.setPlaceholderText("Enter your Gemini API key...")
+            if not self.model_input.text() or self.model_input.text() in ["gpt-4o-mini", "llama3:8b", "gemini-1.5-flash"]:
+                self.model_input.setText("gemini-2.0-flash")
         elif idx == 1:  # OpenAI
             self.apikey_input.setEnabled(True)
             self.model_input.setEnabled(True)
             self.ollama_input.setEnabled(False)
-            if not self.model_input.text() or self.model_input.text() in ["gemini-1.5-flash", "llama3:8b"]:
+            env_key = resolve_api_key("openai")
+            if env_key and not self.apikey_input.text():
+                self.apikey_input.setPlaceholderText("Loaded from environment (OPENAI_API_KEY)")
+            else:
+                self.apikey_input.setPlaceholderText("Enter your OpenAI API key...")
+            if not self.model_input.text() or self.model_input.text() in ["gemini-1.5-flash", "gemini-2.0-flash", "llama3:8b"]:
                 self.model_input.setText("gpt-4o-mini")
         elif idx == 2:  # Ollama
             self.apikey_input.setEnabled(False)
             self.model_input.setEnabled(True)
             self.ollama_input.setEnabled(True)
-            if not self.model_input.text() or self.model_input.text() in ["gemini-1.5-flash", "gpt-4o-mini"]:
+            if not self.model_input.text() or self.model_input.text() in ["gemini-1.5-flash", "gemini-2.0-flash", "gpt-4o-mini"]:
                 self.model_input.setText("llama3:8b")
         else:  # Heuristic
             self.apikey_input.setEnabled(False)
             self.model_input.setEnabled(False)
             self.ollama_input.setEnabled(False)
+
 
     def _toggle_key_visibility(self):
         if self.apikey_input.echoMode() == QLineEdit.EchoMode.Password:
