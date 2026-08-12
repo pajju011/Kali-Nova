@@ -17,9 +17,9 @@ def get_config_file() -> Path:
     return get_config_dir() / "config.json"
 
 DEFAULT_CONFIG = {
-    "ai_provider": "heuristic",  # Options: 'ollama', 'gemini', 'openai', 'heuristic'
+    "ai_provider": "gemini",  # Options: 'ollama', 'gemini', 'openai', 'heuristic'
     "api_key": "",
-    "model": "gemini-1.5-flash",
+    "model": "gemini-2.0-flash",
     "ollama_url": "http://localhost:11434",
     "app_mode": "Professional"
 }
