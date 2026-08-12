@@ -115,6 +115,15 @@ class CommandThread(QThread):
                     return
                 self.output_signal.emit(f"{'='*60}\n")
 
+            # Extract target from command args
+            target = "unknown"
+            if len(command_args) > 1:
+                # Find target by filtering out flags/options
+                for arg in command_args[1:]:
+                    if not arg.startswith("-"):
+                        target = arg
+                        break
+
             # Ingest output into pipeline manager for inter-tool data handoff
             PipelineManager.ingest_output(base_binary, "\n".join(self.stdout_lines), target)
             app_state.record_tool_execution(base_binary, target, self.command)
@@ -126,14 +135,6 @@ class CommandThread(QThread):
             SuggestionEngine.generate()
 
             # Save scan to database
-            target = "unknown"
-            if len(command_args) > 1:
-                # Find target by filtering out flags/options
-                for arg in command_args[1:]:
-                    if not arg.startswith("-"):
-                        target = arg
-                        break
-            
             parsed_ports_str = ",".join(map(str, app_state.open_ports))
             DatabaseManager.save_scan(
                 target=target,
