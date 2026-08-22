@@ -1,6 +1,8 @@
+import os
 from PyQt6.QtWidgets import QPushButton, QVBoxLayout, QWidget, QLabel
-from PyQt6.QtCore import Qt, pyqtSignal, QEvent
-from PyQt6.QtGui import QFont, QColor
+from PyQt6.QtCore import Qt, pyqtSignal, QEvent, QSize
+from PyQt6.QtGui import QFont, QColor, QIcon
+from ui.icon_manager import get_tool_icon_path
 
 
 class ToolIconButton(QWidget):
@@ -23,12 +25,25 @@ class ToolIconButton(QWidget):
         layout.setSpacing(6)
         layout.setContentsMargins(10, 10, 10, 10)
 
-        self.icon_btn = QPushButton(icon)
+        self.icon_btn = QPushButton()
         self.icon_btn.setObjectName("toolIconButton")
         self.icon_btn.setFixedSize(96, 96)
-        self.icon_btn.setFont(QFont("Segoe UI Emoji", 34))
         self.icon_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.icon_btn.clicked.connect(self.clicked.emit)
+
+        # Check if icon is an SVG path or valid file
+        if isinstance(icon, str) and (icon.endswith(".svg") or icon.endswith(".png") or os.path.exists(icon)):
+            self.icon_btn.setIcon(QIcon(icon))
+            self.icon_btn.setIconSize(QSize(54, 54))
+        else:
+            # Fallback to icon_manager lookup by tool_name or raw string
+            svg_path = get_tool_icon_path(tool_name.lower())
+            if svg_path and os.path.exists(svg_path):
+                self.icon_btn.setIcon(QIcon(svg_path))
+                self.icon_btn.setIconSize(QSize(54, 54))
+            else:
+                self.icon_btn.setText(str(icon))
+                self.icon_btn.setFont(QFont("Segoe UI", 28, QFont.Weight.Bold))
 
         self.name_label = QLabel(tool_name)
         self.name_label.setObjectName("toolNameLabel")

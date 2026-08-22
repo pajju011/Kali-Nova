@@ -9,6 +9,7 @@ from core.app_state import app_state
 from ui.tool_template import ToolModulePage
 from ui.components.tool_helper_widget import ToolHelperWidget
 from ui.components.port_advisor_widget import PortAdvisorWidget
+from ui.icon_manager import get_tool_icon_path
 
 
 class ReconPage(ToolModulePage):
@@ -32,7 +33,7 @@ class ReconPage(ToolModulePage):
 
         self.add_tool(
             tool_id="nmap",
-            icon="🎯",
+            icon=get_tool_icon_path("nmap"),
             name="Nmap",
             description="Port Scanning",
             panel=self.nmap_panel,
@@ -40,7 +41,7 @@ class ReconPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="whois",
-            icon="🌐",
+            icon=get_tool_icon_path("whois"),
             name="Whois",
             description="Domain Lookup",
             panel=self.whois_panel,
@@ -48,7 +49,7 @@ class ReconPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="harvester",
-            icon="🕵️",
+            icon=get_tool_icon_path("harvester"),
             name="Harvester",
             description="OSINT",
             panel=self.harvester_panel,
@@ -56,7 +57,7 @@ class ReconPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="metagoofil",
-            icon="📄",
+            icon=get_tool_icon_path("metagoofil"),
             name="Metagoofil",
             description="Metadata Extractor",
             panel=self.metagoofil_panel,
@@ -64,7 +65,7 @@ class ReconPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="amass",
-            icon="🕸️",
+            icon=get_tool_icon_path("amass"),
             name="Amass",
             description="Network Mapping",
             panel=self.amass_panel,
@@ -72,7 +73,7 @@ class ReconPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="photon",
-            icon="⚡",
+            icon=get_tool_icon_path("photon"),
             name="Photon",
             description="OSINT Crawler",
             panel=self.photon_panel,
@@ -80,7 +81,7 @@ class ReconPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="autopsy",
-            icon="🔬",
+            icon=get_tool_icon_path("autopsy"),
             name="Autopsy",
             description="Digital Forensics",
             panel=self.autopsy_panel,

@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, pyqtSignal
 
 from ui.tool_template import ToolModulePage
+from ui.icon_manager import get_tool_icon_path
 
 
 class NetworkPage(ToolModulePage):
@@ -31,7 +32,7 @@ class NetworkPage(ToolModulePage):
 
         self.add_tool(
             tool_id="netcat",
-            icon="🔗",
+            icon=get_tool_icon_path("netcat"),
             name="Netcat",
             description="Network Utility",
             panel=self.netcat_panel,
@@ -39,14 +40,14 @@ class NetworkPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="wireshark",
-            icon="🔎",
+            icon=get_tool_icon_path("wireshark"),
             name="Wireshark",
             description="Packet Analysis",
             panel=self.wireshark_panel,
         )
         self.add_tool(
             tool_id="wifite",
-            icon="📡",
+            icon=get_tool_icon_path("wifite"),
             name="Wifite",
             description="Wireless Auditor",
             panel=self.wifite_panel,
@@ -54,7 +55,7 @@ class NetworkPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="wash",
-            icon="📶",
+            icon=get_tool_icon_path("wash"),
             name="Wash",
             description="WPS Scanner",
             panel=self.wash_panel,
@@ -62,7 +63,7 @@ class NetworkPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="reaver",
-            icon="🔨",
+            icon=get_tool_icon_path("reaver"),
             name="Reaver",
             description="WPS PIN Cracker",
             panel=self.reaver_panel,
@@ -70,14 +71,14 @@ class NetworkPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="sparrowwifi",
-            icon="🛰️",
+            icon=get_tool_icon_path("sparrow"),
             name="Sparrow-WiFi",
             description="Wi-Fi & Spectrum Analyzer",
             panel=self.sparrowwifi_panel,
         )
         self.add_tool(
             tool_id="sslscan",
-            icon="🔒",
+            icon=get_tool_icon_path("sslscan"),
             name="SSLScan",
             description="SSL/TLS Scanner",
             panel=self.sslscan_panel,
@@ -85,7 +86,7 @@ class NetworkPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="sslyze",
-            icon="🔐",
+            icon=get_tool_icon_path("sslyze"),
             name="SSLyze",
             description="Full-Featured SSL Scanner",
             panel=self.sslyze_panel,
@@ -93,7 +94,7 @@ class NetworkPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="tlssled",
-            icon="🛡️",
+            icon=get_tool_icon_path("tlssled"),
             name="TLSSLed",
             description="SSL/TLS Evaluator",
             panel=self.tlssled_panel,

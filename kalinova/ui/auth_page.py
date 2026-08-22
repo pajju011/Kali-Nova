@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QLabel, QLineEdit, QComboBox, QFileDialog
 from PyQt6.QtCore import pyqtSignal
 
 from ui.tool_template import ToolModulePage
+from ui.icon_manager import get_tool_icon_path
 
 
 class AuthPage(ToolModulePage):
@@ -24,7 +25,7 @@ class AuthPage(ToolModulePage):
 
         self.add_tool(
             tool_id="hydra",
-            icon="⚡",
+            icon=get_tool_icon_path("hydra"),
             name="Hydra",
             description="Brute Force",
             panel=self.hydra_panel,
@@ -32,7 +33,7 @@ class AuthPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="john",
-            icon="🔨",
+            icon=get_tool_icon_path("john"),
             name="John",
             description="Hash Cracking",
             panel=self.john_panel,
@@ -40,7 +41,7 @@ class AuthPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="hash_identifier",
-            icon="🔎",
+            icon=get_tool_icon_path("hashcat"),
             name="Hash Identifier",
             description="Identify hash types",
             panel=self.hash_identifier_panel,
@@ -48,7 +49,7 @@ class AuthPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="hashid",
-            icon="🔎",
+            icon=get_tool_icon_path("hashid"),
             name="HashID",
             description="Identify hash types (hashid)",
             panel=self.hashid_panel,

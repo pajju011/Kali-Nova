@@ -7,6 +7,7 @@ from PyQt6.QtCore import pyqtSignal
 from core.app_state import app_state
 from ui.tool_template import ToolModulePage
 from ui.components.tool_helper_widget import ToolHelperWidget
+from ui.icon_manager import get_tool_icon_path
 
 
 class WebPage(ToolModulePage):
@@ -28,7 +29,7 @@ class WebPage(ToolModulePage):
 
         self.add_tool(
             tool_id="nikto",
-            icon="🔍",
+            icon=get_tool_icon_path("nikto"),
             name="Nikto",
             description="Web Scanning",
             panel=self.nikto_panel,
@@ -36,7 +37,7 @@ class WebPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="sqlmap",
-            icon="💉",
+            icon=get_tool_icon_path("sqlmap"),
             name="SQLmap",
             description="SQL Injection",
             panel=self.sqlmap_panel,
@@ -44,7 +45,7 @@ class WebPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="gobuster",
-            icon="🔓",
+            icon=get_tool_icon_path("gobuster"),
             name="Gobuster",
             description="Directory Brute Force",
             panel=self.gobuster_panel,
@@ -52,7 +53,7 @@ class WebPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="wfuzz",
-            icon="🕸️",
+            icon=get_tool_icon_path("wfuzz"),
             name="Wfuzz",
             description="Web Application Fuzzer",
             panel=self.wfuzz_panel,
@@ -60,7 +61,7 @@ class WebPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="whatweb",
-            icon="🌐",
+            icon=get_tool_icon_path("whatweb"),
             name="WhatWeb",
             description="Web Tech Scanner",
             panel=self.whatweb_panel,

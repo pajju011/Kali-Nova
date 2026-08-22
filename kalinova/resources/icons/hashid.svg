@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <path d="M12 16 H36 L52 32 L36 48 H12 Z" fill="#0f172a" stroke="#6366f1" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="22" cy="32" r="4" fill="#818cf8"/>
+  <text x="32" y="36" font-family="monospace" font-size="11" fill="#c7d2fe" font-weight="bold">ID</text>
+</svg>
