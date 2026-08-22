@@ -214,6 +214,11 @@ class CommandThread(QThread):
             app_state.add_event("SUBDOMAIN_ENUM")
             self.output_signal.emit("[INFO] Subdomain discovered during web crawl.")
 
+        # Metagoofil Document & Metadata Detection
+        if "metagoofil" in lower_line or "searching for pdf files" in lower_line or "files found" in lower_line:
+            app_state.add_event("METAGOOFIL_DOC_EXTRACT")
+            self.output_signal.emit("[INFO] Metagoofil document search & metadata extraction active.")
+
     def run_simulation(self, tool_binary, command_args):
         simulated_lines = []
         target = "target-system.local"
@@ -584,6 +589,75 @@ class CommandThread(QThread):
                 simulated_lines.append("[+] Local website mirror cloned successfully.")
 
             simulated_lines.append("[+] Crawl finished. Extracted 42 URLs, 2 emails, 2 subdomains, 1 secret key.")
+
+        elif tool_binary == "metagoofil":
+            domain = target
+            if "-d" in command_args:
+                try:
+                    domain = command_args[command_args.index("-d") + 1]
+                except Exception:
+                    pass
+            filetypes = "pdf"
+            if "-t" in command_args:
+                try:
+                    filetypes = command_args[command_args.index("-t") + 1]
+                except Exception:
+                    pass
+            limit = "100"
+            if "-l" in command_args:
+                try:
+                    limit = command_args[command_args.index("-l") + 1]
+                except Exception:
+                    pass
+            download_limit = "25"
+            if "-n" in command_args:
+                try:
+                    download_limit = command_args[command_args.index("-n") + 1]
+                except Exception:
+                    pass
+            out_dir = "kalipdf"
+            if "-o" in command_args:
+                try:
+                    out_dir = command_args[command_args.index("-o") + 1]
+                except Exception:
+                    pass
+            save_file = "kalipdf.html"
+            if "-f" in command_args:
+                try:
+                    save_file = command_args[command_args.index("-f") + 1]
+                except Exception:
+                    pass
+
+            simulated_lines = [
+                "******************************************************",
+                "*     /\\/\\   ___| |_ __ _  __ _  ___   ___  / _(_) | *",
+                "*    /    \\ / _ \\ __/ _` |/ _` |/ _ \\ / _ \\| |_| | | *",
+                "*   / /\\/\\ \\  __/ || (_| | (_| | (_) | (_) |  _| | | *",
+                "*   \\/    \\/\\___|\\__\\__,_|\\__, |\\___/ \\___/|_| |_|_| *",
+                "*                         |___/                      *",
+                "* Metagoofil Ver 2.2                                 *",
+                "* Christian Martorella                               *",
+                "* Edge-Security.com                                  *",
+                "* cmartorella_at_edge-security.com                   *",
+                "******************************************************",
+                f"['{filetypes}']",
+                "",
+                "[-] Starting online search...",
+                f"[-] Searching for {filetypes} files, with a limit of {limit}",
+                f"        Searching {limit} results...",
+                "Results: 21 files found",
+                f"Starting to download {download_limit} of them:",
+                f"[-] [1/21] Downloading http://{domain}/docs/annual_report_2025.pdf",
+                f"[-] [2/21] Downloading http://{domain}/assets/network_topology_spec.pdf",
+                f"[-] [3/21] Downloading http://{domain}/downloads/employee_handbook.pdf",
+                f"[+] Saving document links output to '{save_file}'",
+                "[+] Extracting document metadata (Author, Software, Title, Creator)...",
+                "    Author found: admin_jsmith (Internal Account)",
+                "    Creator/Producer: Microsoft Office Word 2019 / Acrobat Distiller 11",
+                "    Internal Path: C:\\Users\\jsmith\\Documents\\Confidential\\",
+                f"[-] Saved downloaded files to directory '{out_dir}'.",
+                "[-] Metagoofil metadata extraction completed successfully."
+            ]
 
         else:
             simulated_lines = [

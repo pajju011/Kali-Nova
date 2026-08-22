@@ -277,6 +277,15 @@ class MainWindow(QMainWindow):
             )
             return
 
+        if "metagoofil" in lower_tool:
+            self._open_tool_panel(
+                page_name="Recon",
+                panel_method="show_metagoofil_panel",
+                tool_name="Metagoofil",
+                instruction="Configure target domain and file types, then launch from Recon page.",
+            )
+            return
+
         if "autopsy" in lower_tool or "forensic" in lower_tool:
             self._open_tool_panel(
                 page_name="Recon",

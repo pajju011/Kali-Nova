@@ -669,6 +669,38 @@ async function hashPassword(password) {
                 "advice": "Train employees to spot spear-phishing attempts leveraging OSINT email leakage.",
                 "remediation_python": "# [REMEDIATION] OSINT Metadata Scrubbing\n# Remove employee emails from public HTML and PDF documents.\n",
                 "remediation_node": "// [REMEDIATION] Obfuscate Email Addresses\n// Render contact emails via JavaScript client-side scripts.\n"
+            },
+            "metagoofil": {
+                "name": "Metagoofil Document Metadata Extractor",
+                "usage": "metagoofil -d kali.org -t pdf -l 100 -n 25 -o kalipdf -f kalipdf.html",
+                "description": "Metagoofil is an OSINT tool that searches Google to locate and download public documents (PDF, DOC, XLS, PPT, DOCX, XLSX) for metadata extraction.",
+                "flags": [
+                    "• `-d <domain>`: Target domain to search.",
+                    "• `-t <file_types>`: File types to download (pdf,doc,xls,ppt,docx,xlsx,ALL).",
+                    "• `-l <max_search>`: Maximum search results (Default: 100).",
+                    "• `-n <download_limit>`: Maximum files to download per file type.",
+                    "• `-o <save_dir>`: Directory to save downloaded files.",
+                    "• `-f <save_file>`: Save HTML links output file."
+                ],
+                "advice": "Scrub EXIF metadata, author identities, internal software versions, and local filepath traces from documents before publishing them online.",
+                "remediation_python": """# [REMEDIATION] Python Automated Metadata Scrubbing (ExifTool / PyPDF2)
+import subprocess
+
+def scrub_document_metadata(file_path):
+    # SECURE: Strip all document properties, author names, and software traces
+    subprocess.run(["exiftool", "-all=", "-overwrite_original", file_path])
+""",
+                "remediation_node": """// [REMEDIATION] Node.js Metadata Sanitization Directive
+// Ensure document generation libraries (pdfkit, docx) omit creator metadata:
+const PDFDocument = require('pdfkit');
+const doc = new PDFDocument({
+    info: {
+        Title: 'Public Notice',
+        Author: 'Anonymous', // Mask internal usernames
+        Producer: 'Document Engine' // Omit exact software build version
+    }
+});
+"""
             }
         }
 

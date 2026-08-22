@@ -112,6 +112,26 @@ class ToolGuide:
             "best_practices": "Use crtsh and google sources to discover subdomains and corporate employee email addresses.",
             "pipeline_next": ["Nmap", "Whois"]
         },
+        "metagoofil": {
+            "name": "Metagoofil Document Metadata Extractor",
+            "accepted_inputs": ["Target Domain Name (e.g., kali.org or target.com)"],
+            "input_type": "DOMAIN",
+            "flags": {
+                "-d": "Target domain to search.",
+                "-t": "File types to search and download (pdf,doc,xls,ppt,docx,xlsx,ALL).",
+                "-l": "Maximum search results limit (Default: 100).",
+                "-n": "Maximum files to download per filetype (Default: 100).",
+                "-o": "Directory path to save downloaded documents.",
+                "-f": "Save HTML links output file name.",
+                "-e": "Delay in seconds between search engine queries.",
+                "-r": "Number of downloader threads (Default: 8).",
+                "-i": "URL request timeout in seconds.",
+                "-u": "Custom or randomized User-Agent header.",
+                "-w": "Download files locally instead of just viewing search results."
+            },
+            "best_practices": "Use Metagoofil during OSINT reconnaissance to locate public PDF/DOCX files and extract internal username, software version, and filepath metadata.",
+            "pipeline_next": ["theHarvester", "Photon", "Nmap"]
+        },
         "john": {
             "name": "John the Ripper Password Cracker",
             "accepted_inputs": ["Path to text file containing password hashes"],

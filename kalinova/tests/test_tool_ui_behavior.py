@@ -147,6 +147,45 @@ class ReconPageUiBehaviorTests(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn("Target URL is required", errors[0])
 
+    def test_metagoofil_tool_panel_activation(self):
+        page = ReconPage()
+        page.show()
+
+        button = page._tool_buttons["metagoofil"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "metagoofil")
+
+    def test_metagoofil_command_generation(self):
+        page = ReconPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.metagoofil_domain.setText("kali.org")
+        page.metagoofil_filetypes.setText("pdf")
+        page.metagoofil_search_max.setValue(100)
+        page.metagoofil_download_limit.setValue(25)
+        page.metagoofil_output_dir.setText("kalipdf")
+        page.metagoofil_save_file.setText("kalipdf.html")
+
+        page.build_metagoofil()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "metagoofil -d kali.org -t pdf -n 25 -o kalipdf -f kalipdf.html -w")
+
+    def test_metagoofil_validation_error_when_domain_missing(self):
+        page = ReconPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.build_metagoofil()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Target domain (-d) is required", errors[0])
+
     def test_photon_complex_command_generation(self):
         page = ReconPage()
         page.show()
