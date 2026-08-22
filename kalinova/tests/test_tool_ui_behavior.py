@@ -540,6 +540,92 @@ class AuthPageHashcatBehaviorTests(unittest.TestCase):
         self.assertIn("Hash file or target hash is required", errors[0])
 
 
+class AuthPageNcrackBehaviorTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_ncrack_tool_panel_activation(self):
+        from ui.auth_page import AuthPage
+        page = AuthPage()
+        page.show()
+
+        button = page._tool_buttons["ncrack"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "ncrack")
+
+    def test_ncrack_command_generation_example_workflow(self):
+        from ui.auth_page import AuthPage
+        page = AuthPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.ncrack_target_file_input.setText("win.txt")
+        page.ncrack_user_input.setText("victim")
+        page.ncrack_pass_file_input.setText("passes.txt")
+        page.ncrack_service_combo.setCurrentText("rdp")
+        page.ncrack_cl_input.setText("CL=1")
+        page.chk_ncrack_verbose.setChecked(True)
+
+        page.build_ncrack()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(
+            commands[0],
+            "ncrack -v -iL win.txt --user victim -P passes.txt -p rdp CL=1"
+        )
+
+    def test_ncrack_command_generation_single_host(self):
+        from ui.auth_page import AuthPage
+        page = AuthPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.ncrack_target_input.setText("192.168.1.50")
+        page.ncrack_user_file_input.setText("/usr/share/wordlists/users.txt")
+        page.ncrack_pass_input.setText("SecretPass123")
+        page.ncrack_service_combo.setCurrentText("ssh")
+        page.ncrack_custom_port_input.setText("2222")
+        page.ncrack_timing_combo.setCurrentIndex(5)  # -T4 - Aggressive
+        page.chk_ncrack_stealthy.setChecked(True)
+
+        page.build_ncrack()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(
+            commands[0],
+            "ncrack -v -U /usr/share/wordlists/users.txt --pass SecretPass123 -p ssh:2222 -T4 --stealthy-linear 192.168.1.50"
+        )
+
+    def test_ncrack_validation_errors(self):
+        from ui.auth_page import AuthPage
+        page = AuthPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        # Missing target
+        page.build_ncrack()
+        self.assertTrue(any("Target IP/Host" in e for e in errors))
+
+        # Add target, missing user
+        errors.clear()
+        page.ncrack_target_input.setText("10.0.0.1")
+        page.build_ncrack()
+        self.assertTrue(any("Username" in e for e in errors))
+
+        # Add user, missing password
+        errors.clear()
+        page.ncrack_user_input.setText("admin")
+        page.build_ncrack()
+        self.assertTrue(any("Password" in e for e in errors))
+
+
 if __name__ == "__main__":
     unittest.main()
 

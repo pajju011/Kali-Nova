@@ -180,6 +180,30 @@ class ToolGuide:
             "best_practices": "Identify hash algorithm with HashID first, benchmark your hardware using `hashcat -b`, and use `-O` for maximum GPU cracking throughput.",
             "pipeline_next": ["AI Copilot", "Hydra"]
         },
+        "ncrack": {
+            "name": "Ncrack High-Speed Network Authentication Cracker",
+            "accepted_inputs": ["Target IP (e.g. 192.168.1.100)", "Target Hostname (e.g. scanme.nmap.org)", "Target List File (-iL win.txt)"],
+            "input_type": "HOST_OR_NETWORK",
+            "flags": {
+                "-v": "Enable verbose output mode (shows live connection & cracking status).",
+                "-vv": "Enable extra high verbosity mode.",
+                "-p": "Specify service list/protocol (e.g. -p rdp, -p ssh, -p ftp:2121, -p smb).",
+                "-iL": "Read targets from input list/file (e.g. -iL win.txt).",
+                "-iX": "Input targets from Nmap XML scan output file (-oX).",
+                "--user": "Single target username to test (e.g. --user victim or --user Administrator).",
+                "-U": "Username dictionary wordlist file (e.g. -U users.txt).",
+                "--pass": "Single password to test across users (e.g. --pass password123).",
+                "-P": "Password dictionary wordlist file (e.g. -P passes.txt).",
+                "CL=": "Max connection limit: maximum number of concurrent parallel connections (e.g. CL=1).",
+                "cl=": "Min connection limit: minimum number of concurrent parallel connections (e.g. cl=1).",
+                "-T<0-5>": "Timing template: 0 (Paranoid), 1 (Sneaky), 2 (Polite), 3 (Normal), 4 (Aggressive), 5 (Insane).",
+                "--stealthy-linear": "Try credentials using only one connection per host in a round-robin loop.",
+                "--connection-limit": "Set threshold for total concurrent connections across all targets.",
+                "ssl": "Enable SSL/TLS encapsulation for specified service."
+            },
+            "best_practices": "For stable RDP and SMB authentication without causing host connection drops or denial-of-service, set a conservative connection limit like `CL=1` or `CL=4` and use verbose mode (`-v`).",
+            "pipeline_next": ["Hydra", "John the Ripper", "AI Copilot"]
+        },
     }
 
     @classmethod

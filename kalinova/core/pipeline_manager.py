@@ -116,8 +116,8 @@ class PipelineManager:
             if artifacts["targets"]:
                 return artifacts["targets"][0]
 
-        # Password / Service Crackers (Hydra, Netcat, SSLScan) prefer Host/IP
-        elif tool in ["hydra", "nmap", "sslscan", "sslyze", "netcat"]:
+        # Password / Service Crackers (Hydra, Ncrack, Netcat, SSLScan) prefer Host/IP
+        elif tool in ["hydra", "ncrack", "nmap", "sslscan", "sslyze", "netcat"]:
             if artifacts["targets"]:
                 t = artifacts["targets"][0]
                 # Strip http:// scheme if present

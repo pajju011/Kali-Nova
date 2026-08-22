@@ -206,6 +206,18 @@ TOOL_SVG_MAP: Dict[str, str] = {
     "tlssled": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <path d="M32 6 L52 14 V30 C52 44 32 56 32 56 C32 56 12 44 12 30 V14 Z" fill="#0f172a" stroke="#14b8a6" stroke-width="2.5"/>
   <text x="20" y="36" font-family="monospace" font-size="11" fill="#2dd4bf" font-weight="bold">TLS</text>
+</svg>""",
+
+    "ncrack": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect x="14" y="24" width="36" height="30" rx="5" fill="#0f172a" stroke="#f59e0b" stroke-width="2.5"/>
+  <path d="M22 24 V17 C22 11.5 26.5 7 32 7 C37.5 7 42 11.5 42 17 V24" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="32" cy="36" r="3.5" fill="#f59e0b"/>
+  <path d="M32 39.5 L30 46 H34 L32 46" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+  <path d="M38 27 L26 49" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="2,3"/>
+  <circle cx="10" cy="38" r="2.5" fill="#38bdf8"/>
+  <circle cx="54" cy="38" r="2.5" fill="#38bdf8"/>
+  <line x1="10" y1="38" x2="14" y2="38" stroke="#38bdf8" stroke-width="1.5"/>
+  <line x1="50" y1="38" x2="54" y2="38" stroke="#38bdf8" stroke-width="1.5"/>
 </svg>"""
 }
 

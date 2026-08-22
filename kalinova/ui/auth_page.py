@@ -19,6 +19,7 @@ class AuthPage(ToolModulePage):
         )
 
         self.hydra_panel = self._create_hydra_panel()
+        self.ncrack_panel = self._create_ncrack_panel()
         self.john_panel = self._create_john_panel()
         self.hashcat_panel = self._create_hashcat_panel()
         self.hash_identifier_panel = self._create_hash_identifier_panel()
@@ -31,6 +32,14 @@ class AuthPage(ToolModulePage):
             description="Brute Force",
             panel=self.hydra_panel,
             focus_widget=self.hydra_target_input,
+        )
+        self.add_tool(
+            tool_id="ncrack",
+            icon=get_tool_icon_path("ncrack"),
+            name="Ncrack",
+            description="Network Auth Cracker",
+            panel=self.ncrack_panel,
+            focus_widget=self.ncrack_target_input,
         )
         self.add_tool(
             tool_id="john",
@@ -237,8 +246,125 @@ class AuthPage(ToolModulePage):
         layout.addStretch()
         return panel
 
+    def _create_ncrack_panel(self):
+        panel, layout = self.create_panel("⚡ Ncrack Network Authentication Cracker")
+
+        from PyQt6.QtWidgets import QCheckBox
+        from ui.components.tool_helper_widget import ToolHelperWidget
+
+        # Target Specification (Single Target vs Target List File -iL)
+        self.ncrack_target_input = QLineEdit()
+        self.ncrack_target_input.setPlaceholderText("Enter target IP / Hostname (e.g. 192.168.1.100)")
+
+        self.ncrack_helper = ToolHelperWidget("ncrack")
+        self.ncrack_target_input.textChanged.connect(self.ncrack_helper.validate_text)
+
+        self.ncrack_target_file_input = QLineEdit()
+        self.ncrack_target_file_input.setPlaceholderText("Select target list file (-iL win.txt)")
+
+        self.browse_ncrack_targets_btn = self.create_secondary_button("Browse Target File (-iL)")
+        self.browse_ncrack_targets_btn.clicked.connect(self._browse_ncrack_target_file)
+
+        # Service / Protocol Selection
+        self.ncrack_service_combo = QComboBox()
+        self.ncrack_service_combo.addItems([
+            "rdp",
+            "ssh",
+            "ftp",
+            "smb",
+            "vnc",
+            "http",
+            "https",
+            "telnet",
+            "pop3",
+            "pop3s",
+            "sip",
+            "redis",
+            "mongodb",
+            "winrm"
+        ])
+
+        self.ncrack_custom_port_input = QLineEdit()
+        self.ncrack_custom_port_input.setPlaceholderText("Custom service port (optional, e.g. 3389, 2222)")
+
+        # Authentication Specification (Username & Wordlist)
+        self.ncrack_user_input = QLineEdit()
+        self.ncrack_user_input.setPlaceholderText("Single username (--user victim)")
+
+        self.ncrack_user_file_input = QLineEdit()
+        self.ncrack_user_file_input.setPlaceholderText("Username wordlist file (-U users.txt) (optional)")
+
+        self.browse_ncrack_users_btn = self.create_secondary_button("Browse User List (-U)")
+        self.browse_ncrack_users_btn.clicked.connect(self._browse_ncrack_user_file)
+
+        self.ncrack_pass_input = QLineEdit()
+        self.ncrack_pass_input.setPlaceholderText("Single password (--pass password123) (optional)")
+
+        self.ncrack_pass_file_input = QLineEdit()
+        self.ncrack_pass_file_input.setPlaceholderText("Password dictionary wordlist (-P passes.txt)")
+
+        self.browse_ncrack_pass_btn = self.create_secondary_button("Browse Pass List (-P)")
+        self.browse_ncrack_pass_btn.clicked.connect(self._browse_ncrack_pass_file)
+
+        # Timing & Concurrency Limit
+        self.ncrack_timing_combo = QComboBox()
+        self.ncrack_timing_combo.addItems([
+            "None (Default)",
+            "-T0 - Paranoid",
+            "-T1 - Sneaky",
+            "-T2 - Polite",
+            "-T3 - Normal",
+            "-T4 - Aggressive",
+            "-T5 - Insane"
+        ])
+
+        self.ncrack_cl_input = QLineEdit()
+        self.ncrack_cl_input.setPlaceholderText("Max connection limit (e.g. CL=1 or CL=10)")
+
+        # Flags & Checkboxes
+        self.chk_ncrack_verbose = QCheckBox("Verbose mode (-v)")
+        self.chk_ncrack_verbose.setChecked(True)
+        self.chk_ncrack_extra_verbose = QCheckBox("Extra verbose mode (-vv)")
+        self.chk_ncrack_stealthy = QCheckBox("Stealthy Linear mode (--stealthy-linear)")
+        self.chk_ncrack_ssl = QCheckBox("Enable SSL (ssl)")
+
+        self.ncrack_btn = self.create_primary_button("Run Ncrack")
+        self.ncrack_btn.clicked.connect(self.build_ncrack)
+
+        layout.addWidget(QLabel("Target IP / Hostname (or Target List File)"))
+        layout.addWidget(self.ncrack_target_input)
+        layout.addWidget(self.ncrack_helper)
+        layout.addWidget(self.ncrack_target_file_input)
+        layout.addWidget(self.browse_ncrack_targets_btn)
+        layout.addWidget(QLabel("Service Protocol (-p)"))
+        layout.addWidget(self.ncrack_service_combo)
+        layout.addWidget(QLabel("Custom Service Port (Optional)"))
+        layout.addWidget(self.ncrack_custom_port_input)
+        layout.addWidget(QLabel("Username Credentials (--user or -U)"))
+        layout.addWidget(self.ncrack_user_input)
+        layout.addWidget(self.ncrack_user_file_input)
+        layout.addWidget(self.browse_ncrack_users_btn)
+        layout.addWidget(QLabel("Password Credentials (--pass or -P)"))
+        layout.addWidget(self.ncrack_pass_input)
+        layout.addWidget(self.ncrack_pass_file_input)
+        layout.addWidget(self.browse_ncrack_pass_btn)
+        layout.addWidget(QLabel("Performance & Concurrency Limit"))
+        layout.addWidget(self.ncrack_timing_combo)
+        layout.addWidget(self.ncrack_cl_input)
+        layout.addWidget(self.chk_ncrack_verbose)
+        layout.addWidget(self.chk_ncrack_extra_verbose)
+        layout.addWidget(self.chk_ncrack_stealthy)
+        layout.addWidget(self.chk_ncrack_ssl)
+        layout.addWidget(self.ncrack_btn)
+        layout.addStretch()
+
+        return panel
+
     def show_hydra_panel(self):
         self.activate_tool("hydra")
+
+    def show_ncrack_panel(self):
+        self.activate_tool("ncrack")
 
     def show_john_panel(self):
         self.activate_tool("john")
@@ -385,3 +511,108 @@ class AuthPage(ToolModulePage):
             cmd.append("--force")
 
         self.run_command.emit(" ".join(cmd))
+
+    def _browse_ncrack_target_file(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select Target List File (-iL)",
+            "",
+            "Text/List Files (*.txt *.list *.ip);;All Files (*.*)",
+        )
+        if file_path:
+            self.ncrack_target_file_input.setText(file_path)
+
+    def _browse_ncrack_user_file(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select Username Wordlist (-U)",
+            "",
+            "Text/Wordlist Files (*.txt *.lst *.dict);;All Files (*.*)",
+        )
+        if file_path:
+            self.ncrack_user_file_input.setText(file_path)
+
+    def _browse_ncrack_pass_file(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select Password Wordlist (-P)",
+            "",
+            "Text/Wordlist Files (*.txt *.lst *.dict);;All Files (*.*)",
+        )
+        if file_path:
+            self.ncrack_pass_file_input.setText(file_path)
+
+    def build_ncrack(self):
+        target_host = self.ncrack_target_input.text().strip()
+        target_file = self.ncrack_target_file_input.text().strip()
+
+        if not target_host and not target_file:
+            self.emit_validation_error("Target IP/Host or Target File (-iL) is required before running Ncrack.")
+            return
+
+        user = self.ncrack_user_input.text().strip()
+        user_file = self.ncrack_user_file_input.text().strip()
+        if not user and not user_file:
+            self.emit_validation_error("Username (--user) or User list file (-U) is required before running Ncrack.")
+            return
+
+        pwd = self.ncrack_pass_input.text().strip()
+        pwd_file = self.ncrack_pass_file_input.text().strip()
+        if not pwd and not pwd_file:
+            self.emit_validation_error("Password (--pass) or Password wordlist (-P) is required before running Ncrack.")
+            return
+
+        cmd = ["ncrack"]
+
+        if self.chk_ncrack_extra_verbose.isChecked():
+            cmd.append("-vv")
+        elif self.chk_ncrack_verbose.isChecked():
+            cmd.append("-v")
+
+        if target_file:
+            cmd.extend(["-iL", target_file])
+
+        if user_file:
+            cmd.extend(["-U", user_file])
+        elif user:
+            cmd.extend(["--user", user])
+
+        if pwd_file:
+            cmd.extend(["-P", pwd_file])
+        elif pwd:
+            cmd.extend(["--pass", pwd])
+
+        # Service / Port
+        service = self.ncrack_service_combo.currentText().strip()
+        port = self.ncrack_custom_port_input.text().strip()
+        if port:
+            service_spec = f"{service}:{port}"
+        else:
+            service_spec = service
+
+        if self.chk_ncrack_ssl.isChecked() and not service_spec.endswith(",ssl"):
+            service_spec = f"{service_spec},ssl"
+
+        cmd.extend(["-p", service_spec])
+
+        # Connection Limit CL= or cl=
+        cl_val = self.ncrack_cl_input.text().strip()
+        if cl_val:
+            if not cl_val.startswith("CL=") and not cl_val.startswith("cl="):
+                cl_val = f"CL={cl_val}"
+            cmd.append(cl_val)
+
+        # Timing template
+        timing_idx = self.ncrack_timing_combo.currentIndex()
+        if timing_idx > 0:
+            template_flag = f"-T{timing_idx - 1}"
+            cmd.append(template_flag)
+
+        if self.chk_ncrack_stealthy.isChecked():
+            cmd.append("--stealthy-linear")
+
+        if target_host and not target_file:
+            cmd.append(target_host)
+
+        self.run_command.emit(" ".join(cmd))
+

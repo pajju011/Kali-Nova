@@ -528,6 +528,42 @@ async function hashPassword(password) {
                 "remediation_python": "# [REMEDIATION] Enforce Modern Hashing Standard\n# Ensure all stored hashes use modern salted bcrypt/Argon2id algorithms.\n",
                 "remediation_node": "// [REMEDIATION] Enforce Salted Hash Standard\n// Use Node crypto scrypt or bcrypt module.\n"
             },
+            "ncrack": {
+                "name": "Ncrack High-Speed Network Authentication Cracker",
+                "usage": "ncrack -v -iL win.txt --user victim -P passes.txt -p rdp CL=1",
+                "description": "Ncrack is a high-speed network authentication cracking tool designed to proactively test hosts and network devices across RDP, SSH, FTP, SMB, VNC, HTTP(S), and Telnet services.",
+                "flags": [
+                    "• `-v` / `-vv`: Verbose output showing real-time cracking status and discovered credentials.",
+                    "• `-p <service>`: Target service protocol (rdp, ssh, ftp, smb, vnc, http, etc.) and optional port.",
+                    "• `-iL <file>`: Read target IP addresses/hostnames from list file.",
+                    "• `--user <username>` / `-U <userfile>`: Single username or username dictionary wordlist.",
+                    "• `--pass <password>` / `-P <passfile>`: Single password or password dictionary wordlist.",
+                    "• `CL=<limit>`: Maximum connection limit for parallel connections per service.",
+                    "• `-T<0-5>`: Timing template (0=Paranoid to 5=Insane, 4=Aggressive)."
+                ],
+                "advice": "Protect network services (RDP, SSH, SMB) from Ncrack authentication brute-forcing by enforcing account lockout policies, multi-factor authentication (MFA), and Network Level Authentication (NLA) for RDP.",
+                "remediation_python": """# [REMEDIATION] RDP & SSH Account Lockout Enforcer (Windows / Linux)
+# Windows Group Policy (GPO):
+# Computer Configuration -> Windows Settings -> Security Settings -> Account Policies -> Account Lockout Policy
+# - Account lockout threshold: 5 invalid logon attempts
+# - Account lockout duration: 15 minutes
+# - Reset account lockout counter after: 15 minutes
+
+# Linux /etc/pam.d/common-auth rate limiting:
+# auth required pam_tally2.so onerr=fail deny=5 unlock_time=900
+""",
+                "remediation_node": """// [REMEDIATION] Node.js Multi-Protocol Login Throttler
+const rateLimit = require('express-rate-limit');
+
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // 5 requests per IP
+    message: { error: 'Too many authentication attempts. Please try again later.' }
+});
+
+module.exports = authLimiter;
+"""
+            },
             "netcat": {
                 "name": "Netcat (nc) Swiss Army Knife",
                 "usage": "nc -lvnp 4444 (Listener) | nc <ip> <port> (Client)",

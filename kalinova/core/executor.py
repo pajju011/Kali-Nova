@@ -230,6 +230,13 @@ class CommandThread(QThread):
             if "recovered" in lower_line or "cracked" in lower_line:
                 self.output_signal.emit("[ALERT] Hashcat hash plaintext recovered!")
 
+        # Ncrack Network Authentication & Credential Discovery Detection
+        if "ncrack" in lower_line or "discovered credentials on" in lower_line:
+            app_state.add_event("BRUTE_FORCE")
+            app_state.add_event("NCRACK_CREDENTIAL_FOUND")
+            if "discovered credentials on" in lower_line:
+                self.output_signal.emit("[ALERT] Ncrack discovered valid service credentials!")
+
     def run_simulation(self, tool_binary, command_args):
         simulated_lines = []
         target = "target-system.local"
@@ -425,6 +432,45 @@ class CommandThread(QThread):
                 "1 password hash cracked, 0 left"
             ]
 
+        elif tool_binary == "ncrack":
+            user = "victim"
+            if "--user" in command_args:
+                try:
+                    user = command_args[command_args.index("--user") + 1]
+                except Exception:
+                    pass
+            elif "-U" in command_args:
+                try:
+                    user = os.path.basename(command_args[command_args.index("-U") + 1])
+                except Exception:
+                    pass
+
+            svc = "rdp"
+            if "-p" in command_args:
+                try:
+                    svc = command_args[command_args.index("-p") + 1]
+                except Exception:
+                    pass
+
+            target_host = target if target != "unknown" and target != "target-system.local" else "192.168.1.200"
+            if "-iL" in command_args:
+                try:
+                    target_host = f"list:{os.path.basename(command_args[command_args.index('-iL') + 1])}"
+                except Exception:
+                    pass
+
+            port_map = {"rdp": "3389", "ssh": "22", "ftp": "21", "smb": "445", "vnc": "5900", "http": "80", "telnet": "23"}
+            svc_port = port_map.get(svc.lower(), "3389")
+
+            simulated_lines = [
+                f"Starting Ncrack 0.7 ( http://ncrack.org ) at {datetime.now().strftime('%Y-%m-%d %H:%M EDT')}",
+                f"[*] Initiating network authentication audit against {target_host} ({svc} / port {svc_port})",
+                f"[*] Module {svc}: parallel connection limit set. Probing endpoint...",
+                f"{svc}://192.168.1.220:{svc_port} finished.",
+                f"Discovered credentials on {svc}://192.168.1.200:{svc_port} '{user}' 's3cr3t'",
+                f"Ncrack done: 1 service on 1 host completed in {random.uniform(3.2, 5.8):.2f} seconds."
+            ]
+
         elif tool_binary in ["nc", "netcat"]:
             port = "4444"
             if len(command_args) > 2:
@@ -557,7 +603,7 @@ class CommandThread(QThread):
                 "     / __ \\/ /_  ____  / /_____  ____",
                 "    / /_/ / __ \\/ __ \\/ __/ __ \\/ __ \\",
                 "   / ____/ / / / /_/ / /_/ /_/ / / / /",
-                "  /_/   /_/ /_/\____/\\__/\____/_/ /_/ v1.2.2",
+                "  /_/   /_/ /_/\\____/\\__/\\____/_/ /_/ v1.2.2",
                 "",
                 f"[+] Root target URL: {target}",
                 f"[+] Initializing crawler threads (level: {level}, threads: {threads})...",
