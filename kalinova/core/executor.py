@@ -219,6 +219,11 @@ class CommandThread(QThread):
             app_state.add_event("METAGOOFIL_DOC_EXTRACT")
             self.output_signal.emit("[INFO] Metagoofil document search & metadata extraction active.")
 
+        # Amass DNS Enumeration & Attack Surface Detection
+        if "amass" in lower_line or "owasp amass" in lower_line or "querying" in lower_line or "dns enumeration" in lower_line:
+            app_state.add_event("AMASS_ENUM_ACTIVE")
+            self.output_signal.emit("[INFO] OWASP Amass attack surface discovery active.")
+
     def run_simulation(self, tool_binary, command_args):
         simulated_lines = []
         target = "target-system.local"
@@ -658,6 +663,63 @@ class CommandThread(QThread):
                 f"[-] Saved downloaded files to directory '{out_dir}'.",
                 "[-] Metagoofil metadata extraction completed successfully."
             ]
+
+        elif tool_binary == "amass":
+            domain = target
+            if "-d" in command_args:
+                try:
+                    domain = command_args[command_args.index("-d") + 1]
+                except Exception:
+                    pass
+            mode = "enum"
+            if "intel" in command_args:
+                mode = "intel"
+
+            simulated_lines = [
+                "                                       ",
+                "  .____.     .____.    .____.    .____.",
+                "  |    |     |    |    |    |    |    |",
+                "  | OWASP Amass v4.2.0 - Attack Surface Mapping Engine |",
+                "  |____________________________________________________|",
+                "",
+                f"[*] Target Domain: {domain}",
+                f"[*] Operation Mode: {mode.upper()}",
+                "[+] Querying passive OSINT sources (Censys, CertSpotter, Crtsh, HackerTarget, SecurityTrails, Shodan, VirusTotal)...",
+                f"[-] [Crtsh] Found subdomain: mail.{domain}",
+                f"[-] [SecurityTrails] Found subdomain: vpn.{domain}",
+                f"[-] [AlienVault] Found subdomain: api.{domain}",
+                f"[-] [Censys] Found subdomain: dev.{domain}",
+                f"[-] [HackerTarget] Found subdomain: portal.{domain}",
+            ]
+
+            if "-active" in command_args or "--active" in command_args:
+                simulated_lines.extend([
+                    "[+] Active reconnaissance mode enabled: Probing DNS zone transfers (AXFR) & SSL/TLS Certificates...",
+                    f"[-] [DNS AXFR] Discovered internal DNS record: ns1.internal.{domain}",
+                    f"[-] [Cert Pull] Discovered SSL SAN endpoint: staging-api.{domain}"
+                ])
+
+            if "-brute" in command_args or "--brute" in command_args:
+                simulated_lines.extend([
+                    "[+] Brute-force subdomain alterations & wordlist mutations active...",
+                    f"[-] [BruteForce] Found subdomain: admin.{domain}",
+                    f"[-] [BruteForce] Found subdomain: db.{domain}"
+                ])
+
+            if "-ip" in command_args or "--ip" in command_args or True:
+                simulated_lines.extend([
+                    "[+] Performing A/AAAA DNS records resolution to IPv4/IPv6 addresses:",
+                    f"    mail.{domain}        --> 192.168.1.10 [ASN: 15169 - GOOGLE]",
+                    f"    vpn.{domain}         --> 192.168.1.15 [ASN: 15169 - GOOGLE]",
+                    f"    api.{domain}         --> 192.168.1.25 [ASN: 15169 - GOOGLE]",
+                    f"    portal.{domain}      --> 192.168.1.30 [ASN: 15169 - GOOGLE]",
+                    f"    dev.{domain}         --> 192.168.1.45 [ASN: 15169 - GOOGLE]",
+                ])
+
+            if "-src" in command_args:
+                simulated_lines.append("[+] Data source attribution logging enabled.")
+
+            simulated_lines.append(f"[*] OWASP Amass discovery complete. 7 subdomains and 5 unique IP targets mapped.")
 
         else:
             simulated_lines = [

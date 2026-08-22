@@ -132,6 +132,25 @@ class ToolGuide:
             "best_practices": "Use Metagoofil during OSINT reconnaissance to locate public PDF/DOCX files and extract internal username, software version, and filepath metadata.",
             "pipeline_next": ["theHarvester", "Photon", "Nmap"]
         },
+        "amass": {
+            "name": "OWASP Amass In-depth DNS & Network Mapper",
+            "accepted_inputs": ["Target Domain Name (e.g., example.com)"],
+            "input_type": "DOMAIN",
+            "flags": {
+                "enum": "Subcommand for DNS enumeration and network mapping.",
+                "intel": "Subcommand for intelligence gathering (WHOIS, ASN, CIDR).",
+                "-d": "Target domain name to scan.",
+                "-passive": "Enable passive reconnaissance mode (OSINT scraping only).",
+                "-active": "Enable active reconnaissance (zone transfers, cert pulling).",
+                "-brute": "Perform subdomain name alterations and brute-forcing.",
+                "-ip": "Show resolved IP addresses alongside subdomains.",
+                "-src": "Show data source attribution for discovered DNS names.",
+                "-w": "Custom wordlist path for subdomain brute forcing.",
+                "-o": "Save output results to specified text file."
+            },
+            "best_practices": "Begin attack surface discovery using passive OSINT mode (`amass enum -passive -d target.com`), then run active mode with IP mapping (`amass enum -active -ip -d target.com`).",
+            "pipeline_next": ["Nmap", "Nikto", "Gobuster"]
+        },
         "john": {
             "name": "John the Ripper Password Cracker",
             "accepted_inputs": ["Path to text file containing password hashes"],

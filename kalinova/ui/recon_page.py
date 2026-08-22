@@ -26,6 +26,7 @@ class ReconPage(ToolModulePage):
         self.whois_panel = self._create_whois_panel()          
         self.harvester_panel = self._create_harvester_panel()
         self.metagoofil_panel = self._create_metagoofil_panel()
+        self.amass_panel = self._create_amass_panel()
         self.photon_panel = self._create_photon_panel()
         self.autopsy_panel = self._create_autopsy_panel()
 
@@ -60,6 +61,14 @@ class ReconPage(ToolModulePage):
             description="Metadata Extractor",
             panel=self.metagoofil_panel,
             focus_widget=self.metagoofil_domain,
+        )
+        self.add_tool(
+            tool_id="amass",
+            icon="🕸️",
+            name="Amass",
+            description="Network Mapping",
+            panel=self.amass_panel,
+            focus_widget=self.amass_domain,
         )
         self.add_tool(
             tool_id="photon",
@@ -246,6 +255,63 @@ class ReconPage(ToolModulePage):
         layout.addWidget(self.metagoofil_user_agent)
         layout.addWidget(self.chk_metagoofil_download)
         layout.addWidget(self.metagoofil_btn)
+        layout.addStretch()
+
+        return panel
+
+    def _create_amass_panel(self):
+        panel, layout = self.create_panel("🕸️ OWASP Amass - Attack Surface & Network Mapper")
+
+        self.amass_subcommand = QComboBox()
+        self.amass_subcommand.addItems([
+            "enum (DNS Enumeration & Network Mapping)",
+            "intel (Intelligence & WHOIS/ASN Discovery)"
+        ])
+
+        self.amass_domain = QLineEdit()
+        self.amass_domain.setPlaceholderText("Target Domain (-d) (e.g. example.com or kali.org)")
+
+        self.amass_helper = ToolHelperWidget("amass")
+        self.amass_domain.textChanged.connect(self.amass_helper.validate_text)
+
+        self.chk_amass_passive = QCheckBox("Passive OSINT Mode (-passive)")
+        self.chk_amass_active = QCheckBox("Active Recon & Cert Pulling (-active)")
+        self.chk_amass_active.setChecked(True)
+        self.chk_amass_brute = QCheckBox("Subdomain Brute Forcing (-brute)")
+        self.chk_amass_ip = QCheckBox("Display Resolved IP Addresses (-ip)")
+        self.chk_amass_ip.setChecked(True)
+        self.chk_amass_src = QCheckBox("Show Data Source Attribution (-src)")
+
+        wlist_layout = QHBoxLayout()
+        self.amass_wordlist_input = QLineEdit()
+        self.amass_wordlist_input.setPlaceholderText("Custom wordlist path (-w) (optional)")
+        self.amass_wordlist_btn = QPushButton("Browse...")
+        self.amass_wordlist_btn.clicked.connect(self._browse_amass_wordlist)
+        wlist_layout.addWidget(self.amass_wordlist_input)
+        wlist_layout.addWidget(self.amass_wordlist_btn)
+
+        self.amass_output_file = QLineEdit()
+        self.amass_output_file.setPlaceholderText("Save output results to file (-o) (optional)")
+
+        self.amass_btn = self.create_primary_button("Run Amass")
+        self.amass_btn.clicked.connect(self.build_amass)
+
+        layout.addWidget(QLabel("Operation Mode"))
+        layout.addWidget(self.amass_subcommand)
+        layout.addWidget(QLabel("Target Domain (-d)"))
+        layout.addWidget(self.amass_domain)
+        layout.addWidget(self.amass_helper)
+        layout.addWidget(QLabel("Reconnaissance & Scan Options"))
+        layout.addWidget(self.chk_amass_passive)
+        layout.addWidget(self.chk_amass_active)
+        layout.addWidget(self.chk_amass_brute)
+        layout.addWidget(self.chk_amass_ip)
+        layout.addWidget(self.chk_amass_src)
+        layout.addWidget(QLabel("Subdomain Brute Force Wordlist (-w)"))
+        layout.addLayout(wlist_layout)
+        layout.addWidget(QLabel("Output Results File (-o)"))
+        layout.addWidget(self.amass_output_file)
+        layout.addWidget(self.amass_btn)
         layout.addStretch()
 
         return panel
@@ -437,6 +503,9 @@ class ReconPage(ToolModulePage):
 
     def show_metagoofil_panel(self):
         self.activate_tool("metagoofil")
+
+    def show_amass_panel(self):
+        self.activate_tool("amass")
 
     def show_autopsy_panel(self):
         self.activate_tool("autopsy")
@@ -647,6 +716,46 @@ class ReconPage(ToolModulePage):
 
         if self.chk_metagoofil_download.isChecked():
             cmd.append("-w")
+
+        self.run_command.emit(" ".join(cmd))
+
+    def _browse_amass_wordlist(self):
+        filename, _ = QFileDialog.getOpenFileName(self, "Select Brute-Force Wordlist")
+        if filename:
+            self.amass_wordlist_input.setText(filename)
+
+    def build_amass(self):
+        domain = self.amass_domain.text().strip()
+        if not domain:
+            self.emit_validation_error("Target domain (-d) is required before running Amass.")
+            return
+
+        subcmd_text = self.amass_subcommand.currentText()
+        subcmd = "intel" if "intel" in subcmd_text else "enum"
+
+        cmd = ["amass", subcmd, "-d", domain]
+
+        if self.chk_amass_passive.isChecked():
+            cmd.append("-passive")
+        elif self.chk_amass_active.isChecked():
+            cmd.append("-active")
+
+        if self.chk_amass_brute.isChecked():
+            cmd.append("-brute")
+
+        if self.chk_amass_ip.isChecked():
+            cmd.append("-ip")
+
+        if self.chk_amass_src.isChecked():
+            cmd.append("-src")
+
+        wlist = self.amass_wordlist_input.text().strip()
+        if wlist:
+            cmd.extend(["-w", wlist])
+
+        outfile = self.amass_output_file.text().strip()
+        if outfile:
+            cmd.extend(["-o", outfile])
 
         self.run_command.emit(" ".join(cmd))
 

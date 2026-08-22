@@ -186,6 +186,42 @@ class ReconPageUiBehaviorTests(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn("Target domain (-d) is required", errors[0])
 
+    def test_amass_tool_panel_activation(self):
+        page = ReconPage()
+        page.show()
+
+        button = page._tool_buttons["amass"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "amass")
+
+    def test_amass_command_generation(self):
+        page = ReconPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.amass_domain.setText("example.com")
+        page.chk_amass_active.setChecked(True)
+        page.chk_amass_ip.setChecked(True)
+
+        page.build_amass()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "amass enum -d example.com -active -ip")
+
+    def test_amass_validation_error_when_domain_missing(self):
+        page = ReconPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.build_amass()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Target domain (-d) is required", errors[0])
+
     def test_photon_complex_command_generation(self):
         page = ReconPage()
         page.show()

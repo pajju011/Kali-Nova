@@ -701,6 +701,43 @@ const doc = new PDFDocument({
     }
 });
 """
+            },
+            "amass": {
+                "name": "OWASP Amass Network Mapper & OSINT Engine",
+                "usage": "amass enum -active -ip -d target.com",
+                "description": "OWASP Amass performs in-depth network mapping of attack surfaces and external asset discovery using OSINT scraping, certificate transparency logs, web archives, APIs, and active DNS probes.",
+                "flags": [
+                    "• `enum`: Perform DNS enumeration and network mapping.",
+                    "• `intel`: Perform intelligence gathering (WHOIS, ASN, CIDR).",
+                    "• `-d <domain>`: Target domain name.",
+                    "• `-passive`: Passive OSINT gathering mode.",
+                    "• `-active`: Enable active DNS zone transfers and SSL certificate pulling.",
+                    "• `-brute`: Subdomain brute forcing.",
+                    "• `-ip`: Output resolved IP addresses.",
+                    "• `-src`: Print data sources for discovered assets."
+                ],
+                "advice": "Restrict public DNS AXFR zone transfers, enforce Split-Horizon DNS, and monitor Certificate Transparency logs to prevent unauthorized asset discovery.",
+                "remediation_python": """# [REMEDIATION] BIND9 DNS Zone Transfer Protection (/etc/bind/named.conf.options)
+# SECURE: Disable global zone transfers and restrict AXFR to authorized slave DNS servers only
+'''
+options {
+    allow-transfer { none; }; // Block unauthorized zone transfers
+    allow-query { any; };
+    recursion no; // Disable open recursive resolver
+};
+'''
+""",
+                "remediation_node": """// [REMEDIATION] Node.js DNS Security & Rate Throttling
+const dns = require('dns');
+
+// SECURE: Enforce rate limiting on internal DNS lookup endpoints
+const rateLimit = require('express-rate-limit');
+const dnsLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 20,
+    message: 'Too many DNS resolution requests.'
+});
+"""
             }
         }
 

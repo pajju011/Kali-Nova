@@ -57,8 +57,8 @@ class PipelineManager:
                         if p.startswith("/"):
                             app_state.add_pipeline_artifact("fuzzed_endpoints", p)
 
-        # 4. Extract Discovered Subdomains & Emails (theHarvester / Whois / Metagoofil)
-        if "theharvester" in tool_lower or "whois" in tool_lower or "metagoofil" in tool_lower or "recon" in tool_lower:
+        # 4. Extract Discovered Subdomains & Emails (theHarvester / Whois / Metagoofil / Amass)
+        if "theharvester" in tool_lower or "whois" in tool_lower or "metagoofil" in tool_lower or "amass" in tool_lower or "recon" in tool_lower:
             emails = cls.EMAIL_EXTRACTOR.findall(raw_output)
             for em in emails:
                 app_state.add_pipeline_artifact("emails", em)
@@ -123,8 +123,8 @@ class PipelineManager:
                 # Strip http:// scheme if present
                 return re.sub(r"^https?://", "", t).split("/")[0]
 
-        # Recon Tools (Whois, theHarvester, Metagoofil) prefer Domain
-        elif tool in ["whois", "theharvester", "metagoofil"]:
+        # Recon Tools (Whois, theHarvester, Metagoofil, Amass) prefer Domain
+        elif tool in ["whois", "theharvester", "metagoofil", "amass"]:
             if artifacts["subdomains"]:
                 return artifacts["subdomains"][0]
             if artifacts["targets"]:
