@@ -481,6 +481,65 @@ class WebPageWhatWebBehaviorTests(unittest.TestCase):
         self.assertIn("WhatWeb target URL", errors[0])
 
 
+class AuthPageHashcatBehaviorTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_hashcat_tool_panel_activation(self):
+        from ui.auth_page import AuthPage
+        page = AuthPage()
+        page.show()
+
+        button = page._tool_buttons["hashcat"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "hashcat")
+
+    def test_hashcat_command_generation_standard(self):
+        from ui.auth_page import AuthPage
+        page = AuthPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.hashcat_file_input.setText("example500.hash")
+        page.hashcat_wordlist_input.setText("/usr/share/wordlists/sqlmap.txt")
+        page.hashcat_mode_combo.setCurrentIndex(2)  # 500 - md5crypt
+
+        page.build_hashcat()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], 'hashcat -m 500 -a 0 "example500.hash" "/usr/share/wordlists/sqlmap.txt" -O')
+
+    def test_hashcat_benchmark_command_generation(self):
+        from ui.auth_page import AuthPage
+        page = AuthPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.chk_hashcat_benchmark.setChecked(True)
+        page.build_hashcat()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], 'hashcat -b')
+
+    def test_hashcat_validation_error_when_hash_missing(self):
+        from ui.auth_page import AuthPage
+        page = AuthPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.build_hashcat()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Hash file or target hash is required", errors[0])
+
+
 if __name__ == "__main__":
     unittest.main()
 

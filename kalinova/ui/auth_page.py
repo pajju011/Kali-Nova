@@ -20,6 +20,7 @@ class AuthPage(ToolModulePage):
 
         self.hydra_panel = self._create_hydra_panel()
         self.john_panel = self._create_john_panel()
+        self.hashcat_panel = self._create_hashcat_panel()
         self.hash_identifier_panel = self._create_hash_identifier_panel()
         self.hashid_panel = self._create_hashid_panel()
 
@@ -38,6 +39,14 @@ class AuthPage(ToolModulePage):
             description="Hash Cracking",
             panel=self.john_panel,
             focus_widget=self.hash_file,
+        )
+        self.add_tool(
+            tool_id="hashcat",
+            icon=get_tool_icon_path("hashcat"),
+            name="Hashcat",
+            description="GPU/CPU Hash Recovery",
+            panel=self.hashcat_panel,
+            focus_widget=self.hashcat_file_input,
         )
         self.add_tool(
             tool_id="hash_identifier",
@@ -125,6 +134,83 @@ class AuthPage(ToolModulePage):
 
         return panel
 
+    def _create_hashcat_panel(self):
+        panel, layout = self.create_panel("⚡ Hashcat Password Recovery Engine")
+
+        from PyQt6.QtWidgets import QCheckBox, QHBoxLayout
+        from ui.components.tool_helper_widget import ToolHelperWidget
+
+        self.hashcat_file_input = QLineEdit()
+        self.hashcat_file_input.setPlaceholderText("Select hash file or enter hash (e.g., example500.hash)")
+
+        self.hashcat_helper = ToolHelperWidget("hashcat")
+        self.hashcat_file_input.textChanged.connect(self.hashcat_helper.validate_text)
+
+        self.browse_hashcat_hash_btn = self.create_secondary_button("Browse Hash File")
+        self.browse_hashcat_hash_btn.clicked.connect(self._browse_hashcat_file)
+
+        self.hashcat_mode_combo = QComboBox()
+        self.hashcat_mode_combo.addItems([
+            "0 - MD5",
+            "100 - SHA1",
+            "500 - md5crypt, MD5(Unix), Cisco-IOS $1$",
+            "1000 - NTLM",
+            "1400 - SHA2-256",
+            "1800 - sha512crypt, SHA512(Unix)",
+            "2500 - WPA/WPA2",
+            "3200 - bcrypt",
+            "13000 - RAR5",
+            "17000 - SHA3-256"
+        ])
+
+        self.hashcat_attack_combo = QComboBox()
+        self.hashcat_attack_combo.addItems([
+            "0 - Straight (Wordlist)",
+            "1 - Combination",
+            "3 - Brute-force / Mask",
+            "6 - Hybrid Wordlist + Mask",
+            "7 - Hybrid Mask + Wordlist"
+        ])
+
+        self.hashcat_wordlist_input = QLineEdit()
+        self.hashcat_wordlist_input.setPlaceholderText("Select wordlist file (e.g. /usr/share/wordlists/sqlmap.txt)")
+
+        self.browse_hashcat_wordlist_btn = self.create_secondary_button("Browse Wordlist")
+        self.browse_hashcat_wordlist_btn.clicked.connect(self._browse_hashcat_wordlist)
+
+        self.hashcat_outfile_input = QLineEdit()
+        self.hashcat_outfile_input.setPlaceholderText("Output file for recovered hashes (-o) (optional)")
+
+        self.chk_hashcat_benchmark = QCheckBox("Run Benchmark Speed Test (-b)")
+        self.chk_hashcat_optimized = QCheckBox("Enable Optimized Kernels (-O)")
+        self.chk_hashcat_optimized.setChecked(True)
+        self.chk_hashcat_force = QCheckBox("Ignore Warnings (--force)")
+
+        self.hashcat_btn = self.create_primary_button("Run Hashcat")
+        self.hashcat_btn.clicked.connect(self.build_hashcat)
+
+        layout.addWidget(QLabel("Hash File / Hash Target"))
+        layout.addWidget(self.hashcat_file_input)
+        layout.addWidget(self.hashcat_helper)
+        layout.addWidget(self.browse_hashcat_hash_btn)
+        layout.addWidget(QLabel("Hash Type (-m)"))
+        layout.addWidget(self.hashcat_mode_combo)
+        layout.addWidget(QLabel("Attack Mode (-a)"))
+        layout.addWidget(self.hashcat_attack_combo)
+        layout.addWidget(QLabel("Wordlist File"))
+        layout.addWidget(self.hashcat_wordlist_input)
+        layout.addWidget(self.browse_hashcat_wordlist_btn)
+        layout.addWidget(QLabel("Output File (-o)"))
+        layout.addWidget(self.hashcat_outfile_input)
+        layout.addWidget(QLabel("Performance & Options"))
+        layout.addWidget(self.chk_hashcat_benchmark)
+        layout.addWidget(self.chk_hashcat_optimized)
+        layout.addWidget(self.chk_hashcat_force)
+        layout.addWidget(self.hashcat_btn)
+        layout.addStretch()
+
+        return panel
+
     def _create_hash_identifier_panel(self):
         panel, layout = self.create_panel("🔎 Hash Identifier")
         self.hash_input = QLineEdit()
@@ -156,6 +242,9 @@ class AuthPage(ToolModulePage):
 
     def show_john_panel(self):
         self.activate_tool("john")
+
+    def show_hashcat_panel(self):
+        self.activate_tool("hashcat")
 
     def show_hash_identifier_panel(self):
         self.activate_tool("hash_identifier")
@@ -242,3 +331,57 @@ class AuthPage(ToolModulePage):
             self.emit_validation_error("Hash value is required before running.")
             return
         self.run_command.emit(f"hashid {hash_val}")
+
+    def _browse_hashcat_file(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select Hash File",
+            "",
+            "All Files (*.*)",
+        )
+        if file_path:
+            self.hashcat_file_input.setText(file_path)
+
+    def _browse_hashcat_wordlist(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select Wordlist",
+            "",
+            "All Files (*.*)",
+        )
+        if file_path:
+            self.hashcat_wordlist_input.setText(file_path)
+
+    def build_hashcat(self):
+        if self.chk_hashcat_benchmark.isChecked():
+            cmd = ["hashcat", "-b"]
+            if self.chk_hashcat_force.isChecked():
+                cmd.append("--force")
+            self.run_command.emit(" ".join(cmd))
+            return
+
+        hash_file = self.hashcat_file_input.text().strip()
+        if not hash_file:
+            self.emit_validation_error("Hash file or target hash is required before running Hashcat.")
+            return
+
+        mode_text = self.hashcat_mode_combo.currentText().split(" - ")[0]
+        attack_text = self.hashcat_attack_combo.currentText().split(" - ")[0]
+
+        cmd = ["hashcat", "-m", mode_text, "-a", attack_text, f"\"{hash_file}\""]
+
+        wordlist = self.hashcat_wordlist_input.text().strip()
+        if wordlist:
+            cmd.append(f"\"{wordlist}\"")
+
+        outfile = self.hashcat_outfile_input.text().strip()
+        if outfile:
+            cmd.extend(["-o", f"\"{outfile}\""])
+
+        if self.chk_hashcat_optimized.isChecked():
+            cmd.append("-O")
+
+        if self.chk_hashcat_force.isChecked():
+            cmd.append("--force")
+
+        self.run_command.emit(" ".join(cmd))

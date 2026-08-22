@@ -738,6 +738,56 @@ const dnsLimiter = rateLimit({
     message: 'Too many DNS resolution requests.'
 });
 """
+            },
+            "hashcat": {
+                "name": "Hashcat Advanced Password Recovery Utility",
+                "usage": "hashcat -m 500 hashes.txt /usr/share/wordlists/rockyou.txt",
+                "description": "Hashcat is the world's fastest CPU/GPU password recovery engine supporting over 300 hashing algorithms across multiple attack modes (Straight, Combinator, Mask, Hybrid, Permutation).",
+                "flags": [
+                    "• `-m <hash_type>`: Hashing algorithm mode (0=MD5, 100=SHA1, 500=md5crypt, 1000=NTLM, 1800=SHA512-Unix, 2500=WPA2).",
+                    "• `-a <attack_mode>`: Attack strategy (0=Straight/Wordlist, 1=Combinator, 3=Brute-force/Mask).",
+                    "• `-b`: Run benchmark test on supported hash-modes.",
+                    "• `-O`: Enable optimized kernel code for speed (limits max password length to 32).",
+                    "• `-r <rule_file>`: Apply wordlist mutation rules (e.g., rules/best64.rule).",
+                    "• `-o <file>`: Output file for recovered cracked plaintexts.",
+                    "• `--force`: Ignore OpenCL runtime warnings."
+                ],
+                "advice": "Upgrade legacy MD5/SHA1/md5crypt password storage to memory-hard password hashing algorithms such as Argon2id or bcrypt with high work factor costs.",
+                "remediation_python": """# [REMEDIATION] Python Argon2id Password Hashing (pip install argon2-cffi)
+from argon2 import PasswordHasher
+
+ph = PasswordHasher(
+    time_cost=3,        # 3 iterations
+    memory_cost=65536,  # 64 MB memory
+    parallelism=4,      # 4 parallel threads
+    hash_len=32,
+    salt_len=16
+)
+
+# SECURE: Hash user password with Argon2id
+hashed_password = ph.hash("user_secret_password")
+
+# Verify password during login
+try:
+    ph.verify(hashed_password, "user_secret_password")
+    print("Authentication successful.")
+except Exception:
+    print("Invalid credentials.")
+""",
+                "remediation_node": """// [REMEDIATION] Node.js bcrypt Password Hashing (npm install bcrypt)
+const bcrypt = require('bcrypt');
+
+async function hashUserPassword(plainPassword) {
+    const saltRounds = 12; // SECURE: High cost factor prevents GPU cracking
+    const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
+    return hashedPassword;
+}
+
+async function verifyPassword(plainPassword, hashedPassword) {
+    const match = await bcrypt.compare(plainPassword, hashedPassword);
+    return match;
+}
+"""
             }
         }
 

@@ -123,6 +123,11 @@ class PipelineManager:
                 # Strip http:// scheme if present
                 return re.sub(r"^https?://", "", t).split("/")[0]
 
+        # Hash Crackers (John, Hashcat) prefer discovered hashes
+        elif tool in ["john", "hashcat"]:
+            if artifacts["hashes"]:
+                return artifacts["hashes"][0]
+
         # Recon Tools (Whois, theHarvester, Metagoofil, Amass) prefer Domain
         elif tool in ["whois", "theharvester", "metagoofil", "amass"]:
             if artifacts["subdomains"]:

@@ -224,6 +224,12 @@ class CommandThread(QThread):
             app_state.add_event("AMASS_ENUM_ACTIVE")
             self.output_signal.emit("[INFO] OWASP Amass attack surface discovery active.")
 
+        # Hashcat Password Cracking Detection
+        if "hashcat" in lower_line or "hashmode:" in lower_line or "speed.#" in lower_line or "dictionary cache hit" in lower_line:
+            app_state.add_event("HASH_CRACKING_ACTIVE")
+            if "recovered" in lower_line or "cracked" in lower_line:
+                self.output_signal.emit("[ALERT] Hashcat hash plaintext recovered!")
+
     def run_simulation(self, tool_binary, command_args):
         simulated_lines = []
         target = "target-system.local"
@@ -720,6 +726,90 @@ class CommandThread(QThread):
                 simulated_lines.append("[+] Data source attribution logging enabled.")
 
             simulated_lines.append(f"[*] OWASP Amass discovery complete. 7 subdomains and 5 unique IP targets mapped.")
+
+        elif tool_binary == "hashcat":
+            if "-b" in command_args or "--benchmark" in command_args:
+                simulated_lines = [
+                    "hashcat (v7.1.2) starting in benchmark mode...",
+                    "",
+                    "Benchmarking uses hand-optimized kernel code by default.",
+                    "You can use it in your cracking session by setting the -O option.",
+                    "",
+                    "OpenCL Platform #1: Intel(R) Corporation",
+                    "========================================",
+                    "* Device #1: Intel(R) Core(TM) i7 CPU @ 3.40GHz, 4096/16384 MB allocatable",
+                    "",
+                    "Benchmark relevant options:",
+                    "===========================",
+                    "* --optimized-kernel-enable",
+                    "",
+                    "Hashmode: 0 - MD5",
+                    "Speed.#1.........:   134.9 MH/s (15.41ms) @ Accel:1024 Loops:1024 Thr:1 Vec:8",
+                    "",
+                    "Hashmode: 100 - SHA1",
+                    "Speed.#1.........: 98899.4 kH/s (21.04ms) @ Accel:1024 Loops:1024 Thr:1 Vec:8",
+                    "",
+                    "Hashmode: 500 - md5crypt, MD5 (Unix), Cisco-IOS $1$ (MD5)",
+                    "Speed.#1.........:   18400 H/s (24.10ms) @ Accel:512 Loops:256 Thr:1 Vec:8",
+                    "",
+                    "Hashmode: 1000 - NTLM",
+                    "Speed.#1.........:  425.2 MH/s (12.10ms) @ Accel:1024 Loops:1024 Thr:1 Vec:8",
+                    "",
+                    "Hashmode: 1400 - SHA2-256",
+                    "Speed.#1.........: 42768.3 kH/s (48.86ms) @ Accel:1024 Loops:1024 Thr:1 Vec:8",
+                    "",
+                    "Benchmark completed."
+                ]
+            else:
+                hash_target = "$1$uOM6WNc4$r3ZGeSB11q6UUSILqek3J1"
+                wordlist = "/usr/share/wordlists/rockyou.txt"
+                if len(command_args) > 1:
+                    for arg in command_args[1:]:
+                        if not arg.startswith("-"):
+                            if "hash" in arg or "$" in arg or "." in arg:
+                                hash_target = arg
+                            elif "word" in arg or "dict" in arg or "txt" in arg or "rock" in arg:
+                                wordlist = arg
+
+                hash_mode_str = "500 (md5crypt)"
+                if "-m" in command_args:
+                    try:
+                        m_val = command_args[command_args.index("-m") + 1]
+                        hash_mode_str = f"{m_val}"
+                    except Exception:
+                        pass
+
+                simulated_lines = [
+                    "hashcat (v7.1.2) starting...",
+                    "",
+                    "OpenCL Platform #1: Intel(R) Corporation",
+                    "========================================",
+                    "* Device #1: Intel(R) Core(TM) i7 CPU @ 3.40GHz, 4096/16384 MB allocatable",
+                    "",
+                    "Hashes: 1 digests; 1 unique digests, 1 unique salts",
+                    "Applicable optimizers:",
+                    "* Zero-Byte",
+                    "* Single-Hash",
+                    "* Single-Salt",
+                    "",
+                    f"Dictionary cache hit:",
+                    f"* Filename..: {wordlist}",
+                    "* Passwords.: 1406529",
+                    "* Bytes.....: 12790573",
+                    "* Keyspace..: 1406529",
+                    "",
+                    "Session..........: hashcat",
+                    "Status...........: Running",
+                    f"Hash.Type........: Hashmode {hash_mode_str}",
+                    f"Hash.Target......: {hash_target}",
+                    "Time.Started.....: Sat Nov 24 22:37:25 (26 secs)",
+                    "Speed.#1.........:     18400 H/s (9.09ms) @ Accel:256 Loops:125 Thr:1 Vec:8",
+                    "Recovered........: 1/1 (100.00%) Digests, 1/1 (100.00%) Salts",
+                    "Progress.........: 183808/1406529 (13.07%)",
+                    "",
+                    f"[+] KEY FOUND! Plaintext password recovered: [ admin123! ]",
+                    "Session completed successfully."
+                ]
 
         else:
             simulated_lines = [

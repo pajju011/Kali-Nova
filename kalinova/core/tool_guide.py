@@ -162,7 +162,24 @@ class ToolGuide:
             },
             "best_practices": "Run HashID first to determine exact hash format string to provide to --format.",
             "pipeline_next": ["AI Copilot"]
-        }
+        },
+        "hashcat": {
+            "name": "Hashcat Advanced Password Recovery Engine",
+            "accepted_inputs": ["Target Hash File or Hash String (e.g. example500.hash)"],
+            "input_type": "HASH_FILE",
+            "flags": {
+                "-m": "Hash type code (e.g. 0=MD5, 100=SHA1, 500=md5crypt, 1000=NTLM, 1800=SHA512-Unix, 2500=WPA/WPA2).",
+                "-a": "Attack mode (0=Straight/Wordlist, 1=Combinator, 3=Brute-force/Mask, 6=Hybrid Wordlist+Mask, 7=Hybrid Mask+Wordlist).",
+                "-b": "Run benchmark test on supported hash-modes to measure GPU/CPU hash rate.",
+                "-O": "Enable hand-optimized kernel code for max speed (limits max password length to 32).",
+                "-r": "Apply rules file to expand wordlist candidate permutations (e.g. rules/best64.rule).",
+                "-o": "Specify output text file for recovered cracked plaintexts.",
+                "--force": "Ignore OpenCL/GPU driver warnings.",
+                "--show": "Compare hash list against potfile and show previously cracked hashes."
+            },
+            "best_practices": "Identify hash algorithm with HashID first, benchmark your hardware using `hashcat -b`, and use `-O` for maximum GPU cracking throughput.",
+            "pipeline_next": ["AI Copilot", "Hydra"]
+        },
     }
 
     @classmethod
