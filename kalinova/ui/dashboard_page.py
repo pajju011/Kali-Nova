@@ -631,7 +631,19 @@ class DashboardPage(QWidget):
         lines.append(f"Open Port Surface: {app_state.open_ports or 'None detected yet'}")
         lines.append(f"Detected Events: {app_state.events or 'No high-risk signatures'}\n")
         for f in findings:
-            lines.append(f"● {f['title']} [{f['severity']} - {f['cvss_score']} CVSS]\n  {f['description']}\n  Remediation: {f['remediation']}\n")
+            title = f.get("title", "Security Finding")
+            sev = f.get("severity", "LOW")
+            cvss = f.get("cvss", f.get("cvss_score", 3.0))
+            desc = f.get("description", "")
+            rem = f.get("remediation", "")
+            if not rem:
+                rem_code = f.get("remediation_python", "")
+                if rem_code:
+                    lines_code = [l.lstrip("#/ ").strip() for l in rem_code.splitlines() if l.startswith(("#", "//"))]
+                    rem = " ".join(lines_code[:2]) if lines_code else "Apply security hardening patches."
+                else:
+                    rem = "Apply defensive configuration patches."
+            lines.append(f"● {title} [{sev} - {cvss} CVSS]\n  {desc}\n  Remediation: {rem}\n")
         self.copilot_output.setText("\n".join(lines))
         self.ai_status_dot.setText("● AUDIT DONE")
         self.ai_status_dot.setStyleSheet("color: #00f0ff; font-size: 10px; font-weight: 800;")
