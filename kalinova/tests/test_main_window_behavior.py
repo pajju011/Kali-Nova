@@ -84,6 +84,27 @@ class MainWindowBehaviorTests(unittest.TestCase):
         self.assertIs(current_page, web_page)
         self.assertEqual(web_page._selected_tool, "gobuster")
 
+    def test_handle_suggested_tool_auto_fills_target(self):
+        window = MainWindow()
+        window.show()
+
+        window.handle_suggested_tool("nmap|192.168.1.100|-sV")
+
+        current_page = window.workspace.currentWidget()
+        recon_page = window.workspace.pages["Recon"]
+
+        self.assertIs(current_page, recon_page)
+        self.assertEqual(recon_page._selected_tool, "nmap")
+        self.assertEqual(recon_page.nmap_target.text(), "192.168.1.100")
+
+    def test_handle_suggested_tool_remediate_opens_ai_drawer(self):
+        window = MainWindow()
+        window.show()
+
+        self.assertTrue(window.ai_drawer.isHidden())
+        window.handle_suggested_tool("remediate")
+        self.assertFalse(window.ai_drawer.isHidden())
+
     def test_side_console_stays_visible_after_command_execution(self):
         window = MainWindow()
         window.show()

@@ -506,7 +506,21 @@ class DashboardPage(QWidget):
                 cell.style().unpolish(cell)
                 cell.style().polish(cell)
 
-        # 6. Suggestions
+        # 6. Real-Time State Fingerprint Tracking & ML Guidance Refresh
+        current_fingerprint = (
+            tuple(app_state.open_ports),
+            tuple(app_state.events),
+            app_state.last_tool_executed,
+            app_state.risk_score,
+            app_state.global_risk,
+            app_state.next_tool
+        )
+        if getattr(self, "_last_state_fingerprint", None) != current_fingerprint:
+            self._last_state_fingerprint = current_fingerprint
+            if hasattr(self, "next_step_card"):
+                self.next_step_card.refresh_guidance()
+
+        # Suggestions
         sug_text = app_state.suggestion
         if not sug_text or sug_text == "None":
             self.suggestion_label.setText("[SYS_DECK] > Standing by. No anomalies detected on scanned local segments. Recommended action: Nmap recon.")
@@ -564,9 +578,13 @@ class DashboardPage(QWidget):
 
     def run_suggested_tool(self):
         if app_state.next_tool:
-            self.run_suggested_signal.emit(app_state.next_tool)
+            meta = getattr(app_state, "next_action_metadata", {}) or {}
+            target = meta.get("target", app_state.current_target or "")
+            flags = meta.get("flags", "")
+            tool_name = meta.get("tool_key", app_state.next_tool)
+            self.run_suggested_signal.emit(f"{tool_name}|{target}|{flags}")
 
     def _handle_execute_next_step(self, page_name: str, sub_tool_key: str, suggested_target: str, suggested_flags: str):
-        """Handler for one-click ML next step button."""
-        tool_name = app_state.next_tool or sub_tool_key
-        self.run_suggested_signal.emit(tool_name)
+        """Handler for one-click ML next step button with auto-fill parameters."""
+        tool_name = sub_tool_key or app_state.next_tool
+        self.run_suggested_signal.emit(f"{tool_name}|{suggested_target}|{suggested_flags}")

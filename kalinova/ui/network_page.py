@@ -344,6 +344,12 @@ root@kali:~# tlssled 192.168.1.1 443
     def show_tlssled_panel(self):
         self.activate_tool("tlssled")
 
+    def show_wash_panel(self):
+        self.activate_tool("wash")
+
+    def show_reaver_panel(self):
+        self.activate_tool("reaver")
+
     def build_netcat(self):
         target = self.netcat_target_input.text().strip()
         port = self.port_input.text().strip()

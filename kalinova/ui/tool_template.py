@@ -487,6 +487,15 @@ class ToolModulePage(QScrollArea):
             if hasattr(focus_widget, "selectAll"):
                 focus_widget.selectAll()
 
+    def populate_tool_inputs(self, tool_id, target="", flags=""):
+        """Activates specified tool and pre-populates target input and parameters."""
+        self.activate_tool(tool_id)
+        if target:
+            focus_widget = self._tool_focus_widget.get(tool_id)
+            if focus_widget is not None and isinstance(focus_widget, QLineEdit):
+                focus_widget.setText(str(target))
+                focus_widget.selectAll()
+
     def emit_validation_error(self, message):
         self.validation_error.emit(message)
 

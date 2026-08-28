@@ -511,6 +511,9 @@ class ReconPage(ToolModulePage):
     def show_autopsy_panel(self):
         self.activate_tool("autopsy")
 
+    def show_photon_panel(self):
+        self.activate_tool("photon")
+
     def update_mode(self, mode):
         index = self.scan_type.findText("Aggressive Scan")
 

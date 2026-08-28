@@ -12,6 +12,7 @@ from ui.workspace import Workspace
 from ui.console import Console
 from ui.ai_copilot_drawer import AICopilotDrawer
 from core.executor import CommandThread
+from core.app_state import app_state
 
 
 class MainWindow(QMainWindow):
@@ -166,15 +167,51 @@ class MainWindow(QMainWindow):
         self._set_thread_tab_running(thread, True)
         thread.start()
 
-    def handle_suggested_tool(self, suggested_tool):
-        lower_tool = suggested_tool.lower()
+    def handle_suggested_tool(self, suggested_tool, target=None, flags=None):
+        if not suggested_tool:
+            return
+
+        # Handle tuple/list or delimiter-separated payloads
+        if isinstance(suggested_tool, (list, tuple)):
+            if len(suggested_tool) >= 3:
+                suggested_tool, target, flags = str(suggested_tool[0]), str(suggested_tool[1]), str(suggested_tool[2])
+            elif len(suggested_tool) == 2:
+                suggested_tool, target = str(suggested_tool[0]), str(suggested_tool[1])
+            elif len(suggested_tool) == 1:
+                suggested_tool = str(suggested_tool[0])
+
+        if isinstance(suggested_tool, str) and "|" in suggested_tool:
+            parts = suggested_tool.split("|")
+            suggested_tool = parts[0]
+            if len(parts) > 1 and parts[1]:
+                target = target or parts[1]
+            if len(parts) > 2 and parts[2]:
+                flags = flags or parts[2]
+
+        auto_target = getattr(app_state, "next_target", "") or ""
+        if not auto_target and getattr(app_state, "pipeline_artifacts", {}).get("targets"):
+            auto_target = app_state.pipeline_artifacts["targets"][0]
+        target = target or auto_target or ""
+        flags = flags or ""
+        lower_tool = str(suggested_tool).lower()
+
+        # 0. Handle AI Copilot Remediation
+        if "remediate" in lower_tool or "copilot" in lower_tool or "hardening" in lower_tool:
+            self.workspace.switch_page("Dashboard")
+            self.ai_drawer.inspect_and_open()
+            self._log_main("Suggestion: AI Defensive Remediation opened with recommended mitigations.")
+            self._set_main_status("AI Remediation Active", "info")
+            return
 
         if "hydra" in lower_tool:
             self._open_tool_panel(
                 page_name="Auth",
                 panel_method="show_hydra_panel",
                 tool_name="Hydra",
-                instruction="Configure the form and run it from the Auth page.",
+                instruction="Configure target host/service and run password audit.",
+                tool_id="hydra",
+                target=target,
+                flags=flags
             )
             return
 
@@ -183,7 +220,10 @@ class MainWindow(QMainWindow):
                 page_name="Auth",
                 panel_method="show_john_panel",
                 tool_name="John",
-                instruction="Choose the hash file and run it from the Auth page.",
+                instruction="Choose hash file and run offline recovery.",
+                tool_id="john",
+                target=target,
+                flags=flags
             )
             return
 
@@ -192,34 +232,58 @@ class MainWindow(QMainWindow):
                 page_name="Auth",
                 panel_method="show_hashcat_panel",
                 tool_name="Hashcat",
-                instruction="Configure hash target and attack options, then run from the Auth page.",
+                instruction="Configure hash target and attack options, then run from Auth page.",
+                tool_id="hashcat",
+                target=target,
+                flags=flags
+            )
+            return
+
+        if "ncrack" in lower_tool:
+            self._open_tool_panel(
+                page_name="Auth",
+                panel_method="show_ncrack_panel",
+                tool_name="Ncrack",
+                instruction="Configure network auth target and run cracking scan.",
+                tool_id="ncrack",
+                target=target,
+                flags=flags
             )
             return
 
         if "sslscan" in lower_tool:
             self._open_tool_panel(
-                page_name="Auth",
+                page_name="Network",
                 panel_method="show_sslscan_panel",
                 tool_name="SSLScan",
-                instruction="Enter target host and run it from the Auth page.",
+                instruction="Enter target host and verify SSL/TLS ciphers.",
+                tool_id="sslscan",
+                target=target,
+                flags=flags
             )
             return
 
         if "sslyze" in lower_tool:
             self._open_tool_panel(
-                page_name="Auth",
+                page_name="Network",
                 panel_method="show_sslyze_panel",
                 tool_name="SSLyze",
-                instruction="Enter target host and run it from the Auth page.",
+                instruction="Enter target host and analyze SSL/TLS configuration.",
+                tool_id="sslyze",
+                target=target,
+                flags=flags
             )
             return
 
         if "tlssled" in lower_tool:
             self._open_tool_panel(
-                page_name="Auth",
+                page_name="Network",
                 panel_method="show_tlssled_panel",
                 tool_name="TLSSLed",
-                instruction="Enter host and port, then run it from the Auth page.",
+                instruction="Enter host and port, then run SSL security audit.",
+                tool_id="tlssled",
+                target=target,
+                flags=flags
             )
             return
 
@@ -228,7 +292,10 @@ class MainWindow(QMainWindow):
                 page_name="Web",
                 panel_method="show_nikto_panel",
                 tool_name="Nikto",
-                instruction="Configure the target URL and run it from the Web page.",
+                instruction="Target URL auto-populated. Run web server vulnerability scan.",
+                tool_id="nikto",
+                target=target,
+                flags=flags
             )
             return
 
@@ -237,7 +304,10 @@ class MainWindow(QMainWindow):
                 page_name="Web",
                 panel_method="show_sqlmap_panel",
                 tool_name="SQLmap",
-                instruction="Configure the target URL and run it from the Web page.",
+                instruction="Target URL auto-populated. Test parameter for SQL injection vulnerabilities.",
+                tool_id="sqlmap",
+                target=target,
+                flags=flags
             )
             return
 
@@ -246,7 +316,10 @@ class MainWindow(QMainWindow):
                 page_name="Web",
                 panel_method="show_gobuster_panel",
                 tool_name="Gobuster",
-                instruction="Set URL and wordlist, then run it from the Web page.",
+                instruction="Target URL auto-populated. Start directory and URI fuzzing.",
+                tool_id="gobuster",
+                target=target,
+                flags=flags
             )
             return
 
@@ -255,7 +328,22 @@ class MainWindow(QMainWindow):
                 page_name="Web",
                 panel_method="show_whatweb_panel",
                 tool_name="WhatWeb",
-                instruction="Configure target and aggression level, then run from Web page.",
+                instruction="Target URL auto-populated. Fingerprint web technologies.",
+                tool_id="whatweb",
+                target=target,
+                flags=flags
+            )
+            return
+
+        if "wfuzz" in lower_tool:
+            self._open_tool_panel(
+                page_name="Web",
+                panel_method="show_wfuzz_panel",
+                tool_name="Wfuzz",
+                instruction="Target URL auto-populated. Fuzz web endpoints.",
+                tool_id="wfuzz",
+                target=target,
+                flags=flags
             )
             return
 
@@ -264,7 +352,10 @@ class MainWindow(QMainWindow):
                 page_name="Recon",
                 panel_method="show_nmap_panel",
                 tool_name="Nmap",
-                instruction="Configure target details and run it from the Recon page.",
+                instruction="Target host auto-populated. Launch network discovery scan.",
+                tool_id="nmap",
+                target=target,
+                flags=flags
             )
             return
 
@@ -273,7 +364,10 @@ class MainWindow(QMainWindow):
                 page_name="Recon",
                 panel_method="show_whois_panel",
                 tool_name="Whois",
-                instruction="Configure the domain and run it from the Recon page.",
+                instruction="Target domain auto-populated. Query registrar information.",
+                tool_id="whois",
+                target=target,
+                flags=flags
             )
             return
 
@@ -282,7 +376,10 @@ class MainWindow(QMainWindow):
                 page_name="Recon",
                 panel_method="show_harvester_panel",
                 tool_name="Harvester",
-                instruction="Set domain/source and run it from the Recon page.",
+                instruction="Target domain auto-populated. Harvest emails and subdomains.",
+                tool_id="harvester",
+                target=target,
+                flags=flags
             )
             return
 
@@ -291,7 +388,10 @@ class MainWindow(QMainWindow):
                 page_name="Recon",
                 panel_method="show_metagoofil_panel",
                 tool_name="Metagoofil",
-                instruction="Configure target domain and file types, then launch from Recon page.",
+                instruction="Target domain auto-populated. Extract document metadata.",
+                tool_id="metagoofil",
+                target=target,
+                flags=flags
             )
             return
 
@@ -300,7 +400,22 @@ class MainWindow(QMainWindow):
                 page_name="Recon",
                 panel_method="show_amass_panel",
                 tool_name="Amass",
-                instruction="Configure target domain and scan options, then launch from Recon page.",
+                instruction="Target domain auto-populated. Map external network perimeter.",
+                tool_id="amass",
+                target=target,
+                flags=flags
+            )
+            return
+
+        if "photon" in lower_tool:
+            self._open_tool_panel(
+                page_name="Recon",
+                panel_method="show_photon_panel",
+                tool_name="Photon",
+                instruction="Target URL auto-populated. Crawl and scrape OSINT endpoints.",
+                tool_id="photon",
+                target=target,
+                flags=flags
             )
             return
 
@@ -309,7 +424,10 @@ class MainWindow(QMainWindow):
                 page_name="Recon",
                 panel_method="show_autopsy_panel",
                 tool_name="Autopsy",
-                instruction="Configure evidence locker and port, then launch from Recon page.",
+                instruction="Configure evidence locker and port, then launch digital forensics.",
+                tool_id="autopsy",
+                target=target,
+                flags=flags
             )
             return
 
@@ -318,7 +436,10 @@ class MainWindow(QMainWindow):
                 page_name="Network",
                 panel_method="show_netcat_panel",
                 tool_name="Netcat",
-                instruction="Set mode and port, then run from the Network page.",
+                instruction="Set mode and port, then run from Network page.",
+                tool_id="netcat",
+                target=target,
+                flags=flags
             )
             return
 
@@ -327,7 +448,10 @@ class MainWindow(QMainWindow):
                 page_name="Network",
                 panel_method="show_wireshark_panel",
                 tool_name="Wireshark",
-                instruction="Launch it from the Network page.",
+                instruction="Launch network packet sniffer from Network page.",
+                tool_id="wireshark",
+                target=target,
+                flags=flags
             )
             return
 
@@ -336,7 +460,46 @@ class MainWindow(QMainWindow):
                 page_name="Network",
                 panel_method="show_wifite_panel",
                 tool_name="Wifite",
-                instruction="Configure interface and wireless scan options, then run from Network page.",
+                instruction="Configure interface and wireless scan options.",
+                tool_id="wifite",
+                target=target,
+                flags=flags
+            )
+            return
+
+        if "wash" in lower_tool:
+            self._open_tool_panel(
+                page_name="Network",
+                panel_method="show_wash_panel",
+                tool_name="Wash",
+                instruction="Scan WPS-enabled access points.",
+                tool_id="wash",
+                target=target,
+                flags=flags
+            )
+            return
+
+        if "reaver" in lower_tool:
+            self._open_tool_panel(
+                page_name="Network",
+                panel_method="show_reaver_panel",
+                tool_name="Reaver",
+                instruction="Test WPS PIN resilience.",
+                tool_id="reaver",
+                target=target,
+                flags=flags
+            )
+            return
+
+        if "sparrow" in lower_tool:
+            self._open_tool_panel(
+                page_name="Network",
+                panel_method="show_sparrowwifi_panel",
+                tool_name="Sparrow-WiFi",
+                instruction="Launch Sparrow-WiFi spectrum analyzer.",
+                tool_id="sparrowwifi",
+                target=target,
+                flags=flags
             )
             return
 
@@ -387,10 +550,12 @@ class MainWindow(QMainWindow):
         if tab_console is not None:
             tab_console.set_status(status, status_type)
 
-    def _open_tool_panel(self, page_name, panel_method, tool_name, instruction):
+    def _open_tool_panel(self, page_name, panel_method, tool_name, instruction, tool_id=None, target="", flags=""):
         self.workspace.switch_page(page_name)
         page = self.workspace.pages[page_name]
         getattr(page, panel_method)()
+        if tool_id and hasattr(page, "populate_tool_inputs") and target:
+            page.populate_tool_inputs(tool_id, target=target, flags=flags)
         self._log_main(
             f"Suggestion: {tool_name} selected. {instruction}"
         )
