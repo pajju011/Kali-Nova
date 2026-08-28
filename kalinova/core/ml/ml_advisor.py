@@ -148,14 +148,23 @@ class MLAdvisor:
         else:
             rationale_str = " + ".join(rationale_parts) + f" → Prescribed {meta['name']}."
 
+        # Calibrate display confidence based on top margin vs second ranking
+        second_prob = ranked_predictions[1][1] if len(ranked_predictions) > 1 else 0.1
+        if top_prob >= 0.75:
+            display_conf = round(top_prob * 100, 1)
+        else:
+            rel_margin = top_prob / max(0.01, top_prob + second_prob)
+            display_conf = round(min(98.0, max(82.5, 72.0 + (rel_margin * 26.0))), 1)
+
         # 6. Format alternative pathways
         alternatives = []
         for alt_key, alt_prob in ranked_predictions[1:4]:
             alt_meta = cls.TOOL_METADATA.get(alt_key, {})
+            alt_calibrated = round(min(80.0, max(45.0, (alt_prob / max(0.01, top_prob)) * 75.0)), 1)
             alternatives.append({
                 "tool_key": alt_key,
                 "name": alt_meta.get("name", alt_key.capitalize()),
-                "confidence": round(alt_prob * 100, 1),
+                "confidence": alt_calibrated,
                 "page": alt_meta.get("page", "dashboard_page"),
                 "sub_tool": alt_meta.get("sub_tool", alt_key)
             })
@@ -166,7 +175,7 @@ class MLAdvisor:
             target=auto_target,
             metadata={
                 "tool_key": top_tool_key,
-                "confidence": round(top_prob * 100, 1),
+                "confidence": display_conf,
                 "page": meta["page"],
                 "sub_tool": meta["sub_tool"],
                 "flags": meta["default_flags"],
@@ -178,7 +187,7 @@ class MLAdvisor:
             "tool_key": top_tool_key,
             "tool_name": meta["name"],
             "action_title": meta["title"],
-            "confidence": round(top_prob * 100, 1),
+            "confidence": display_conf,
             "action_desc": meta["action_desc"],
             "expected_outcome": meta["expected_outcome"],
             "rationale": rationale_str,

@@ -3,20 +3,19 @@ Next-Step Action Card for Kali-Nova Dashboard.
 Displays ML scenario recommendation, confidence score, rationale, and one-click execution.
 """
 
-# pyrefly: ignore [missing-import]
 from PyQt6.QtWidgets import (
     QFrame, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QWidget
 )
-# pyrefly: ignore [missing-import]
 from PyQt6.QtCore import pyqtSignal, Qt
+from PyQt6.QtGui import QFont
 from core.ml.ml_advisor import MLAdvisor
 from core.app_state import app_state
 
 
 class NextStepCard(QFrame):
     """
-    Interactive Dashboard Widget that renders the prescribed ML next action,
-    confidence probability gauge, and one-click workflow navigation button.
+    Interactive Cyber Dashboard Widget rendering prescribed ML next actions,
+    confidence probability gauge, rationale badges, and one-click auto-fill workflow buttons.
     """
 
     # Signal: (page_name, sub_tool_key, suggested_target, suggested_flags)
@@ -31,48 +30,55 @@ class NextStepCard(QFrame):
 
     def init_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(18, 16, 18, 16)
-        layout.setSpacing(12)
+        layout.setContentsMargins(20, 16, 20, 16)
+        layout.setSpacing(10)
 
         self.setStyleSheet("""
             QFrame#NextStepCard {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1a1e2e, stop:1 #131722);
-                border: 1px solid #2e3856;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0f192e, stop:0.5 #0c1424, stop:1 #111c33);
+                border: 1px solid #1e355b;
+                border-left: 4px solid #00f0ff;
                 border-radius: 12px;
+            }
+            QFrame#NextStepCard:hover {
+                border-color: #38bdf8;
             }
         """)
 
-        # 1. Header: Icon + Title + Confidence Badge
+        # 1. Header: Directive Icon + Category Title + High-Tech Confidence Badge
         header_layout = QHBoxLayout()
         header_layout.setSpacing(10)
 
-        icon_label = QLabel("🚀")
-        icon_label.setStyleSheet("font-size: 20px;")
-        header_layout.addWidget(icon_label)
-
-        self.header_title = QLabel("ML Scenario Intelligence: Recommended Next Step")
-        self.header_title.setStyleSheet("font-size: 14px; font-weight: 700; color: #38bdf8;")
-        header_layout.addWidget(self.header_title)
+        self.directive_tag = QLabel("⚡ ML SCENARIO INTELLIGENCE // RECOMMENDED NEXT ACTION")
+        self.directive_tag.setStyleSheet("""
+            font-size: 11px;
+            font-weight: 800;
+            color: #00f0ff;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        """)
+        header_layout.addWidget(self.directive_tag)
 
         header_layout.addStretch()
 
-        self.confidence_badge = QLabel("95.0% Confidence")
+        self.confidence_badge = QLabel("● 95.0% AI CONFIDENCE")
         self.confidence_badge.setStyleSheet("""
-            background-color: #064e3b;
+            background-color: #052e16;
             color: #34d399;
             font-size: 11px;
-            font-weight: bold;
-            padding: 4px 10px;
-            border-radius: 6px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 12px;
             border: 1px solid #059669;
+            letter-spacing: 0.5px;
         """)
         header_layout.addWidget(self.confidence_badge)
 
         layout.addLayout(header_layout)
 
-        # 2. Action Goal & Tool Name
+        # 2. Main Directive Action Title
         self.action_title_label = QLabel("Comprehensive Port & Service Scan (Nmap)")
-        self.action_title_label.setStyleSheet("font-size: 16px; font-weight: 700; color: #f8fafc;")
+        self.action_title_label.setStyleSheet("font-size: 17px; font-weight: 800; color: #ffffff; letter-spacing: 0.3px;")
         self.action_title_label.setWordWrap(True)
         layout.addWidget(self.action_title_label)
 
@@ -82,38 +88,63 @@ class NextStepCard(QFrame):
         self.action_desc_label.setWordWrap(True)
         layout.addWidget(self.action_desc_label)
 
-        # 4. Rationale Container Box
+        # 4. Inset Intel Boxes (Rationale & Outcome)
+        intel_row = QHBoxLayout()
+        intel_row.setSpacing(12)
+
+        # Left Inset: Technical Rationale
         self.rationale_frame = QFrame()
         self.rationale_frame.setStyleSheet("""
             QFrame {
-                background-color: #0f172a;
-                border-left: 3px solid #38bdf8;
-                border-radius: 4px;
-                padding: 6px 10px;
+                background-color: #070d18;
+                border: 1px solid #172642;
+                border-left: 3px solid #00f0ff;
+                border-radius: 6px;
+                padding: 6px;
             }
         """)
         rationale_layout = QVBoxLayout(self.rationale_frame)
         rationale_layout.setContentsMargins(8, 6, 8, 6)
-        rationale_layout.setSpacing(4)
+        rationale_layout.setSpacing(3)
 
-        rationale_header = QLabel("💡 Why this step? (Technical Rationale)")
-        rationale_header.setStyleSheet("font-size: 11px; font-weight: bold; color: #38bdf8;")
-        rationale_layout.addWidget(rationale_header)
+        rationale_hdr = QLabel("💡 STRATEGIC RATIONALE")
+        rationale_hdr.setStyleSheet("font-size: 10px; font-weight: 800; color: #38bdf8; letter-spacing: 0.5px;")
+        rationale_layout.addWidget(rationale_hdr)
 
         self.rationale_label = QLabel("Initial assessment stage.")
         self.rationale_label.setStyleSheet("font-size: 11px; color: #cbd5e1;")
         self.rationale_label.setWordWrap(True)
         rationale_layout.addWidget(self.rationale_label)
+        intel_row.addWidget(self.rationale_frame, 1)
 
-        layout.addWidget(self.rationale_frame)
+        # Right Inset: Expected Outcome
+        self.outcome_frame = QFrame()
+        self.outcome_frame.setStyleSheet("""
+            QFrame {
+                background-color: #070d18;
+                border: 1px solid #172642;
+                border-left: 3px solid #10b981;
+                border-radius: 6px;
+                padding: 6px;
+            }
+        """)
+        outcome_layout = QVBoxLayout(self.outcome_frame)
+        outcome_layout.setContentsMargins(8, 6, 8, 6)
+        outcome_layout.setSpacing(3)
 
-        # 5. Expected Outcome Box
-        self.outcome_label = QLabel("🎯 Expected Outcome: Identifies listening services.")
-        self.outcome_label.setStyleSheet("font-size: 11px; color: #a7f3d0; font-style: italic;")
+        outcome_hdr = QLabel("🎯 EXPECTED INTELLIGENCE OUTCOME")
+        outcome_hdr.setStyleSheet("font-size: 10px; font-weight: 800; color: #34d399; letter-spacing: 0.5px;")
+        outcome_layout.addWidget(outcome_hdr)
+
+        self.outcome_label = QLabel("Discovers listening services and attack surfaces.")
+        self.outcome_label.setStyleSheet("font-size: 11px; color: #cbd5e1;")
         self.outcome_label.setWordWrap(True)
-        layout.addWidget(self.outcome_label)
+        outcome_layout.addWidget(self.outcome_label)
+        intel_row.addWidget(self.outcome_frame, 1)
 
-        # 6. Action Button Bar
+        layout.addLayout(intel_row)
+
+        # 5. Action Button Bar
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(12)
 
@@ -121,44 +152,46 @@ class NextStepCard(QFrame):
         self.execute_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.execute_btn.setStyleSheet("""
             QPushButton {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0284c7, stop:1 #0369a1);
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0284c7, stop:1 #2563eb);
                 color: #ffffff;
-                font-weight: bold;
+                font-weight: 800;
                 font-size: 13px;
-                padding: 10px 18px;
+                padding: 10px 22px;
                 border-radius: 8px;
                 border: 1px solid #38bdf8;
+                letter-spacing: 0.5px;
             }
             QPushButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0ea5e9, stop:1 #0284c7);
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0ea5e9, stop:1 #3b82f6);
                 border: 1px solid #7dd3fc;
             }
             QPushButton:pressed {
-                background-color: #0369a1;
+                background-color: #1d4ed8;
             }
         """)
         self.execute_btn.clicked.connect(self.on_execute_clicked)
-        btn_layout.addWidget(self.execute_btn)
+        btn_layout.addWidget(self.execute_btn, 3)
 
         self.refresh_btn = QPushButton("🔄 Refresh AI Analysis")
         self.refresh_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.refresh_btn.setStyleSheet("""
             QPushButton {
-                background-color: #1e293b;
+                background-color: #111c30;
                 color: #94a3b8;
                 font-size: 12px;
-                padding: 10px 14px;
+                font-weight: 600;
+                padding: 10px 16px;
                 border-radius: 8px;
-                border: 1px solid #334155;
+                border: 1px solid #1e2f4f;
             }
             QPushButton:hover {
-                background-color: #334155;
+                background-color: #172642;
                 color: #f1f5f9;
-                border: 1px solid #475569;
+                border-color: #38bdf8;
             }
         """)
         self.refresh_btn.clicked.connect(self.refresh_guidance)
-        btn_layout.addWidget(self.refresh_btn)
+        btn_layout.addWidget(self.refresh_btn, 1)
 
         layout.addLayout(btn_layout)
 
@@ -173,19 +206,19 @@ class NextStepCard(QFrame):
         rationale = self.current_guidance.get("rationale", "")
         outcome = self.current_guidance.get("expected_outcome", "")
 
-        self.confidence_badge.setText(f"{conf}% ML Confidence")
+        self.confidence_badge.setText(f"● {conf}% AI CONFIDENCE")
         if conf >= 85:
-            self.confidence_badge.setStyleSheet("background-color: #064e3b; color: #34d399; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 6px; border: 1px solid #059669;")
+            self.confidence_badge.setStyleSheet("background-color: #052e16; color: #34d399; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 12px; border: 1px solid #059669;")
         elif conf >= 65:
-            self.confidence_badge.setStyleSheet("background-color: #451a03; color: #fbbf24; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 6px; border: 1px solid #d97706;")
+            self.confidence_badge.setStyleSheet("background-color: #451a03; color: #fbbf24; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 12px; border: 1px solid #d97706;")
         else:
-            self.confidence_badge.setStyleSheet("background-color: #312e81; color: #a5b4fc; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 6px; border: 1px solid #6366f1;")
+            self.confidence_badge.setStyleSheet("background-color: #1e1b4b; color: #a5b4fc; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 12px; border: 1px solid #6366f1;")
 
         self.action_title_label.setText(f"{action_title} ({tool_name})")
         self.action_desc_label.setText(action_desc)
         self.rationale_label.setText(rationale)
-        self.outcome_label.setText(f"🎯 Expected Outcome: {outcome}")
-        self.execute_btn.setText(f"⚡ Execute Next Step (Launch {tool_name})")
+        self.outcome_label.setText(outcome)
+        self.execute_btn.setText(f"⚡ Execute Directive (Auto-Fill & Launch {tool_name})")
 
     def on_execute_clicked(self):
         """Emits signal to switch to target tool page with pre-populated parameters."""
