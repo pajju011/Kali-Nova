@@ -3,10 +3,10 @@ import os
 import random
 from datetime import datetime
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QFrame, QTextEdit, QLineEdit, QProgressBar
+    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QFrame, QTextEdit, QLineEdit, QProgressBar, QToolTip
 )
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
-from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QFont, QCursor
 from core.app_state import app_state
 from ui.topology_widget import NetworkTopologyWidget
 from core.ai_copilot import AICopilot, AIWorkerThread
@@ -69,7 +69,7 @@ class DashboardPage(QWidget):
                 letter-spacing: 0.5px;
             }
             
-            QLabel#portCellOpen {
+            QPushButton.portChipOpen {
                 background-color: #062e1e;
                 color: #34d399;
                 border: 1px solid #059669;
@@ -78,9 +78,14 @@ class DashboardPage(QWidget):
                 font-family: 'Courier New', 'Consolas', monospace;
                 font-size: 10px;
                 padding: 8px 4px;
+                text-align: center;
+            }
+            QPushButton.portChipOpen:hover {
+                background-color: #0a4730;
+                border-color: #10b981;
             }
             
-            QLabel#portCellClosed {
+            QPushButton.portChipClosed {
                 background-color: #0a1120;
                 color: #475569;
                 border: 1px solid #162238;
@@ -89,6 +94,12 @@ class DashboardPage(QWidget):
                 font-family: 'Courier New', 'Consolas', monospace;
                 font-size: 10px;
                 padding: 8px 4px;
+                text-align: center;
+            }
+            QPushButton.portChipClosed:hover {
+                background-color: #111d33;
+                border-color: #38bdf8;
+                color: #94a3b8;
             }
             
             QPushButton#actionBtn {
@@ -107,6 +118,21 @@ class DashboardPage(QWidget):
                 background-color: #111a2c;
                 border: 1px solid #1c2b44;
                 color: #475569;
+            }
+            
+            QPushButton.quickChip {
+                background-color: #0f1c33;
+                color: #93c5fd;
+                border: 1px solid #1e355b;
+                border-radius: 6px;
+                padding: 4px 8px;
+                font-size: 10px;
+                font-weight: 700;
+            }
+            QPushButton.quickChip:hover {
+                background-color: #1d355e;
+                color: #ffffff;
+                border-color: #38bdf8;
             }
             
             QProgressBar.hudProgress {
@@ -232,11 +258,32 @@ class DashboardPage(QWidget):
         self.radar_score_label = QLabel("Threat Score: 0 / 100")
         self.radar_score_label.setStyleSheet("font-size: 12px; font-weight: 800; color: #38bdf8;")
 
+        self.quick_audit_btn = QPushButton("🛡️ Deep Vulnerability Diagnostic")
+        self.quick_audit_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.quick_audit_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #0d1a30;
+                color: #38bdf8;
+                border: 1px solid #1e355b;
+                border-radius: 6px;
+                padding: 6px;
+                font-size: 11px;
+                font-weight: 700;
+            }
+            QPushButton:hover {
+                background-color: #172a4d;
+                border-color: #00f0ff;
+                color: #ffffff;
+            }
+        """)
+        self.quick_audit_btn.clicked.connect(self._run_quick_vulnerability_audit)
+
         threat_layout.addWidget(threat_title)
         threat_layout.addWidget(self.radar_risk_readout)
         threat_layout.addWidget(self.threat_bar)
         threat_layout.addWidget(self.radar_score_label)
         threat_layout.addWidget(self.radar_segments)
+        threat_layout.addWidget(self.quick_audit_btn)
         threat_layout.addStretch()
 
         # --- PANEL B: LIVE NETWORK PORT SCAN MATRIX (Row 0, Col 1) ---
@@ -246,11 +293,17 @@ class DashboardPage(QWidget):
         ports_layout.setContentsMargins(16, 14, 16, 14)
         ports_layout.setSpacing(8)
 
+        ports_header = QHBoxLayout()
         ports_title = QLabel("Live Network Port Matrix")
         ports_title.setObjectName("hudCardTitle")
-        ports_layout.addWidget(ports_title)
+        ports_hint = QLabel("(Click port to audit)")
+        ports_hint.setStyleSheet("font-size: 9px; color: #64748b; font-weight: 600;")
+        ports_header.addWidget(ports_title)
+        ports_header.addStretch()
+        ports_header.addWidget(ports_hint)
+        ports_layout.addLayout(ports_header)
 
-        # 2x4 Grid layout for ports
+        # 2x4 Grid layout for ports with interactive buttons
         self.ports_grid_widget = QWidget()
         self.ports_grid = QGridLayout(self.ports_grid_widget)
         self.ports_grid.setContentsMargins(0, 4, 0, 0)
@@ -266,11 +319,13 @@ class DashboardPage(QWidget):
         for idx, (port, service) in enumerate(self.monitored_ports):
             row = idx // 4
             col = idx % 4
-            cell = QLabel(f"{service} : {port}\n[CLOSED]")
-            cell.setObjectName("portCellClosed")
-            cell.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.ports_grid.addWidget(cell, row, col)
-            self.port_cells[port] = (cell, service)
+            cell_btn = QPushButton(f"{service} : {port}\n[CLOSED]")
+            cell_btn.setProperty("class", "portChipClosed")
+            cell_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            cell_btn.setToolTip(f"Click to audit service on Port {port} ({service})")
+            cell_btn.clicked.connect(lambda _, p=port, s=service: self._on_port_clicked(p, s))
+            self.ports_grid.addWidget(cell_btn, row, col)
+            self.port_cells[port] = (cell_btn, service)
 
         ports_layout.addWidget(self.ports_grid_widget)
         ports_layout.addStretch()
@@ -358,34 +413,56 @@ class DashboardPage(QWidget):
         telemetry_layout.addLayout(metrics_layout)
         telemetry_layout.addStretch()
 
-        # --- PANEL E: TARGET & ATTACK SURFACE INTEL (Row 1, Col 1) ---
+        # --- PANEL E: TARGET CONTROLLER & ATTACK SURFACE INTEL (Row 1, Col 1) ---
         self.action_card = QFrame()
         self.action_card.setProperty("class", "hudCard")
         action_layout = QVBoxLayout(self.action_card)
         action_layout.setContentsMargins(16, 14, 16, 14)
-        action_layout.setSpacing(8)
+        action_layout.setSpacing(6)
 
-        action_title = QLabel("Attack Surface & Target Intel")
+        action_title = QLabel("Target Controller & Surface Intel")
         action_title.setObjectName("hudCardTitle")
-        
-        self.target_intel_label = QLabel("Active Target: 127.0.0.1 (Localhost)")
-        self.target_intel_label.setStyleSheet("font-size: 13px; font-weight: 800; color: #ffffff;")
+        action_layout.addWidget(action_title)
+
+        # Target Quick-Editor Row
+        target_box = QHBoxLayout()
+        target_lbl = QLabel("Target:")
+        target_lbl.setStyleSheet("font-size: 11px; font-weight: 700; color: #8ea2c5;")
+        self.target_input = QLineEdit("127.0.0.1")
+        self.target_input.setPlaceholderText("Enter target IP or domain...")
+        self.target_input.setStyleSheet("""
+            QLineEdit {
+                background-color: #070d18;
+                border: 1px solid #1e355b;
+                border-radius: 6px;
+                color: #00f0ff;
+                padding: 5px 8px;
+                font-size: 11px;
+                font-family: 'Courier New', monospace;
+                font-weight: bold;
+            }
+            QLineEdit:focus {
+                border-color: #00f0ff;
+            }
+        """)
+        self.target_input.textChanged.connect(self._on_target_changed)
+        target_box.addWidget(target_lbl)
+        target_box.addWidget(self.target_input)
+        action_layout.addLayout(target_box)
 
         self.suggestion_label = QLabel("[SYS_INTEL] Standing by for target recon. Discovered ports and services will map here.")
         self.suggestion_label.setWordWrap(True)
         self.suggestion_label.setStyleSheet("font-size: 11px; color: #94a3b8; line-height: 1.3;")
+        action_layout.addWidget(self.suggestion_label)
 
         self.next_tool_label = QLabel("DIRECTIVE: INITIAL OSINT RECON")
         self.next_tool_label.setStyleSheet("font-size: 11px; font-weight: 800; color: #00f0ff;")
+        action_layout.addWidget(self.next_tool_label)
 
         self.run_suggested_btn = QPushButton("⚡ Execute Directive (Auto-Fill)")
         self.run_suggested_btn.setObjectName("actionBtn")
+        self.run_suggested_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.run_suggested_btn.clicked.connect(self.run_suggested_tool)
-
-        action_layout.addWidget(action_title)
-        action_layout.addWidget(self.target_intel_label)
-        action_layout.addWidget(self.suggestion_label)
-        action_layout.addWidget(self.next_tool_label)
         action_layout.addWidget(self.run_suggested_btn)
         action_layout.addStretch()
 
@@ -394,7 +471,7 @@ class DashboardPage(QWidget):
         self.copilot_card.setProperty("class", "hudCard")
         copilot_layout = QVBoxLayout(self.copilot_card)
         copilot_layout.setContentsMargins(16, 14, 16, 14)
-        copilot_layout.setSpacing(8)
+        copilot_layout.setSpacing(6)
 
         copilot_header = QHBoxLayout()
         copilot_title = QLabel("AI Copilot Advisory")
@@ -416,10 +493,32 @@ class DashboardPage(QWidget):
                 font-size: 11px;
                 border: 1px solid #142238;
                 border-radius: 8px;
-                padding: 8px;
+                padding: 6px;
             }
         """)
         self.copilot_output.setText("Initializing security scan diagnostics...\nStanding by for AI copilot queries.")
+
+        # Quick AI Suggestion Chips
+        chips_row = QHBoxLayout()
+        chips_row.setSpacing(6)
+        chip_sqli = QPushButton("💉 SQLi Patch")
+        chip_sqli.setProperty("class", "quickChip")
+        chip_sqli.setCursor(Qt.CursorShape.PointingHandCursor)
+        chip_sqli.clicked.connect(lambda: self._quick_prompt("How to patch SQL injection vulnerabilities in Python and Node.js?"))
+
+        chip_recon = QPushButton("🔍 Recon Strategy")
+        chip_recon.setProperty("class", "quickChip")
+        chip_recon.setCursor(Qt.CursorShape.PointingHandCursor)
+        chip_recon.clicked.connect(lambda: self._quick_prompt("What is the optimal reconnaissance sequence for this target?"))
+
+        chip_ports = QPushButton("🛡️ Port Hardening")
+        chip_ports.setProperty("class", "quickChip")
+        chip_ports.setCursor(Qt.CursorShape.PointingHandCursor)
+        chip_ports.clicked.connect(lambda: self._quick_prompt("How to securely harden discovered open ports and firewall daemons?"))
+
+        chips_row.addWidget(chip_sqli)
+        chips_row.addWidget(chip_recon)
+        chips_row.addWidget(chip_ports)
 
         prompt_layout = QHBoxLayout()
         self.ai_prompt_input = QLineEdit()
@@ -437,6 +536,7 @@ class DashboardPage(QWidget):
         self.ai_prompt_input.returnPressed.connect(self.run_ai_analysis)
 
         self.ask_ai_btn = QPushButton("Ask AI")
+        self.ask_ai_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.ask_ai_btn.setStyleSheet("""
             QPushButton {
                 background-color: #00f0ff;
@@ -458,6 +558,7 @@ class DashboardPage(QWidget):
 
         copilot_layout.addLayout(copilot_header)
         copilot_layout.addWidget(self.copilot_output, 1)
+        copilot_layout.addLayout(chips_row)
         copilot_layout.addLayout(prompt_layout)
 
         # Place panels in Bento Grid
@@ -495,6 +596,49 @@ class DashboardPage(QWidget):
         
         if advice_parts:
             self.copilot_output.setText("\n\n".join(advice_parts))
+
+    def _on_target_changed(self, new_target: str):
+        cleaned = new_target.strip()
+        if cleaned:
+            app_state.next_target = cleaned
+            if not app_state.pipeline_artifacts.get("targets"):
+                app_state.pipeline_artifacts["targets"] = [cleaned]
+            else:
+                app_state.pipeline_artifacts["targets"][0] = cleaned
+            if hasattr(self, "next_step_card"):
+                self.next_step_card.refresh_guidance()
+
+    def _on_port_clicked(self, port: int, service: str):
+        """Routes directly to relevant security tool when user clicks a port chip."""
+        target = self.target_input.text().strip() or "127.0.0.1"
+        if port in (80, 8080):
+            self.run_suggested_signal.emit(f"nikto|http://{target}:{port}|")
+        elif port == 443:
+            self.run_suggested_signal.emit(f"sslscan|{target}|")
+        elif port == 22:
+            self.run_suggested_signal.emit(f"hydra|{target}|-s 22")
+        elif port == 21:
+            self.run_suggested_signal.emit(f"hydra|{target}|-s 21")
+        elif port == 3306:
+            self.run_suggested_signal.emit(f"sqlmap|http://{target}:3306|")
+        else:
+            self.run_suggested_signal.emit(f"nmap|{target}|-p {port} -sV")
+
+    def _run_quick_vulnerability_audit(self):
+        """Runs instant Copilot vulnerability breakdown."""
+        findings = AICopilot.diagnose(app_state.events, app_state.open_ports)
+        lines = [f"🛡️ [VULNERABILITY AUDIT REPORT - THREAT LEVEL: {app_state.global_risk}]"]
+        lines.append(f"Open Port Surface: {app_state.open_ports or 'None detected yet'}")
+        lines.append(f"Detected Events: {app_state.events or 'No high-risk signatures'}\n")
+        for f in findings:
+            lines.append(f"● {f['title']} [{f['severity']} - {f['cvss_score']} CVSS]\n  {f['description']}\n  Remediation: {f['remediation']}\n")
+        self.copilot_output.setText("\n".join(lines))
+        self.ai_status_dot.setText("● AUDIT DONE")
+        self.ai_status_dot.setStyleSheet("color: #00f0ff; font-size: 10px; font-weight: 800;")
+
+    def _quick_prompt(self, text: str):
+        self.ai_prompt_input.setText(text)
+        self.run_ai_analysis()
 
     # ========================
     # Update Dashboard Data
@@ -565,17 +709,17 @@ class DashboardPage(QWidget):
 
         # 5. Live Ports status check
         open_ports = app_state.open_ports
-        for port, (cell, service) in self.port_cells.items():
+        for port, (cell_btn, service) in self.port_cells.items():
             if port in open_ports:
-                cell.setText(f"{service} : {port}\n[OPEN ●]")
-                cell.setObjectName("portCellOpen")
-                cell.style().unpolish(cell)
-                cell.style().polish(cell)
+                cell_btn.setText(f"{service} : {port}\n[OPEN ●]")
+                cell_btn.setProperty("class", "portChipOpen")
+                cell_btn.style().unpolish(cell_btn)
+                cell_btn.style().polish(cell_btn)
             else:
-                cell.setText(f"{service} : {port}\n[CLOSED]")
-                cell.setObjectName("portCellClosed")
-                cell.style().unpolish(cell)
-                cell.style().polish(cell)
+                cell_btn.setText(f"{service} : {port}\n[CLOSED]")
+                cell_btn.setProperty("class", "portChipClosed")
+                cell_btn.style().unpolish(cell_btn)
+                cell_btn.style().polish(cell_btn)
 
         # 6. Real-Time State Fingerprint Tracking & ML Guidance Refresh
         current_fingerprint = (
@@ -592,11 +736,6 @@ class DashboardPage(QWidget):
                 self.next_step_card.refresh_guidance()
 
         # 7. Attack Surface & Intel Card Updates
-        target_name = getattr(app_state, "next_target", "") or "127.0.0.1"
-        if not target_name and app_state.pipeline_artifacts.get("targets"):
-            target_name = app_state.pipeline_artifacts["targets"][0]
-        self.target_intel_label.setText(f"Active Target: {target_name}")
-
         sug_text = app_state.suggestion
         if not sug_text or sug_text == "None" or "No suggestions yet" in sug_text:
             self.suggestion_label.setText("No critical anomalies detected. System ready for targeted port or OSINT discovery.")
@@ -655,14 +794,15 @@ class DashboardPage(QWidget):
     # ========================
 
     def run_suggested_tool(self):
+        target = self.target_input.text().strip() or "127.0.0.1"
         if app_state.next_tool:
             meta = getattr(app_state, "next_action_metadata", {}) or {}
-            target = meta.get("target", "") or ""
             flags = meta.get("flags", "")
             tool_name = meta.get("tool_key", app_state.next_tool)
             self.run_suggested_signal.emit(f"{tool_name}|{target}|{flags}")
 
     def _handle_execute_next_step(self, page_name: str, sub_tool_key: str, suggested_target: str, suggested_flags: str):
         """Handler for one-click ML next step button with auto-fill parameters."""
+        active_target = self.target_input.text().strip() or suggested_target or "127.0.0.1"
         tool_name = sub_tool_key or app_state.next_tool
-        self.run_suggested_signal.emit(f"{tool_name}|{suggested_target}|{suggested_flags}")
+        self.run_suggested_signal.emit(f"{tool_name}|{active_target}|{suggested_flags}")
