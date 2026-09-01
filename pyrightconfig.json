@@ -1,0 +1,7 @@
+{
+  "venvPath": "kalinova",
+  "venv": "venv",
+  "extraPaths": [
+    "kalinova"
+  ]
+}

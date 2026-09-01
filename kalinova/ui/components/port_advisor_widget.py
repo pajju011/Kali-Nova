@@ -67,8 +67,9 @@ class PortAdvisorWidget(QFrame):
             }
         """)
 
-        self.profile_keys = list(PortAdvisor.PORT_PROFILES.keys())
-        for key in self.profile_keys:
+        self.profile_keys = ["NONE"] + list(PortAdvisor.PORT_PROFILES.keys())
+        self.profile_combo.addItem("-- Select Strategic Port Profile --", "NONE")
+        for key in self.profile_keys[1:]:
             prof = PortAdvisor.PORT_PROFILES[key]
             self.profile_combo.addItem(prof["name"], key)
 
@@ -88,6 +89,11 @@ class PortAdvisorWidget(QFrame):
             }
             QPushButton:hover {
                 background-color: #0ea5e9;
+            }
+            QPushButton:disabled {
+                background-color: #1e293b;
+                color: #64748b;
+                border: 1px solid #334155;
             }
         """)
         self.apply_btn.clicked.connect(self.on_apply_clicked)
@@ -110,15 +116,20 @@ class PortAdvisorWidget(QFrame):
         self.on_profile_changed(0)
 
     def on_profile_changed(self, index: int):
-        if 0 <= index < len(self.profile_keys):
+        if index <= 0:
+            self.desc_label.setText("Select a strategic port profile above to view scan recommendations and target port sets.")
+            self.rationale_label.setText("💡 Strategy: Standing by for user selection.")
+            self.apply_btn.setEnabled(False)
+        elif 1 <= index < len(self.profile_keys):
             key = self.profile_keys[index]
             prof = PortAdvisor.get_profile(key)
             self.desc_label.setText(prof["description"])
             self.rationale_label.setText(f"💡 Strategy: {prof['rationale']}")
+            self.apply_btn.setEnabled(True)
 
     def on_apply_clicked(self):
         index = self.profile_combo.currentIndex()
-        if 0 <= index < len(self.profile_keys):
+        if 1 <= index < len(self.profile_keys):
             key = self.profile_keys[index]
             ports_str = PortAdvisor.get_ports_string(key)
             self.port_profile_selected.emit(ports_str)

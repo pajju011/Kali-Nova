@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setObjectName("mainWindow")
-        self.setWindowTitle("Kalinova OS")
+        self.setWindowTitle("Kalinova")
         self.setGeometry(100, 100, 1300, 800)
         self.showMaximized()
         self.thread = None
@@ -513,6 +513,7 @@ class MainWindow(QMainWindow):
         self._set_main_status(f"⚠️  {message}", "error")
         import os
         if os.environ.get("QT_QPA_PLATFORM") != "offscreen":
+            # pyrefly: ignore [missing-import]
             from PyQt6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Configuration Required", message)
 

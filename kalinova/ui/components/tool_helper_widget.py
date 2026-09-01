@@ -49,7 +49,7 @@ class ToolHelperWidget(QFrame):
 
         header_layout.addStretch()
 
-        self.status_badge = QLabel("READY")
+        self.status_badge = QLabel("WAITING FOR INPUT")
         self.status_badge.setStyleSheet("""
             background-color: #1e293b;
             color: #94a3b8;
@@ -63,7 +63,7 @@ class ToolHelperWidget(QFrame):
         layout.addLayout(header_layout)
 
         # 2. Input Validation Message
-        self.validation_label = QLabel("Enter a target above to see format guidance.")
+        self.validation_label = QLabel("Enter a target IP or domain above to activate live AI guidance & tool suggestions.")
         self.validation_label.setStyleSheet("font-size: 11px; color: #cbd5e1;")
         self.validation_label.setWordWrap(True)
         layout.addWidget(self.validation_label)
@@ -91,8 +91,9 @@ class ToolHelperWidget(QFrame):
         self.validation_label.setText(message)
 
         if not text.strip():
-            self.status_badge.setText("EMPTY")
+            self.status_badge.setText("WAITING FOR INPUT")
             self.status_badge.setStyleSheet("background-color: #1e293b; color: #94a3b8; font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 4px;")
+            self.validation_label.setText("Enter a target IP or domain above to activate live AI guidance & tool suggestions.")
             self.validation_label.setStyleSheet("font-size: 11px; color: #94a3b8;")
         elif is_valid:
             self.status_badge.setText("VALID INPUT")

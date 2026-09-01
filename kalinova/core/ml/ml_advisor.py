@@ -119,6 +119,31 @@ class MLAdvisor:
         """
         curr_state = state or app_state
 
+        has_input = bool(
+            (curr_state.next_target and curr_state.next_target.strip()) or
+            curr_state.pipeline_artifacts.get("targets") or
+            curr_state.open_ports or
+            curr_state.events or
+            curr_state.last_tool_executed
+        )
+
+        if not has_input:
+            curr_state.clear_next_action()
+            return {
+                "tool_key": None,
+                "tool_name": "Standby",
+                "action_title": "Waiting for Target Input",
+                "confidence": 0.0,
+                "action_desc": "Enter a target IP address or domain to receive AI/ML scenario directives and recommendations.",
+                "expected_outcome": "Generates actionable security testing directives based on target surface and scan findings.",
+                "rationale": "Standing by: Enter a target IP address or domain to receive AI recommendations.",
+                "page": "dashboard_page",
+                "sub_tool": "",
+                "suggested_target": "",
+                "suggested_flags": "",
+                "alternatives": []
+            }
+
         # 1. Extract feature vector
         features = FeatureExtractor.extract_features(curr_state)
 
@@ -129,11 +154,13 @@ class MLAdvisor:
         # 3. Retrieve tool metadata
         meta = cls.TOOL_METADATA.get(top_tool_key, cls.TOOL_METADATA["nmap"])
 
-        # 4. Resolve best target parameter using PipelineManager
-        auto_target = PipelineManager.get_best_target_for_tool(top_tool_key) or "127.0.0.1"
+        # 4. Resolve best target parameter using PipelineManager or active user target
+        auto_target = curr_state.next_target or PipelineManager.get_best_target_for_tool(top_tool_key) or ""
 
         # 5. Synthesize ML technical rationale
         rationale_parts = []
+        if curr_state.next_target:
+            rationale_parts.append(f"Target specified: [{curr_state.next_target}]")
         if curr_state.open_ports:
             ports_str = ", ".join(str(p) for p in curr_state.open_ports[:4])
             rationale_parts.append(f"Discovered active port(s): [{ports_str}]")
@@ -144,7 +171,7 @@ class MLAdvisor:
             rationale_parts.append(f"Following previous execution of {curr_state.last_tool_executed}")
 
         if not rationale_parts:
-            rationale_str = "Initial reconnaissance phase: Start by scanning host ports or gathering OSINT domains."
+            rationale_str = f"Target surface specified → Prescribed initial recon sweep with {meta['name']}."
         else:
             rationale_str = " + ".join(rationale_parts) + f" → Prescribed {meta['name']}."
 

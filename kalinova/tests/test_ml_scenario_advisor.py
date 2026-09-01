@@ -218,3 +218,11 @@ def test_suggestion_engine_integration():
     assert "Port Intelligence" in text
     assert "Event Alerts" in text
     assert app_state.suggestion == text
+
+
+def test_ml_advisor_standby_on_empty_input():
+    app_state.reset_scan()
+    guidance = MLAdvisor.get_guidance()
+    assert guidance["tool_name"] == "Standby"
+    assert guidance["action_title"] == "Waiting for Target Input"
+    assert app_state.next_tool is None

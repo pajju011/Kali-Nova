@@ -10,7 +10,6 @@ from PyQt6.QtGui import QFont, QCursor
 from core.app_state import app_state
 from ui.topology_widget import NetworkTopologyWidget
 from core.ai_copilot import AICopilot, AIWorkerThread
-from ui.components.next_step_card import NextStepCard
 
 
 class DashboardPage(QWidget):
@@ -171,10 +170,10 @@ class DashboardPage(QWidget):
         header_layout.setContentsMargins(16, 10, 16, 10)
 
         title_layout = QVBoxLayout()
-        self.hud_title = QLabel("▲ KALINOVA OS // SECURITY OPERATIONS DECK")
+        self.hud_title = QLabel("▲ KALINOVA // SECURITY OPERATIONS DECK")
         self.hud_title.setStyleSheet("font-size: 18px; font-weight: 800; color: #00f0ff; letter-spacing: 1px;")
         
-        self.hud_subtitle = QLabel("REAL-TIME ATTACK SURFACE DISCOVERY & ML SCENARIO INTELLIGENCE")
+        self.hud_subtitle = QLabel("REAL-TIME ATTACK SURFACE DISCOVERY")
         self.hud_subtitle.setStyleSheet("font-size: 10px; font-weight: 700; color: #64748b; letter-spacing: 0.5px;")
         
         title_layout.addWidget(self.hud_title)
@@ -207,14 +206,7 @@ class DashboardPage(QWidget):
         main_layout.addWidget(header_frame)
 
         # =====================================================================
-        # 2. HERO ML SCENARIO INTELLIGENCE DIRECTIVE BANNER
-        # =====================================================================
-        self.next_step_card = NextStepCard()
-        self.next_step_card.execute_step_signal.connect(self._handle_execute_next_step)
-        main_layout.addWidget(self.next_step_card)
-
-        # =====================================================================
-        # 3. BENTO GRID WIDGETS LAYOUT (2x3 Grid)
+        # 2. BENTO GRID WIDGETS LAYOUT (2x3 Grid)
         # =====================================================================
         grid_layout = QGridLayout()
         grid_layout.setSpacing(14)
@@ -428,8 +420,8 @@ class DashboardPage(QWidget):
         target_box = QHBoxLayout()
         target_lbl = QLabel("Target:")
         target_lbl.setStyleSheet("font-size: 11px; font-weight: 700; color: #8ea2c5;")
-        self.target_input = QLineEdit("127.0.0.1")
-        self.target_input.setPlaceholderText("Enter target IP or domain...")
+        self.target_input = QLineEdit("")
+        self.target_input.setPlaceholderText("Enter target IP or domain (e.g. 192.168.1.1)...")
         self.target_input.setStyleSheet("""
             QLineEdit {
                 background-color: #070d18;
@@ -450,18 +442,19 @@ class DashboardPage(QWidget):
         target_box.addWidget(self.target_input)
         action_layout.addLayout(target_box)
 
-        self.suggestion_label = QLabel("[SYS_INTEL] Standing by for target recon. Discovered ports and services will map here.")
+        self.suggestion_label = QLabel("[SYS_INTEL] Standing by. Enter a target IP address or domain above to receive AI scenario directives.")
         self.suggestion_label.setWordWrap(True)
         self.suggestion_label.setStyleSheet("font-size: 11px; color: #94a3b8; line-height: 1.3;")
         action_layout.addWidget(self.suggestion_label)
 
-        self.next_tool_label = QLabel("DIRECTIVE: INITIAL OSINT RECON")
+        self.next_tool_label = QLabel("DIRECTIVE: STANDBY (Enter Target)")
         self.next_tool_label.setStyleSheet("font-size: 11px; font-weight: 800; color: #00f0ff;")
         action_layout.addWidget(self.next_tool_label)
 
-        self.run_suggested_btn = QPushButton("⚡ Execute Directive (Auto-Fill)")
+        self.run_suggested_btn = QPushButton("⚡ Execute Directive (Enter Target to Begin)")
         self.run_suggested_btn.setObjectName("actionBtn")
         self.run_suggested_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.run_suggested_btn.setEnabled(False)
         self.run_suggested_btn.clicked.connect(self.run_suggested_tool)
         action_layout.addWidget(self.run_suggested_btn)
         action_layout.addStretch()
@@ -605,8 +598,11 @@ class DashboardPage(QWidget):
                 app_state.pipeline_artifacts["targets"] = [cleaned]
             else:
                 app_state.pipeline_artifacts["targets"][0] = cleaned
-            if hasattr(self, "next_step_card"):
-                self.next_step_card.refresh_guidance()
+        else:
+            app_state.next_target = None
+            if app_state.pipeline_artifacts.get("targets"):
+                app_state.pipeline_artifacts["targets"].clear()
+            app_state.clear_next_action()
 
     def _on_port_clicked(self, port: int, service: str):
         """Routes directly to relevant security tool when user clicks a port chip."""
@@ -733,7 +729,7 @@ class DashboardPage(QWidget):
                 cell_btn.style().unpolish(cell_btn)
                 cell_btn.style().polish(cell_btn)
 
-        # 6. Real-Time State Fingerprint Tracking & ML Guidance Refresh
+        # 6. Real-Time State Fingerprint Tracking
         current_fingerprint = (
             tuple(app_state.open_ports),
             tuple(app_state.events),
@@ -744,25 +740,32 @@ class DashboardPage(QWidget):
         )
         if getattr(self, "_last_state_fingerprint", None) != current_fingerprint:
             self._last_state_fingerprint = current_fingerprint
-            if hasattr(self, "next_step_card"):
-                self.next_step_card.refresh_guidance()
 
         # 7. Attack Surface & Intel Card Updates
-        sug_text = app_state.suggestion
-        if not sug_text or sug_text == "None" or "No suggestions yet" in sug_text:
-            self.suggestion_label.setText("No critical anomalies detected. System ready for targeted port or OSINT discovery.")
+        target_present = bool(
+            (self.target_input.text() and self.target_input.text().strip()) or
+            app_state.open_ports or
+            app_state.events or
+            app_state.last_tool_executed
+        )
+        if target_present:
+            from core.ml.ml_advisor import MLAdvisor
+            guidance = MLAdvisor.get_guidance()
+            sug_text = guidance.get("rationale", "")
+            self.suggestion_label.setText(sug_text[:140] if sug_text else "Target surface registered. Launch scan directive.")
+            if app_state.next_tool:
+                self.next_tool_label.setText(f"DIRECTIVE: {app_state.next_tool.upper()}")
+                self.run_suggested_btn.setEnabled(True)
+                self.run_suggested_btn.setText(f"⚡ Execute {app_state.next_tool.upper()} (Auto-Fill)")
+            else:
+                self.next_tool_label.setText("DIRECTIVE: STANDBY")
+                self.run_suggested_btn.setEnabled(False)
+                self.run_suggested_btn.setText("⚡ Execute Directive (Enter Target to Begin)")
         else:
-            first_line = sug_text.splitlines()[0] if sug_text else "Signatures detected."
-            self.suggestion_label.setText(first_line[:120])
-
-        if app_state.next_tool:
-            self.next_tool_label.setText(f"DIRECTIVE: {app_state.next_tool.upper()}")
-            self.run_suggested_btn.setEnabled(True)
-            self.run_suggested_btn.setText(f"⚡ Execute {app_state.next_tool.upper()} (Auto-Fill)")
-        else:
-            self.next_tool_label.setText("DIRECTIVE: STANDBY")
+            self.suggestion_label.setText("[SYS_INTEL] Standing by. Enter a target IP address or domain above to receive AI scenario directives.")
+            self.next_tool_label.setText("DIRECTIVE: STANDBY (Enter Target)")
             self.run_suggested_btn.setEnabled(False)
-            self.run_suggested_btn.setText("⚡ Execute Directive (Auto-Fill)")
+            self.run_suggested_btn.setText("⚡ Execute Directive (Enter Target to Begin)")
 
     # ========================
     # Interactive AI Copilot Querying
