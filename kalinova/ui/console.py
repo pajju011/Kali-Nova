@@ -1,8 +1,15 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QLabel
+from PyQt6.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
+    QTextEdit, QLabel, QLineEdit
+)
+from PyQt6.QtCore import pyqtSignal
 from datetime import datetime
 
 
 class Console(QWidget):
+
+    input_submitted = pyqtSignal(str)
+
     def __init__(self, panel_title="Console", output_height=150):
         super().__init__()
 
@@ -100,16 +107,69 @@ class Console(QWidget):
         
         self.update_output_style()
 
+        # Interactive Terminal Input Bar (stdin)
+        self.input_container = QWidget()
+        input_layout = QHBoxLayout(self.input_container)
+        input_layout.setContentsMargins(0, 2, 0, 0)
+        input_layout.setSpacing(6)
+
+        self.input_edit = QLineEdit()
+        self.input_edit.setObjectName("consoleInputEdit")
+        self.input_edit.setPlaceholderText("Type interactive terminal input (e.g. Y/n, password, flags) and press Enter...")
+        self.input_edit.setStyleSheet("""
+            QLineEdit#consoleInputEdit {
+                background-color: #0b1426;
+                color: #00f0ff;
+                border: 1px solid #1e2e4a;
+                border-radius: 4px;
+                padding: 5px 8px;
+                font-family: 'Consolas', 'Cascadia Code', monospace;
+                font-size: 12px;
+            }
+            QLineEdit#consoleInputEdit:focus {
+                border-color: #00f0ff;
+            }
+        """)
+        self.input_edit.returnPressed.connect(self._handle_send_input)
+
+        self.send_btn = QPushButton("Send ↵")
+        self.send_btn.setObjectName("consoleSendBtn")
+        self.send_btn.setToolTip("Send input to running tool (stdin)")
+        self.send_btn.clicked.connect(self._handle_send_input)
+        self.send_btn.setStyleSheet("""
+            QPushButton#consoleSendBtn {
+                background-color: #00f0ff;
+                color: #030712;
+                font-weight: 700;
+                font-size: 11px;
+                border: none;
+                border-radius: 4px;
+                padding: 5px 12px;
+            }
+            QPushButton#consoleSendBtn:hover {
+                background-color: #38bdf8;
+            }
+            QPushButton#consoleSendBtn:pressed {
+                background-color: #0284c7;
+            }
+        """)
+
+        input_layout.addWidget(self.input_edit)
+        input_layout.addWidget(self.send_btn)
+
         layout.addLayout(header_layout)
         layout.addWidget(self.status_label)
         layout.addWidget(self.output)
+        layout.addWidget(self.input_container)
         self.setLayout(layout)
 
         # Bottom console starts collapsed, side tool output tabs start expanded
         if output_height is not None:
             self.output.hide()
+            self.input_container.hide()
         else:
             self.output.show()
+            self.input_container.show()
 
     def zoom_in(self):
         if self.font_size < 26:
@@ -136,10 +196,17 @@ class Console(QWidget):
     def toggle_collapsed(self):
         is_collapsed = self.toggle_btn.isChecked()
         self.output.setVisible(not is_collapsed)
+        self.input_container.setVisible(not is_collapsed)
         if is_collapsed:
             self.toggle_btn.setText("Expand Logs")
         else:
             self.toggle_btn.setText("Collapse")
+
+    def _handle_send_input(self):
+        text = self.input_edit.text()
+        if text.strip():
+            self.input_submitted.emit(text)
+            self.input_edit.clear()
 
     def log(self, message):
         timestamp = datetime.now().strftime("%H:%M:%S")
@@ -163,4 +230,5 @@ class Console(QWidget):
     def clear(self):
         self.output.clear()
         self.set_status("Ready", "info")
+
 

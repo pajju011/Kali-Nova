@@ -8,6 +8,7 @@ from PyQt6.QtCore import QThread, pyqtSignal
 from datetime import datetime
 import time
 
+from config import load_config
 from core.log_manager import LogManager
 from core.port_parser import PortParser
 from core.risk_engine import RiskEngine
@@ -15,6 +16,7 @@ from core.suggestion_engine import SuggestionEngine
 from core.app_state import app_state
 from core.database import DatabaseManager
 from core.pipeline_manager import PipelineManager
+from core.system_utils import wrap_with_privilege_escalation, needs_root_privileges
 
 
 
@@ -41,9 +43,38 @@ class CommandThread(QThread):
             except Exception:
                 pass
 
+    def send_input(self, text: str):
+        """Sends interactive user input/keystrokes to the running subprocess stdin."""
+        if self._process is not None and self._process.poll() is None:
+            if self._process.stdin is not None:
+                try:
+                    self._process.stdin.write(f"{text}\n")
+                    self._process.stdin.flush()
+                    self.output_signal.emit(f"> [INPUT] {text}")
+                except Exception as e:
+                    self.output_signal.emit(f"[ERROR] Failed to send stdin input: {e}")
+            else:
+                self.output_signal.emit("[WARN] stdin stream is not open for this process.")
+        else:
+            self.output_signal.emit(f"> [INPUT] {text} (No active subprocess)")
+
     def run(self):
         try:
-            command_args = shlex.split(self.command, posix=os.name != "nt")
+            # Check privilege escalation configuration
+            config = load_config()
+            auto_elevate = config.get("auto_elevate_root", True)
+            elevation_method = config.get("elevation_method", "auto")
+
+            exec_cmd = self.command
+            if auto_elevate and elevation_method != "none":
+                elevated_cmd, was_elevated = wrap_with_privilege_escalation(
+                    self.command, method=elevation_method
+                )
+                if was_elevated:
+                    self.output_signal.emit(f"[PRIVILEGE] Executing with elevated permissions ({elevation_method})...\n")
+                    exec_cmd = elevated_cmd
+
+            command_args = shlex.split(exec_cmd, posix=os.name != "nt")
             if not command_args:
                 raise ValueError("No command provided.")
 
@@ -53,7 +84,9 @@ class CommandThread(QThread):
 
             # Extract tool name from command
             tool_binary = command_args[0].lower()
-            tool_name = command_args[0].upper()
+            if tool_binary in {"sudo", "pkexec"} and len(command_args) > 1:
+                tool_binary = command_args[1].lower()
+            tool_name = tool_binary.upper()
             self.status_signal.emit(f"Running {tool_name}...", "running")
             self.output_signal.emit(f"\n{'='*60}")
             self.output_signal.emit(f"Starting: {self.command}")
@@ -81,9 +114,11 @@ class CommandThread(QThread):
                 process = subprocess.Popen(
                     command_args,
                     shell=False,
+                    stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     text=True,
+                    bufsize=1,
                     startupinfo=startupinfo,
                     creationflags=creationflags,
                 )

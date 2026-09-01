@@ -159,6 +159,7 @@ class MainWindow(QMainWindow):
             )
         )
         thread.finished_signal.connect(lambda t=thread: self._on_thread_finished(t))
+        tab_console.input_submitted.connect(lambda text, t=thread: t.send_input(text))
 
         self.thread = thread
         self._threads.append(thread)
