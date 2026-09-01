@@ -170,8 +170,8 @@ class DashboardPage(QWidget):
         header_layout.setContentsMargins(16, 10, 16, 10)
 
         title_layout = QVBoxLayout()
-        self.hud_title = QLabel("▲ KALINOVA // SECURITY OPERATIONS DECK")
-        self.hud_title.setStyleSheet("font-size: 18px; font-weight: 800; color: #00f0ff; letter-spacing: 1px;")
+        self.hud_title = QLabel("▲ KALINOVA")
+        self.hud_title.setStyleSheet("font-size: 20px; font-weight: 800; color: #00f0ff; letter-spacing: 1px;")
         
         self.hud_subtitle = QLabel("REAL-TIME ATTACK SURFACE DISCOVERY")
         self.hud_subtitle.setStyleSheet("font-size: 10px; font-weight: 700; color: #64748b; letter-spacing: 0.5px;")
