@@ -147,13 +147,9 @@ class AuthPage(ToolModulePage):
         panel, layout = self.create_panel("⚡ Hashcat Password Recovery Engine")
 
         from PyQt6.QtWidgets import QCheckBox, QHBoxLayout
-        from ui.components.tool_helper_widget import ToolHelperWidget
 
         self.hashcat_file_input = QLineEdit()
         self.hashcat_file_input.setPlaceholderText("Select hash file or enter hash (e.g., example500.hash)")
-
-        self.hashcat_helper = ToolHelperWidget("hashcat")
-        self.hashcat_file_input.textChanged.connect(self.hashcat_helper.validate_text)
 
         self.browse_hashcat_hash_btn = self.create_secondary_button("Browse Hash File")
         self.browse_hashcat_hash_btn.clicked.connect(self._browse_hashcat_file)
@@ -200,7 +196,6 @@ class AuthPage(ToolModulePage):
 
         layout.addWidget(QLabel("Hash File / Hash Target"))
         layout.addWidget(self.hashcat_file_input)
-        layout.addWidget(self.hashcat_helper)
         layout.addWidget(self.browse_hashcat_hash_btn)
         layout.addWidget(QLabel("Hash Type (-m)"))
         layout.addWidget(self.hashcat_mode_combo)
@@ -250,14 +245,10 @@ class AuthPage(ToolModulePage):
         panel, layout = self.create_panel("⚡ Ncrack Network Authentication Cracker")
 
         from PyQt6.QtWidgets import QCheckBox
-        from ui.components.tool_helper_widget import ToolHelperWidget
 
         # Target Specification (Single Target vs Target List File -iL)
         self.ncrack_target_input = QLineEdit()
         self.ncrack_target_input.setPlaceholderText("Enter target IP / Hostname (e.g. 192.168.1.100)")
-
-        self.ncrack_helper = ToolHelperWidget("ncrack")
-        self.ncrack_target_input.textChanged.connect(self.ncrack_helper.validate_text)
 
         self.ncrack_target_file_input = QLineEdit()
         self.ncrack_target_file_input.setPlaceholderText("Select target list file (-iL win.txt)")
@@ -333,7 +324,6 @@ class AuthPage(ToolModulePage):
 
         layout.addWidget(QLabel("Target IP / Hostname (or Target List File)"))
         layout.addWidget(self.ncrack_target_input)
-        layout.addWidget(self.ncrack_helper)
         layout.addWidget(self.ncrack_target_file_input)
         layout.addWidget(self.browse_ncrack_targets_btn)
         layout.addWidget(QLabel("Service Protocol (-p)"))

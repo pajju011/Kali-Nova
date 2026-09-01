@@ -7,7 +7,6 @@ from PyQt6.QtCore import pyqtSignal
 
 from core.app_state import app_state
 from ui.tool_template import ToolModulePage
-from ui.components.tool_helper_widget import ToolHelperWidget
 from ui.components.port_advisor_widget import PortAdvisorWidget
 from ui.icon_manager import get_tool_icon_path
 
@@ -96,9 +95,6 @@ class ReconPage(ToolModulePage):
         self.nmap_target = QLineEdit()
         self.nmap_target.setPlaceholderText("Enter target IP or domain")
 
-        self.nmap_helper = ToolHelperWidget("nmap")
-        self.nmap_target.textChanged.connect(self.nmap_helper.validate_text)
-
         self.port_advisor = PortAdvisorWidget()
         self.port_advisor.port_profile_selected.connect(lambda p: self.port_input.setText(p))
 
@@ -117,7 +113,6 @@ class ReconPage(ToolModulePage):
 
         layout.addWidget(QLabel("Target IP / Domain"))
         layout.addWidget(self.nmap_target)
-        layout.addWidget(self.nmap_helper)
         layout.addWidget(self.port_advisor)
         layout.addWidget(QLabel("Scan Type"))
         layout.addWidget(self.scan_type)
@@ -134,15 +129,11 @@ class ReconPage(ToolModulePage):
         self.whois_target = QLineEdit()
         self.whois_target.setPlaceholderText("Enter domain (example.com)")
 
-        self.whois_helper = ToolHelperWidget("whois")
-        self.whois_target.textChanged.connect(self.whois_helper.validate_text)
-
         self.whois_btn = self.create_primary_button("Run Whois")
         self.whois_btn.clicked.connect(self.build_whois)
 
         layout.addWidget(QLabel("Domain"))
         layout.addWidget(self.whois_target)
-        layout.addWidget(self.whois_helper)
         layout.addWidget(self.whois_btn)
         layout.addStretch()
 
@@ -153,9 +144,6 @@ class ReconPage(ToolModulePage):
 
         self.harvester_domain = QLineEdit()
         self.harvester_domain.setPlaceholderText("Enter domain (e.g. target.com)")
-
-        self.harvester_helper = ToolHelperWidget("theharvester")
-        self.harvester_domain.textChanged.connect(self.harvester_helper.validate_text)
 
         self.harvester_source = QComboBox()
         self.harvester_source.addItems([
@@ -170,7 +158,6 @@ class ReconPage(ToolModulePage):
 
         layout.addWidget(QLabel("Domain"))
         layout.addWidget(self.harvester_domain)
-        layout.addWidget(self.harvester_helper)
         layout.addWidget(QLabel("Data Source"))
         layout.addWidget(self.harvester_source)
         layout.addWidget(self.harvester_btn)
@@ -183,9 +170,6 @@ class ReconPage(ToolModulePage):
 
         self.metagoofil_domain = QLineEdit()
         self.metagoofil_domain.setPlaceholderText("Target Domain (-d) (e.g. kali.org or target.com)")
-
-        self.metagoofil_helper = ToolHelperWidget("metagoofil")
-        self.metagoofil_domain.textChanged.connect(self.metagoofil_helper.validate_text)
 
         self.metagoofil_filetypes = QLineEdit()
         self.metagoofil_filetypes.setText("pdf")
@@ -238,7 +222,6 @@ class ReconPage(ToolModulePage):
 
         layout.addWidget(QLabel("Target Domain (-d)"))
         layout.addWidget(self.metagoofil_domain)
-        layout.addWidget(self.metagoofil_helper)
         layout.addWidget(QLabel("File Types (-t)"))
         layout.addWidget(self.metagoofil_filetypes)
         layout.addWidget(QLabel("Search & Download Limits"))
@@ -272,9 +255,6 @@ class ReconPage(ToolModulePage):
         self.amass_domain = QLineEdit()
         self.amass_domain.setPlaceholderText("Target Domain (-d) (e.g. example.com or kali.org)")
 
-        self.amass_helper = ToolHelperWidget("amass")
-        self.amass_domain.textChanged.connect(self.amass_helper.validate_text)
-
         self.chk_amass_passive = QCheckBox("Passive OSINT Mode (-passive)")
         self.chk_amass_active = QCheckBox("Active Recon & Cert Pulling (-active)")
         self.chk_amass_active.setChecked(True)
@@ -301,7 +281,6 @@ class ReconPage(ToolModulePage):
         layout.addWidget(self.amass_subcommand)
         layout.addWidget(QLabel("Target Domain (-d)"))
         layout.addWidget(self.amass_domain)
-        layout.addWidget(self.amass_helper)
         layout.addWidget(QLabel("Reconnaissance & Scan Options"))
         layout.addWidget(self.chk_amass_passive)
         layout.addWidget(self.chk_amass_active)
