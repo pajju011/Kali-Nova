@@ -19,6 +19,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QFont
 
 from ui.tool_icon_button import ToolIconButton
+from ui.ai_copilot_drawer import format_ai_markdown_html
 from core.app_state import app_state
 from core.ai_copilot import AICopilot, AIWorkerThread
 
@@ -137,7 +138,7 @@ class ToolCopilotWidget(QFrame):
         self.output_text.setReadOnly(True)
         self.output_text.setMinimumHeight(110)
         self.output_text.setMaximumHeight(180)
-        self.output_text.setText("💡 Enter your parameters above and click 'Analyze Active Setup & Suggest Next Steps' to get AI guidance.")
+        self.output_text.setHtml(format_ai_markdown_html("💡 Enter your parameters above and click **'Analyze Active Setup & Suggest Next Steps'** to get AI guidance."))
         layout.addWidget(self.output_text)
 
         # Quick action chips
@@ -184,7 +185,7 @@ class ToolCopilotWidget(QFrame):
         self.input_field.setPlaceholderText(f"Ask AI about {tool_name} (e.g. flags, parameters)...")
         self.status_label.setText("● STANDBY")
         self.status_label.setStyleSheet("color: #64748b; font-size: 10px; font-weight: bold;")
-        self.output_text.setText(f"💡 Click '🤖 Analyze Active Setup & Suggest Next Steps' to inspect {tool_name} parameters and receive recommendations.")
+        self.output_text.setHtml(format_ai_markdown_html(f"💡 Click **'🤖 Analyze Active Setup & Suggest Next Steps'** to inspect **{tool_name}** parameters and receive recommendations."))
 
     def _on_analyze_clicked(self):
         self.ask_question(f"Analyze my active setup for {self.active_tool_name} and suggest next steps.")
@@ -213,7 +214,7 @@ class ToolCopilotWidget(QFrame):
         self.status_label.setStyleSheet("color: #f59e0b; font-size: 10px; font-weight: bold;")
         self.ask_btn.setEnabled(False)
         self.btn_analyze.setEnabled(False)
-        self.output_text.setText(f"🧠 AI Copilot is inspecting {self.active_tool_name} parameters and crafting analysis...")
+        self.output_text.setHtml(format_ai_markdown_html(f"🧠 **AI Copilot is inspecting `{self.active_tool_name}` parameters and crafting analysis...**"))
 
         if self.ai_worker is not None and self.ai_worker.isRunning():
             self.ai_worker.quit()
@@ -239,14 +240,14 @@ class ToolCopilotWidget(QFrame):
         self.btn_analyze.setEnabled(True)
         self.status_label.setText("● READY")
         self.status_label.setStyleSheet("color: #10b981; font-size: 10px; font-weight: bold;")
-        self.output_text.setText(response)
+        self.output_text.setHtml(format_ai_markdown_html(response))
 
     def _on_ai_error(self, err_msg: str):
         self.ask_btn.setEnabled(True)
         self.btn_analyze.setEnabled(True)
         self.status_label.setText("● ERROR")
         self.status_label.setStyleSheet("color: #f43f5e; font-size: 10px; font-weight: bold;")
-        self.output_text.setText(f"❌ AI Error: {err_msg}")
+        self.output_text.setHtml(format_ai_markdown_html(f"❌ **AI Error:** {err_msg}"))
 
 
 

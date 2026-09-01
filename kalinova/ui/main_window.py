@@ -97,7 +97,7 @@ class MainWindow(QMainWindow):
         # =========================
         # Navigation Connection
         # =========================
-        self.sidebar.navigate.connect(self.workspace.switch_page)
+        self.sidebar.navigate.connect(self._on_navigation_change)
 
         # =========================
         # Mode Change Connection
@@ -538,17 +538,52 @@ class MainWindow(QMainWindow):
     def _set_main_status(self, status, status_type="info"):
         self.console.set_status(status, status_type)
 
+    def _on_navigation_change(self, page_name):
+        self.workspace.switch_page(page_name)
+        if hasattr(self.workspace, "get_active_context"):
+            ctx = self.workspace.get_active_context()
+            self.ai_drawer.update_active_context_realtime(
+                page_name=ctx.get("page_name", page_name),
+                tool_name=ctx.get("tool_name", page_name),
+                inputs_dict=ctx.get("inputs", {})
+            )
+
     def _handle_thread_output(self, thread, message):
         self._log_main(message)
         tab_console = self._thread_consoles.get(thread)
         if tab_console is not None:
             tab_console.log(message)
 
+        # Real-time AI Copilot live stream listener
+        tool_name = self._extract_tool_name(getattr(thread, "command", ""))
+        clean_msg = message.strip()
+        if clean_msg.startswith("[ALERT]") or clean_msg.startswith("[INFO]"):
+            ev = "SIGNAL_DETECTED"
+            lower_msg = clean_msg.lower()
+            if "sql" in lower_msg:
+                ev = "SQL_INJECTION"
+            elif "secret" in lower_msg or "api_key" in lower_msg:
+                ev = "SECRET_LEAK"
+            elif "handshake" in lower_msg or "pmkid" in lower_msg:
+                ev = "WIRELESS_HANDSHAKE"
+            elif "brute" in lower_msg:
+                ev = "BRUTE_FORCE"
+            elif "email" in lower_msg:
+                ev = "EMAIL_ENUM"
+            elif "subdomain" in lower_msg:
+                ev = "SUBDOMAIN_ENUM"
+            elif "wps" in lower_msg:
+                ev = "WPS_WIFI_AUDIT"
+            elif "forensics" in lower_msg:
+                ev = "FORENSICS_ANALYSIS"
+            self.ai_drawer.handle_live_event(ev, detail=clean_msg, tool_name=tool_name)
+
     def _handle_thread_status(self, thread, status, status_type):
         self._set_main_status(status, status_type)
         tab_console = self._thread_consoles.get(thread)
         if tab_console is not None:
             tab_console.set_status(status, status_type)
+        self.ai_drawer.handle_live_status(status, status_type)
 
     def _open_tool_panel(self, page_name, panel_method, tool_name, instruction, tool_id=None, target="", flags=""):
         self.workspace.switch_page(page_name)
@@ -591,6 +626,9 @@ class MainWindow(QMainWindow):
 
     def _on_thread_finished(self, thread):
         self._set_thread_tab_running(thread, False)
+        tool_name = self._extract_tool_name(getattr(thread, "command", ""))
+        stdout_txt = "\n".join(getattr(thread, "stdout_lines", []))
+        self.ai_drawer.handle_scan_completed(tool_name, stdout_txt)
         if thread in self._threads:
             self._threads.remove(thread)
         if self.thread is thread:

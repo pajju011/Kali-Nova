@@ -88,6 +88,28 @@ class TestAIIntegration(unittest.TestCase):
         self.assertIn("API key is missing", response)
         self.assertIn("OFFLINE SECURITY ADVISORY FALLBACK", response)
 
+    def test_realtime_event_analysis(self):
+        sqli_diag = AICopilot.analyze_realtime_event("SQL_INJECTION", detail="Union based", tool_name="sqlmap")
+        self.assertEqual(sqli_diag["severity"], "CRITICAL")
+        self.assertEqual(sqli_diag["cvss"], 9.8)
+        self.assertIn("SQL", sqli_diag["title"])
+
+        email_diag = AICopilot.analyze_realtime_event("EMAIL_ENUM", detail="admin@target.com", tool_name="theHarvester")
+        self.assertEqual(email_diag["severity"], "LOW")
+        self.assertIn("OSINT", email_diag["title"])
+
+    def test_realtime_stream_summary(self):
+        summary = AICopilot.get_realtime_stream_summary(
+            tool_name="Nmap",
+            active_ports=[22, 80],
+            active_events=["SQL_INJECTION"],
+            target="192.168.1.10"
+        )
+        self.assertIn("REAL-TIME AI COPILOT TELEMETRY", summary)
+        self.assertIn("NMAP", summary)
+        self.assertIn("192.168.1.10", summary)
+        self.assertIn("SQL", summary)
+
     def test_chat_history_persistence(self):
         DatabaseManager.clear_chat_history()
         DatabaseManager.save_chat_message("user", "Hello AI Copilot")

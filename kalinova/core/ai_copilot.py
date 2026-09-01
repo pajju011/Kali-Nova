@@ -212,6 +212,161 @@ const secureEmail = 'info' + '@' + 'targetdomain.com';
         return findings
 
     @staticmethod
+    def analyze_realtime_event(event_type: str, detail: str = "", tool_name: str = "") -> dict:
+        """Analyze a live scan discovery in real time and return actionable security intelligence."""
+        ev = (event_type or "").upper().strip()
+        
+        # Check predefined vulnerability mappings first
+        if ev in AICopilot.VULN_MAPPINGS:
+            vm = AICopilot.VULN_MAPPINGS[ev]
+            return {
+                "event": ev,
+                "title": vm["title"],
+                "severity": vm["severity"],
+                "cvss": vm["cvss"],
+                "summary": vm["description"],
+                "remediation": f"Apply security patch for {vm['title']}",
+                "detail": detail,
+                "tool": tool_name
+            }
+
+        # Handle specific discovery types
+        realtime_map = {
+            "EMAIL_ENUM": {
+                "title": "OSINT Employee Email Disclosure",
+                "severity": "LOW",
+                "cvss": 3.4,
+                "summary": "Employee emails or domain aliases were discovered through public OSINT sources.",
+                "remediation": "Audit public metadata, enforce SPF/DKIM/DMARC email security, and educate staff against spear-phishing."
+            },
+            "DIR_ENUM": {
+                "title": "Hidden Directory / Endpoint Exposed",
+                "severity": "MEDIUM",
+                "cvss": 5.3,
+                "summary": "Sensitive web paths or administrative interfaces were discovered during directory brute-forcing.",
+                "remediation": "Disable directory browsing (autoindex off), restrict access via authentication or IP whitelists."
+            },
+            "SUBDOMAIN_ENUM": {
+                "title": "Subdomain Asset Discovery",
+                "severity": "LOW",
+                "cvss": 3.8,
+                "summary": "Active subdomains mapped to target infrastructure. Increases external attack surface.",
+                "remediation": "Audit DNS records for subdomain takeover vulnerabilities and decommission orphaned domains."
+            },
+            "SECRET_LEAK": {
+                "title": "High-Risk Secret Key / Token Leak",
+                "severity": "CRITICAL",
+                "cvss": 9.3,
+                "summary": "API keys, cryptographic tokens, or sensitive credentials detected in page source or crawled files.",
+                "remediation": "Immediately revoke, rotate, and invalidate the exposed secret tokens. Scrub from git history."
+            },
+            "WIRELESS_HANDSHAKE": {
+                "title": "WPA/WPA2 4-Way Handshake Captured",
+                "severity": "HIGH",
+                "cvss": 7.5,
+                "summary": "EAPOL 4-way authentication handshake or PMKID captured from wireless access point.",
+                "remediation": "Transition to WPA3-Enterprise (SAE) encryption and enforce complex 20+ character wireless passphrases."
+            },
+            "WPS_WIFI_AUDIT": {
+                "title": "Vulnerable WPS PIN Enabled",
+                "severity": "HIGH",
+                "cvss": 7.2,
+                "summary": "Target Access Point has Wi-Fi Protected Setup (WPS) enabled, vulnerable to brute-force PIN attacks.",
+                "remediation": "Permanently disable WPS in router firmware configuration."
+            },
+            "BRUTE_FORCE": {
+                "title": "Active Authentication Attack Vector",
+                "severity": "HIGH",
+                "cvss": 7.5,
+                "summary": "Login authentication service exposed and susceptible to credential dictionary attacks.",
+                "remediation": "Implement Fail2ban account lockouts, rate limiting, and Multi-Factor Authentication (MFA)."
+            },
+            "METAGOOFIL_DOC_EXTRACT": {
+                "title": "Public Document Metadata Leakage",
+                "severity": "LOW",
+                "cvss": 3.5,
+                "summary": "Internal employee names, software versions, and local filepaths extracted from public documents.",
+                "remediation": "Scrub document EXIF properties and author usernames prior to public publication."
+            },
+            "AMASS_ENUM_ACTIVE": {
+                "title": "External Attack Surface Expansion",
+                "severity": "MEDIUM",
+                "cvss": 4.5,
+                "summary": "DNS zone transfers and certificate transparency logs mapped to target infrastructure.",
+                "remediation": "Review external attack surface and ensure unneeded development staging servers are unexposed."
+            },
+            "HASH_CRACKING_ACTIVE": {
+                "title": "Weak Password Hash Compromised",
+                "severity": "HIGH",
+                "cvss": 8.2,
+                "summary": "Password hash matched against dictionary wordlists and cracked.",
+                "remediation": "Upgrade legacy MD5/SHA1/NTLM password hashes to Argon2id or bcrypt with high work factors."
+            },
+            "SQL_INJECTION": {
+                "title": "Critical SQL Injection (SQLi)",
+                "severity": "CRITICAL",
+                "cvss": 9.8,
+                "summary": "Database injection point detected in dynamic query parameters.",
+                "remediation": "Use parameterized queries (Prepared Statements) with bound parameters."
+            }
+        }
+
+        entry = realtime_map.get(ev, {
+            "title": f"Security Event: {ev}",
+            "severity": "MEDIUM",
+            "cvss": 5.0,
+            "summary": detail or f"Live event {ev} observed during tool execution.",
+            "remediation": "Review scan findings and restrict exposed attack vectors."
+        })
+
+        return {
+            "event": ev,
+            "title": entry["title"],
+            "severity": entry["severity"],
+            "cvss": entry["cvss"],
+            "summary": entry["summary"],
+            "remediation": entry["remediation"],
+            "detail": detail,
+            "tool": tool_name
+        }
+
+    @staticmethod
+    def get_realtime_stream_summary(tool_name: str, active_ports: list, active_events: list, target: str = "") -> str:
+        """Generate dynamic, real-time AI summary as scan runs or finishes."""
+        tool_clean = (tool_name or "Scanner").upper()
+        target_str = target or "Target Host"
+        
+        lines = [
+            f"⚡ **REAL-TIME AI COPILOT TELEMETRY**",
+            f"**Active Tool:** `{tool_clean}` | **Target:** `{target_str}`",
+            f"**Discovered Ports:** `{active_ports if active_ports else 'None yet'}`",
+            f"**Detected Signals:** `{active_events if active_events else 'None yet'}`",
+            ""
+        ]
+
+        if active_events:
+            lines.append("🔴 **Live Vulnerability & Event Signals:**")
+            for ev in active_events[:4]:
+                diag = AICopilot.analyze_realtime_event(ev, tool_name=tool_name)
+                lines.append(f"• **[{diag['severity']}] {diag['title']}** (CVSS {diag['cvss']})")
+                lines.append(f"  *Impact:* {diag['summary']}")
+                lines.append(f"  *Fix:* {diag['remediation']}")
+            lines.append("")
+
+        if active_ports:
+            lines.append("🔍 **Live Port Attack Surface Analysis:**")
+            for p in active_ports[:3]:
+                if p in AICopilot.PORT_MAPPINGS:
+                    pm = AICopilot.PORT_MAPPINGS[p]
+                    lines.append(f"• **Port {p} ({pm['title']}):** {pm['description']}")
+            lines.append("")
+
+        if not active_events and not active_ports:
+            lines.append("🟢 **Telemetry Status:** Tool stream active. Monitoring stdout stream for live ports, credentials, and vulnerability signatures.")
+
+        return "\n".join(lines)
+
+    @staticmethod
     def query_llm(context_info: str = "", user_prompt: str = "") -> str:
         """Main AI query router. Selects provider based on user config with environment fallback."""
         config = load_config()
