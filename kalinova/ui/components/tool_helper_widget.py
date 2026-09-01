@@ -72,18 +72,23 @@ class ToolHelperWidget(QFrame):
         accepted = self.tool_info.get("accepted_inputs", [])
         if accepted:
             formats_text = " • ".join(accepted)
-            formats_label = QLabel(f"📌 Accepted Target Formats: {formats_text}")
-            formats_label.setStyleSheet("font-size: 11px; color: #64748b;")
-            formats_label.setWordWrap(True)
-            layout.addWidget(formats_label)
+            self.formats_label = QLabel(f"📌 Accepted Target Formats: {formats_text}")
+            self.formats_label.setStyleSheet("font-size: 11px; color: #64748b;")
+            self.formats_label.setWordWrap(True)
+            layout.addWidget(self.formats_label)
+        else:
+            self.formats_label = None
 
-        # 4. Best Practice Pro-Tip
+        # 4. Best Practice Pro-Tip (Hidden until user types input)
         tip = self.tool_info.get("best_practices", "")
         if tip:
-            tip_label = QLabel(f"⚡ Pro-Tip: {tip}")
-            tip_label.setStyleSheet("font-size: 11px; color: #f59e0b; font-style: italic;")
-            tip_label.setWordWrap(True)
-            layout.addWidget(tip_label)
+            self.tip_label = QLabel(f"⚡ Pro-Tip: {tip}")
+            self.tip_label.setStyleSheet("font-size: 11px; color: #f59e0b; font-style: italic;")
+            self.tip_label.setWordWrap(True)
+            self.tip_label.setVisible(False)
+            layout.addWidget(self.tip_label)
+        else:
+            self.tip_label = None
 
     def validate_text(self, text: str):
         """Live slot called whenever user types in the target input box."""
@@ -95,11 +100,17 @@ class ToolHelperWidget(QFrame):
             self.status_badge.setStyleSheet("background-color: #1e293b; color: #94a3b8; font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 4px;")
             self.validation_label.setText("Enter a target IP or domain above to activate live AI guidance & tool suggestions.")
             self.validation_label.setStyleSheet("font-size: 11px; color: #94a3b8;")
+            if self.tip_label:
+                self.tip_label.setVisible(False)
         elif is_valid:
             self.status_badge.setText("VALID INPUT")
             self.status_badge.setStyleSheet("background-color: #064e3b; color: #34d399; font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 4px; border: 1px solid #059669;")
             self.validation_label.setStyleSheet("font-size: 11px; color: #34d399;")
+            if self.tip_label:
+                self.tip_label.setVisible(True)
         else:
             self.status_badge.setText("FORMAT ERROR")
             self.status_badge.setStyleSheet("background-color: #450a0a; color: #f87171; font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 4px; border: 1px solid #dc2626;")
             self.validation_label.setStyleSheet("font-size: 11px; color: #f87171;")
+            if self.tip_label:
+                self.tip_label.setVisible(True)

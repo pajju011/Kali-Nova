@@ -117,8 +117,8 @@ class PortAdvisorWidget(QFrame):
 
     def on_profile_changed(self, index: int):
         if index <= 0:
-            self.desc_label.setText("Select a strategic port profile above to view scan recommendations and target port sets.")
-            self.rationale_label.setText("💡 Strategy: Standing by for user selection.")
+            self.desc_label.setText("Select a strategic port profile above or enter target input to view scan recommendations.")
+            self.rationale_label.setText("")
             self.apply_btn.setEnabled(False)
         elif 1 <= index < len(self.profile_keys):
             key = self.profile_keys[index]
