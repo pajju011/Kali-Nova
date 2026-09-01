@@ -217,3 +217,35 @@ def get_wireless_interfaces() -> List[str]:
         return (1, name)
 
     return sorted(list(dict.fromkeys(wireless_ifaces)), key=sort_key)
+
+
+def get_kali_wordlists() -> List[str]:
+    """
+    Discovers standard security wordlists on Kali Linux (/usr/share/wordlists)
+    and returns a list of valid wordlist paths.
+    """
+    wordlists = []
+    base_dir = Path("/usr/share/wordlists")
+    candidates = [
+        base_dir / "rockyou.txt",
+        base_dir / "dirb" / "common.txt",
+        base_dir / "dirb" / "big.txt",
+        base_dir / "dirbuster" / "directory-list-2.3-medium.txt",
+        base_dir / "fasttrack.txt",
+        base_dir / "wfuzz" / "general" / "common.txt",
+        base_dir / "metasploit" / "password.lst"
+    ]
+
+    for candidate in candidates:
+        if candidate.exists():
+            wordlists.append(str(candidate))
+
+    if not wordlists:
+        wordlists = [
+            "/usr/share/wordlists/rockyou.txt",
+            "/usr/share/wordlists/dirb/common.txt",
+            "/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt"
+        ]
+
+    return wordlists
+

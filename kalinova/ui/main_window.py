@@ -136,7 +136,16 @@ class MainWindow(QMainWindow):
             if hasattr(page, "ai_assist_requested"):
                 page.ai_assist_requested.connect(self._handle_in_tool_ai_assist)
 
+        # Connect bottom console input
+        self.console.input_submitted.connect(self._handle_main_console_input)
+
         self._apply_theme()
+
+    def _handle_main_console_input(self, text: str):
+        if self.thread is not None and self.thread.isRunning():
+            self.thread.send_input(text)
+        else:
+            self.execute(text)
 
 
     # =========================

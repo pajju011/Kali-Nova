@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Kali-Nova
+GenericName=Security Control Center
+Comment=PyQt6 desktop control center for ethical security workflows and AI-assisted penetration testing
+Exec=kalinova
+Icon=security-high
+Terminal=false
+Categories=01-info-gathering;02-vulnerability-analysis;03-webapp-analysis;05-password-attacks;06-wireless-attacks;Network;Security;
+Keywords=security;pentest;recon;nmap;wifite;sqlmap;ai;
+StartupNotify=true
+StartupWMClass=kalinova

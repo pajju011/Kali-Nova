@@ -1,9 +1,59 @@
+import re
+import html
+from datetime import datetime
+
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
     QTextEdit, QLabel, QLineEdit
 )
 from PyQt6.QtCore import pyqtSignal
-from datetime import datetime
+
+ANSI_REGEX = re.compile(r'\x1b\[([0-9;]*)m')
+ANSI_COLORS = {
+    "30": "#64748b", "31": "#ef4444", "32": "#22c55e", "33": "#eab308",
+    "34": "#3b82f6", "35": "#d946ef", "36": "#06b6d4", "37": "#f8fafc",
+    "90": "#94a3b8", "91": "#f87171", "92": "#4ade80", "93": "#fde047",
+    "94": "#60a5fa", "95": "#e879f9", "96": "#22d3ee", "97": "#ffffff"
+}
+
+def ansi_to_html(text: str) -> str:
+    """Converts terminal ANSI color escape codes into styled HTML spans."""
+    if not text:
+        return ""
+    if "\x1b[" not in text:
+        return html.escape(text)
+
+    parts = []
+    last_end = 0
+    current_color = None
+    is_bold = False
+
+    for match in ANSI_REGEX.finditer(text):
+        parts.append(html.escape(text[last_end:match.start()]))
+        codes = match.group(1).split(';') if match.group(1) else ['0']
+        for code in codes:
+            if code in ('0', ''):
+                if current_color or is_bold:
+                    parts.append('</span>')
+                    current_color = None
+                    is_bold = False
+            elif code == '1':
+                is_bold = True
+            elif code in ANSI_COLORS:
+                if current_color or is_bold:
+                    parts.append('</span>')
+                current_color = ANSI_COLORS[code]
+                style = f"color: {current_color};"
+                if is_bold:
+                    style += " font-weight: bold;"
+                parts.append(f'<span style="{style}">')
+        last_end = match.end()
+
+    parts.append(html.escape(text[last_end:]))
+    if current_color or is_bold:
+        parts.append('</span>')
+
+    return "".join(parts)
 
 
 class Console(QWidget):
@@ -210,8 +260,13 @@ class Console(QWidget):
 
     def log(self, message):
         timestamp = datetime.now().strftime("%H:%M:%S")
-        formatted_msg = f"[{timestamp}] {message}"
-        self.output.append(formatted_msg)
+        if "\x1b[" in message:
+            rendered = ansi_to_html(message)
+            formatted_html = f'<span style="color: #64748b;">[{timestamp}]</span> {rendered}'
+            self.output.append(formatted_html)
+        else:
+            formatted_msg = f"[{timestamp}] {message}"
+            self.output.append(formatted_msg)
 
     def set_status(self, status, status_type="info"):
         colors = {
