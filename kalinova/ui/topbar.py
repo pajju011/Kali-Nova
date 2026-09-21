@@ -1,8 +1,9 @@
+import os
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QComboBox, QPushButton
 from PyQt6.QtCore import pyqtSignal, QTimer, QSize
 from PyQt6.QtGui import QIcon
 from core.app_state import app_state
-from ui.icon_manager import get_nav_icon_path
+from ui.icon_manager import get_nav_icon_path, get_tool_icon_path
 
 
 class TopBar(QWidget):
@@ -19,6 +20,12 @@ class TopBar(QWidget):
         layout = QHBoxLayout()
         layout.setContentsMargins(16, 10, 16, 10)
         layout.setSpacing(10)
+
+        logo_path = get_tool_icon_path("kalinova")
+        self.logo_label = QLabel()
+        if logo_path and os.path.exists(logo_path):
+            pixmap = QIcon(logo_path).pixmap(24, 24)
+            self.logo_label.setPixmap(pixmap)
 
         self.title = QLabel("KALINOVA")
         self.title.setObjectName("topTitle")
@@ -57,6 +64,7 @@ class TopBar(QWidget):
         self.risk_label.setObjectName("riskLabel")
         self.risk_label.setProperty("riskLevel", "low")
 
+        layout.addWidget(self.logo_label)
         layout.addWidget(self.title)
         layout.addStretch()
         layout.addWidget(self.output_btn)

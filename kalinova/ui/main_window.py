@@ -13,6 +13,9 @@ from ui.console import Console
 from ui.ai_copilot_drawer import AICopilotDrawer
 from core.executor import CommandThread
 from core.app_state import app_state
+from ui.icon_manager import get_tool_icon_path
+from PyQt6.QtGui import QIcon
+import os
 
 
 class MainWindow(QMainWindow):
@@ -24,6 +27,11 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Kalinova")
         self.setGeometry(100, 100, 1300, 800)
         self.showMaximized()
+
+        app_icon_path = get_tool_icon_path("kalinova")
+        if app_icon_path and os.path.exists(app_icon_path):
+            self.setWindowIcon(QIcon(app_icon_path))
+
         self.thread = None
         self._threads = []
         self._thread_consoles = {}

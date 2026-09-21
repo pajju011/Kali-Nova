@@ -75,7 +75,7 @@ class AuthPage(ToolModulePage):
         )
 
     def _create_hydra_panel(self):
-        panel, layout = self.create_panel("⚡ Hydra Brute Force")
+        panel, layout = self.create_panel("Hydra Network Logon Brute Force", "hydra")
 
         self.hydra_target_input = QLineEdit()
         self.hydra_target_input.setPlaceholderText("Enter target IP")
@@ -97,7 +97,7 @@ class AuthPage(ToolModulePage):
         self.browse_btn = self.create_secondary_button("Browse Wordlist")
         self.browse_btn.clicked.connect(self.select_wordlist)
 
-        self.hydra_btn = self.create_primary_button("Run Hydra")
+        self.hydra_btn = self.create_primary_button("Run Hydra", "hydra")
         self.hydra_btn.clicked.connect(self.build_hydra)
 
         layout.addWidget(QLabel("Target IP"))
@@ -115,7 +115,7 @@ class AuthPage(ToolModulePage):
         return panel
 
     def _create_john_panel(self):
-        panel, layout = self.create_panel("🔨 John the Ripper")
+        panel, layout = self.create_panel("John the Ripper Hash Cracker", "john")
 
         self.hash_file = QLineEdit()
         self.hash_file.setPlaceholderText("Select hash file")
@@ -129,7 +129,7 @@ class AuthPage(ToolModulePage):
         self.browse_john_wordlist = self.create_secondary_button("Browse Wordlist")
         self.browse_john_wordlist.clicked.connect(self.select_john_wordlist)
 
-        self.john_btn = self.create_primary_button("Run John")
+        self.john_btn = self.create_primary_button("Run John the Ripper", "john")
         self.john_btn.clicked.connect(self.build_john)
 
         layout.addWidget(QLabel("Hash File"))
@@ -144,7 +144,7 @@ class AuthPage(ToolModulePage):
         return panel
 
     def _create_hashcat_panel(self):
-        panel, layout = self.create_panel("⚡ Hashcat Password Recovery Engine")
+        panel, layout = self.create_panel("Hashcat Password Recovery Engine", "hashcat")
 
         from PyQt6.QtWidgets import QCheckBox, QHBoxLayout
 
@@ -191,7 +191,7 @@ class AuthPage(ToolModulePage):
         self.chk_hashcat_optimized.setChecked(True)
         self.chk_hashcat_force = QCheckBox("Ignore Warnings (--force)")
 
-        self.hashcat_btn = self.create_primary_button("Run Hashcat")
+        self.hashcat_btn = self.create_primary_button("Run Hashcat", "hashcat")
         self.hashcat_btn.clicked.connect(self.build_hashcat)
 
         layout.addWidget(QLabel("Hash File / Hash Target"))
@@ -216,10 +216,10 @@ class AuthPage(ToolModulePage):
         return panel
 
     def _create_hash_identifier_panel(self):
-        panel, layout = self.create_panel("🔎 Hash Identifier")
+        panel, layout = self.create_panel("Hash Identifier", "hashid")
         self.hash_input = QLineEdit()
         self.hash_input.setPlaceholderText("Enter hash to identify")
-        self.hash_btn = self.create_primary_button("Identify Hash")
+        self.hash_btn = self.create_primary_button("Identify Hash", "hashid")
         self.hash_btn.clicked.connect(self.build_hash_identifier)
 
         layout.addWidget(QLabel("Hash"))
@@ -229,10 +229,10 @@ class AuthPage(ToolModulePage):
         return panel
 
     def _create_hashid_panel(self):
-        panel, layout = self.create_panel("🔎 HashID")
+        panel, layout = self.create_panel("HashID Identifier", "hashid")
         self.hashid_input = QLineEdit()
         self.hashid_input.setPlaceholderText("Enter hash to identify")
-        self.hashid_btn = self.create_primary_button("Identify with hashid")
+        self.hashid_btn = self.create_primary_button("Identify with HashID", "hashid")
         self.hashid_btn.clicked.connect(self.build_hashid)
 
         layout.addWidget(QLabel("Hash"))
@@ -242,7 +242,7 @@ class AuthPage(ToolModulePage):
         return panel
 
     def _create_ncrack_panel(self):
-        panel, layout = self.create_panel("⚡ Ncrack Network Authentication Cracker")
+        panel, layout = self.create_panel("Ncrack Network Authentication Cracker", "ncrack")
 
         from PyQt6.QtWidgets import QCheckBox
 
@@ -319,7 +319,7 @@ class AuthPage(ToolModulePage):
         self.chk_ncrack_stealthy = QCheckBox("Stealthy Linear mode (--stealthy-linear)")
         self.chk_ncrack_ssl = QCheckBox("Enable SSL (ssl)")
 
-        self.ncrack_btn = self.create_primary_button("Run Ncrack")
+        self.ncrack_btn = self.create_primary_button("Run Ncrack", "ncrack")
         self.ncrack_btn.clicked.connect(self.build_ncrack)
 
         layout.addWidget(QLabel("Target IP / Hostname (or Target List File)"))

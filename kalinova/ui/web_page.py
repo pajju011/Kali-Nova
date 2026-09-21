@@ -68,7 +68,7 @@ class WebPage(ToolModulePage):
         )
 
     def _create_nikto_panel(self):
-        panel, layout = self.create_panel("🔍 Nikto Web Scanner")
+        panel, layout = self.create_panel("Nikto Web Vulnerability Scanner", "nikto")
 
         self.nikto_url = QLineEdit()
         self.nikto_url.setPlaceholderText("Enter target URL (http://example.com)")
@@ -76,7 +76,7 @@ class WebPage(ToolModulePage):
         self.ssl_option = QComboBox()
         self.ssl_option.addItems(["Auto Detect", "Force SSL"])
 
-        self.nikto_btn = self.create_primary_button("Run Nikto")
+        self.nikto_btn = self.create_primary_button("Run Nikto", "nikto")
         self.nikto_btn.clicked.connect(self.build_nikto)
 
         layout.addWidget(QLabel("Target URL"))
@@ -89,7 +89,7 @@ class WebPage(ToolModulePage):
         return panel
 
     def _create_sqlmap_panel(self):
-        panel, layout = self.create_panel("💉 SQLmap Injection Testing")
+        panel, layout = self.create_panel("SQLmap Injection Testing", "sqlmap")
 
         self.sqlmap_url = QLineEdit()
         self.sqlmap_url.setPlaceholderText(
@@ -103,7 +103,7 @@ class WebPage(ToolModulePage):
             "Level 5 (Aggressive)",
         ])
 
-        self.sqlmap_btn = self.create_primary_button("Run SQLmap")
+        self.sqlmap_btn = self.create_primary_button("Run SQLmap", "sqlmap")
         self.sqlmap_btn.clicked.connect(self.build_sqlmap)
 
         layout.addWidget(QLabel("Target URL"))
@@ -116,7 +116,7 @@ class WebPage(ToolModulePage):
         return panel
 
     def _create_gobuster_panel(self):
-        panel, layout = self.create_panel("🔓 Gobuster Directory Brute Force")
+        panel, layout = self.create_panel("Gobuster Directory Brute Force", "gobuster")
 
         self.gobuster_url = QLineEdit()
         self.gobuster_url.setPlaceholderText("Enter target URL (http://example.com)")
@@ -127,7 +127,7 @@ class WebPage(ToolModulePage):
         self.browse_btn = self.create_secondary_button("Browse Wordlist")
         self.browse_btn.clicked.connect(self.select_wordlist)
 
-        self.gobuster_btn = self.create_primary_button("Run Gobuster")
+        self.gobuster_btn = self.create_primary_button("Run Gobuster", "gobuster")
         self.gobuster_btn.clicked.connect(self.build_gobuster)
 
         layout.addWidget(QLabel("Target URL"))
@@ -141,12 +141,12 @@ class WebPage(ToolModulePage):
         return panel
 
     def _create_wfuzz_panel(self):
-        panel, layout = self.create_panel("🕸️ Wfuzz Web Fuzzer")
+        panel, layout = self.create_panel("Wfuzz Web Application Fuzzer", "wfuzz")
 
         self.wfuzz_url_input = QLineEdit()
         self.wfuzz_url_input.setPlaceholderText("Enter URL with FUZZ placeholder (e.g., http://example.com/FUZZ)")
 
-        self.wfuzz_btn = self.create_primary_button("Run Wfuzz")
+        self.wfuzz_btn = self.create_primary_button("Run Wfuzz", "wfuzz")
         self.wfuzz_btn.clicked.connect(self.build_wfuzz)
 
         layout.addWidget(QLabel("Target URL"))
@@ -235,7 +235,7 @@ class WebPage(ToolModulePage):
             self.wordlist_path.setText(file_path)
 
     def _create_whatweb_panel(self):
-        panel, layout = self.create_panel("🌐 WhatWeb - Next Generation Web Scanner")
+        panel, layout = self.create_panel("WhatWeb Technology Identifier", "whatweb")
 
         self.whatweb_url = QLineEdit()
         self.whatweb_url.setPlaceholderText("Enter Target URL, IP, or range (e.g. 192.168.0.102)")
@@ -279,7 +279,7 @@ class WebPage(ToolModulePage):
         out_layout.addWidget(self.chk_whatweb_no_errors)
         out_group.setLayout(out_layout)
 
-        self.whatweb_btn = self.create_primary_button("Run WhatWeb")
+        self.whatweb_btn = self.create_primary_button("Run WhatWeb", "whatweb")
         self.whatweb_btn.clicked.connect(self.build_whatweb)
 
         layout.addWidget(QLabel("Target URL/IP"))

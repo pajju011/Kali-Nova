@@ -16,6 +16,24 @@ def get_icons_dir() -> Path:
 
 TOOL_SVG_MAP: Dict[str, str] = {
     # ---------------------------------------------------------
+    # Official Kali-Nova Brand & System Logos
+    # ---------------------------------------------------------
+    "kalinova": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="kaliGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <path d="M32 4 L56 14 V32 C56 48 32 60 32 60 C32 60 8 48 8 32 V14 Z" fill="#0b1220" stroke="url(#kaliGrad)" stroke-width="2.8" stroke-linejoin="round"/>
+  <path d="M32 12 C36 18 44 20 44 28 C44 36 36 42 32 46 C28 42 20 36 20 28 C20 20 28 18 32 12 Z" fill="none" stroke="#00f0ff" stroke-width="2" stroke-linejoin="round"/>
+  <polygon points="32,20 36,28 32,36 28,28" fill="#38bdf8"/>
+  <circle cx="32" cy="28" r="2.5" fill="#f8fafc"/>
+  <line x1="22" y1="28" x2="42" y2="28" stroke="#00f0ff" stroke-width="1.5" stroke-opacity="0.7"/>
+</svg>""",
+
+    # ---------------------------------------------------------
     # Reconnaissance & OSINT Tools
     # ---------------------------------------------------------
     "nmap": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
