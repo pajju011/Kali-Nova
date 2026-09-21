@@ -46,7 +46,7 @@ As of code inspection on 2026-07-29:
 ```text
 kalinova/
 ├── main.py                     # Entry point for PyQt6 application
-├── config.py                   # Configuration placeholders
+├── config.py                   # User configuration & AI provider settings
 ├── kalinova.db                 # SQLite scan history database
 ├── README.md                   # Project documentation & guidelines
 ├── core/
@@ -55,26 +55,27 @@ kalinova/
 │   ├── database.py            # SQLite database persistence layer
 │   ├── executor.py            # Process execution pipeline & output streaming
 │   ├── log_manager.py         # Session log persistence
+│   ├── pipeline_manager.py    # Cross-tool data ingestion & target handoff
+│   ├── port_advisor.py        # Port detection & intelligence advisor
 │   ├── port_parser.py         # Output parser for open port detection
 │   ├── report_generator.py    # ReportLab PDF report compiler
 │   ├── risk_engine.py         # Risk scoring calculation logic
-│   └── suggestion_engine.py   # Automated next-action recommendation engine
-├── parser/
-│   ├── nmap_parser.py         # Specialized Nmap output parser
-│   └── web_parser.py          # Specialized Web scanner parser
-├── tools/
-│   ├── nikto_gui.py           # Nikto GUI command builder
-│   ├── nmap_gui.py            # Nmap GUI command builder
-│   └── whois_gui.py           # Whois GUI command builder
+│   ├── suggestion_engine.py   # Automated next-action recommendation engine
+│   ├── system_utils.py        # Root/sudo elevation & wireless interface discovery
+│   ├── tool_guide.py          # Comprehensive cybersecurity tool database
+│   └── ml/                    # ML Scenario Advisor and feature extractors
 ├── ui/
+│   ├── ai_copilot_drawer.py   # Sliding AI Copilot drawer with Markdown rendering
 │   ├── auth_page.py           # Authentication & Password tools page
-│   ├── console.py             # Live console output stream widget
-│   ├── dashboard_page.py      # Master intelligence dashboard & AI Copilot UI
+│   ├── components/            # Modular UI cards & port helper widgets
+│   ├── console.py             # Live console output stream & interactive stdin widget
+│   ├── dashboard_page.py      # Master intelligence dashboard & telemetry HUD
+│   ├── icon_manager.py        # Vector cybersecurity icon generator & cache
 │   ├── main_window.py         # Main application window & router
 │   ├── network_page.py        # Network analysis & Wireless tools page
 │   ├── recon_page.py          # Reconnaissance tools page
 │   ├── reports_page.py        # SQLite history browser & report exporter
-│   ├── settings_page.py       # Configuration & mode toggle settings
+│   ├── settings_page.py       # Configuration, privilege elevation & mode toggle
 │   ├── sidebar.py             # Main navigation sidebar
 │   ├── tool_icon_button.py    # Standardized tool action buttons
 │   ├── tool_template.py       # Base GUI layout for security tool forms
@@ -82,11 +83,7 @@ kalinova/
 │   ├── topology_widget.py     # 20 FPS animated network topology canvas
 │   ├── web_page.py            # Web vulnerability scanner page
 │   └── workspace.py           # Active execution workspace container
-└── tests/
-    ├── test_executor_behavior.py      # Executor subprocess test cases
-    ├── test_main_window_behavior.py   # UI navigation & main window tests
-    ├── test_professional_suite.py     # End-to-end professional workflow suite
-    └── test_tool_ui_behavior.py       # Tool form input & command generation tests
+└── tests/                     # Automated unit and integration test suite
 ```
 
 ## Runtime Flow

@@ -1,10 +1,13 @@
 import os
+# pyrefly: ignore [missing-import]
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QMessageBox, QTableWidget, QTableWidgetItem,
     QTextEdit, QScrollArea, QFrame, QFileDialog, QHeaderView
 )
+# pyrefly: ignore [missing-import]
 from PyQt6.QtCore import Qt
+# pyrefly: ignore [missing-import]
 from PyQt6.QtGui import QFont, QColor
 
 from core.database import DatabaseManager
@@ -125,7 +128,7 @@ class ReportsPage(QWidget):
 
         # Header Title
         title_layout = QVBoxLayout()
-        header_title = QLabel("▲ KALINOVA OS // HISTORICAL DOSSIERS")
+        header_title = QLabel("▲ KALINOVA // HISTORICAL DOSSIERS")
         header_title.setStyleSheet("font-size: 20px; font-weight: 800; color: #00f0ff; letter-spacing: 1px;")
         header_subtitle = QLabel("PERSISTENT SESSION LOGS, DIAGNOSTICS & CLIENT EXPORTERS")
         header_subtitle.setStyleSheet("font-size: 10px; font-weight: 600; color: #64748b; letter-spacing: 0.5px;")
@@ -392,7 +395,7 @@ class ReportsPage(QWidget):
 
             findings = AICopilot.diagnose(events, ports)
 
-            md = f"""# Kalinova OS // Penetration Testing Assessment Report
+            md = f"""# Kalinova // Penetration Testing Assessment Report
 
 An offline-first, professional cybersecurity audit dossier generated automatically by **Kalinova Security Command Suite**.
 
@@ -654,7 +657,7 @@ The following console log represents the exact raw output gathered during tool e
 <body>
     <div class="container">
         <header>
-            <h1>KALINOVA OS // SECURITY DOSSIER</h1>
+            <h1>KALINOVA // SECURITY DOSSIER</h1>
             <div class="subtitle">Client Penetration Testing Assessment Report</div>
         </header>
 

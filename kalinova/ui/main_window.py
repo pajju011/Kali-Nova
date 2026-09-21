@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setObjectName("mainWindow")
-        self.setWindowTitle("Kalinova OS")
+        self.setWindowTitle("Kalinova")
         self.setGeometry(100, 100, 1300, 800)
         self.showMaximized()
         self.thread = None
@@ -136,7 +136,16 @@ class MainWindow(QMainWindow):
             if hasattr(page, "ai_assist_requested"):
                 page.ai_assist_requested.connect(self._handle_in_tool_ai_assist)
 
+        # Connect bottom console input
+        self.console.input_submitted.connect(self._handle_main_console_input)
+
         self._apply_theme()
+
+    def _handle_main_console_input(self, text: str):
+        if self.thread is not None and self.thread.isRunning():
+            self.thread.send_input(text)
+        else:
+            self.execute(text)
 
 
     # =========================
@@ -159,6 +168,7 @@ class MainWindow(QMainWindow):
             )
         )
         thread.finished_signal.connect(lambda t=thread: self._on_thread_finished(t))
+        tab_console.input_submitted.connect(lambda text, t=thread: t.send_input(text))
 
         self.thread = thread
         self._threads.append(thread)
@@ -513,6 +523,7 @@ class MainWindow(QMainWindow):
         self._set_main_status(f"⚠️  {message}", "error")
         import os
         if os.environ.get("QT_QPA_PLATFORM") != "offscreen":
+            # pyrefly: ignore [missing-import]
             from PyQt6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Configuration Required", message)
 

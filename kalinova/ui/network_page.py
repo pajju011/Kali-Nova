@@ -5,8 +5,26 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, pyqtSignal
 
+from core.system_utils import get_wireless_interfaces
 from ui.tool_template import ToolModulePage
 from ui.icon_manager import get_tool_icon_path
+
+
+class InterfaceComboBox(QComboBox):
+    """Editable interface combobox with dynamic discovery and backward-compatible setText/text API."""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setEditable(True)
+        self.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
+        if self.lineEdit():
+            self.lineEdit().setPlaceholderText("e.g. wlan0mon")
+        self.setEditText("")
+
+    def setText(self, text: str):
+        self.setEditText(text)
+
+    def text(self) -> str:
+        return self.currentText().strip()
 
 
 class NetworkPage(ToolModulePage):
@@ -20,6 +38,8 @@ class NetworkPage(ToolModulePage):
             subtitle="Select a network tool to configure commands before execution.",
         )
 
+        self._interface_combos = []
+
         self.netcat_panel = self._create_netcat_panel()
         self.wireshark_panel = self._create_wireshark_panel()
         self.wifite_panel = self._create_wifite_panel()
@@ -29,6 +49,9 @@ class NetworkPage(ToolModulePage):
         self.sslscan_panel = self._create_sslscan_panel()
         self.sslyze_panel = self._create_sslyze_panel()
         self.tlssled_panel = self._create_tlssled_panel()
+
+        # Initial interface discovery
+        self.refresh_interfaces()
 
         self.add_tool(
             tool_id="netcat",
@@ -147,6 +170,43 @@ class NetworkPage(ToolModulePage):
 
         return panel
 
+    def refresh_interfaces(self):
+        """Discovers and updates wireless interfaces across all wireless tool panels."""
+        interfaces = get_wireless_interfaces()
+        for combo in getattr(self, "_interface_combos", []):
+            curr = combo.text()
+            combo.blockSignals(True)
+            combo.clear()
+            combo.addItem("")
+            combo.addItems(interfaces)
+            combo.setText(curr)
+            combo.blockSignals(False)
+
+    def _create_interface_row(self, combo: InterfaceComboBox) -> QHBoxLayout:
+        row = QHBoxLayout()
+        row.addWidget(combo, 1)
+        refresh_btn = QPushButton("🔄")
+        refresh_btn.setToolTip("Scan and refresh active network/wireless interfaces")
+        refresh_btn.setFixedWidth(32)
+        refresh_btn.setStyleSheet("""
+            QPushButton {
+                padding: 4px 6px;
+                font-size: 12px;
+                background-color: #1a2438;
+                border: 1px solid #3a4a6c;
+                border-radius: 6px;
+                color: #8ea2c5;
+            }
+            QPushButton:hover {
+                background-color: #24324f;
+                color: #00f0ff;
+                border-color: #00f0ff;
+            }
+        """)
+        refresh_btn.clicked.connect(self.refresh_interfaces)
+        row.addWidget(refresh_btn, 0)
+        return row
+
     def _create_wifite_panel(self):
         panel, layout = self.create_panel("📡 Wifite 2 Wireless Auditor")
 
@@ -173,9 +233,9 @@ class NetworkPage(ToolModulePage):
         row_iface = QHBoxLayout()
         v_iface = QVBoxLayout()
         v_iface.addWidget(QLabel("Wireless Interface (-i)"))
-        self.wifite_interface_input = QLineEdit()
-        self.wifite_interface_input.setPlaceholderText("e.g. wlan0mon")
-        v_iface.addWidget(self.wifite_interface_input)
+        self.wifite_interface_input = InterfaceComboBox()
+        self._interface_combos.append(self.wifite_interface_input)
+        v_iface.addLayout(self._create_interface_row(self.wifite_interface_input))
 
         v_chan = QVBoxLayout()
         v_chan.addWidget(QLabel("Channel (-c)"))
@@ -442,8 +502,8 @@ root@kali:~# tlssled 192.168.1.1 443
     def _create_wash_panel(self):
         panel, layout = self.create_panel("📶 Wash - WPS WiFi Scanner")
 
-        self.wash_interface_input = QLineEdit()
-        self.wash_interface_input.setPlaceholderText("Monitor Interface (e.g. wlan0mon)")
+        self.wash_interface_input = InterfaceComboBox()
+        self._interface_combos.append(self.wash_interface_input)
 
         self.wash_channel_input = QLineEdit()
         self.wash_channel_input.setPlaceholderText("Channel (e.g. 6) [Optional]")
@@ -463,7 +523,7 @@ root@kali:~# tlssled 192.168.1.1 443
         self.wash_btn.clicked.connect(self.build_wash)
 
         layout.addWidget(QLabel("Interface"))
-        layout.addWidget(self.wash_interface_input)
+        layout.addLayout(self._create_interface_row(self.wash_interface_input))
         layout.addWidget(QLabel("Channel"))
         layout.addWidget(self.wash_channel_input)
         layout.addWidget(QLabel("Output Pcap"))
@@ -482,8 +542,8 @@ root@kali:~# tlssled 192.168.1.1 443
     def _create_reaver_panel(self):
         panel, layout = self.create_panel("🔨 Reaver - WPS Attack & PIN Cracker")
 
-        self.reaver_interface_input = QLineEdit()
-        self.reaver_interface_input.setPlaceholderText("Monitor Interface (e.g. wlan0mon)")
+        self.reaver_interface_input = InterfaceComboBox()
+        self._interface_combos.append(self.reaver_interface_input)
 
         self.reaver_bssid_input = QLineEdit()
         self.reaver_bssid_input.setPlaceholderText("Target BSSID (MAC e.g. E0:3F:49:6A:57:78)")
@@ -521,7 +581,7 @@ root@kali:~# tlssled 192.168.1.1 443
         self.reaver_btn.clicked.connect(self.build_reaver)
 
         layout.addWidget(QLabel("Interface"))
-        layout.addWidget(self.reaver_interface_input)
+        layout.addLayout(self._create_interface_row(self.reaver_interface_input))
         layout.addWidget(QLabel("Target BSSID"))
         layout.addWidget(self.reaver_bssid_input)
         layout.addWidget(QLabel("Target ESSID"))
@@ -714,9 +774,9 @@ root@kali:~# tlssled 192.168.1.1 443
         row_cfg = QHBoxLayout()
         v_rec = QVBoxLayout()
         v_rec.addWidget(QLabel("Recording Interface (--recordinterface)"))
-        self.sparrow_record_iface_input = QLineEdit()
-        self.sparrow_record_iface_input.setPlaceholderText("e.g. wlan0mon")
-        v_rec.addWidget(self.sparrow_record_iface_input)
+        self.sparrow_record_iface_input = InterfaceComboBox()
+        self._interface_combos.append(self.sparrow_record_iface_input)
+        v_rec.addLayout(self._create_interface_row(self.sparrow_record_iface_input))
 
         v_cfgfile = QVBoxLayout()
         v_cfgfile.addWidget(QLabel("Config File (--cfgfile)"))

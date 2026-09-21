@@ -6,7 +6,6 @@ from PyQt6.QtCore import pyqtSignal
 
 from core.app_state import app_state
 from ui.tool_template import ToolModulePage
-from ui.components.tool_helper_widget import ToolHelperWidget
 from ui.icon_manager import get_tool_icon_path
 
 
@@ -74,9 +73,6 @@ class WebPage(ToolModulePage):
         self.nikto_url = QLineEdit()
         self.nikto_url.setPlaceholderText("Enter target URL (http://example.com)")
 
-        self.nikto_helper = ToolHelperWidget("nikto")
-        self.nikto_url.textChanged.connect(self.nikto_helper.validate_text)
-
         self.ssl_option = QComboBox()
         self.ssl_option.addItems(["Auto Detect", "Force SSL"])
 
@@ -85,7 +81,6 @@ class WebPage(ToolModulePage):
 
         layout.addWidget(QLabel("Target URL"))
         layout.addWidget(self.nikto_url)
-        layout.addWidget(self.nikto_helper)
         layout.addWidget(QLabel("SSL Option"))
         layout.addWidget(self.ssl_option)
         layout.addWidget(self.nikto_btn)
@@ -101,9 +96,6 @@ class WebPage(ToolModulePage):
             "Enter URL with parameter (http://site.com/page?id=1)"
         )
 
-        self.sqlmap_helper = ToolHelperWidget("sqlmap")
-        self.sqlmap_url.textChanged.connect(self.sqlmap_helper.validate_text)
-
         self.sqlmap_level = QComboBox()
         self.sqlmap_level.addItems([
             "Level 1 (Basic)",
@@ -116,7 +108,6 @@ class WebPage(ToolModulePage):
 
         layout.addWidget(QLabel("Target URL"))
         layout.addWidget(self.sqlmap_url)
-        layout.addWidget(self.sqlmap_helper)
         layout.addWidget(QLabel("Detection Level"))
         layout.addWidget(self.sqlmap_level)
         layout.addWidget(self.sqlmap_btn)
@@ -130,9 +121,6 @@ class WebPage(ToolModulePage):
         self.gobuster_url = QLineEdit()
         self.gobuster_url.setPlaceholderText("Enter target URL (http://example.com)")
 
-        self.gobuster_helper = ToolHelperWidget("gobuster")
-        self.gobuster_url.textChanged.connect(self.gobuster_helper.validate_text)
-
         self.wordlist_path = QLineEdit()
         self.wordlist_path.setPlaceholderText("Select wordlist file")
 
@@ -144,7 +132,6 @@ class WebPage(ToolModulePage):
 
         layout.addWidget(QLabel("Target URL"))
         layout.addWidget(self.gobuster_url)
-        layout.addWidget(self.gobuster_helper)
         layout.addWidget(QLabel("Wordlist"))
         layout.addWidget(self.wordlist_path)
         layout.addWidget(self.browse_btn)

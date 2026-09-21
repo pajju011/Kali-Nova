@@ -136,6 +136,17 @@ class SettingsPage(QWidget):
         self.mode_combo = QComboBox()
         self.mode_combo.addItems(["Professional", "Beginner"])
 
+        # 6. Privilege Escalation Mode
+        elevation_lbl = QLabel("Linux Root / Sudo Privilege Escalation:")
+        elevation_lbl.setProperty("class", "settingLabel")
+        self.elevation_combo = QComboBox()
+        self.elevation_combo.addItems([
+            "Auto-Elevate (PolicyKit / pkexec / sudo)",
+            "PolicyKit Prompt (pkexec)",
+            "Sudo Elevation (sudo)",
+            "Disabled (Direct Execution)"
+        ])
+
         # Assembly to Card
         card_layout.addWidget(provider_lbl)
         card_layout.addWidget(self.provider_combo)
@@ -151,6 +162,9 @@ class SettingsPage(QWidget):
 
         card_layout.addWidget(mode_lbl)
         card_layout.addWidget(self.mode_combo)
+
+        card_layout.addWidget(elevation_lbl)
+        card_layout.addWidget(self.elevation_combo)
 
         main_layout.addWidget(card)
 
@@ -195,11 +209,20 @@ class SettingsPage(QWidget):
         }
         self.provider_combo.setCurrentIndex(provider_map.get(provider, 0))
         self.apikey_input.setText(config.get("api_key", ""))
-        self.model_input.setText(config.get("model", "gemini-1.5-flash"))
+        self.model_input.setText(config.get("model", "gemini-2.0-flash"))
         self.ollama_input.setText(config.get("ollama_url", "http://localhost:11434"))
 
         mode = config.get("app_mode", "Professional")
         self.mode_combo.setCurrentIndex(0 if mode == "Professional" else 1)
+
+        elevation = config.get("elevation_method", "auto").lower()
+        elevation_map = {
+            "auto": 0,
+            "pkexec": 1,
+            "sudo": 2,
+            "none": 3
+        }
+        self.elevation_combo.setCurrentIndex(elevation_map.get(elevation, 0))
 
         self._on_provider_changed()
 
@@ -253,12 +276,18 @@ class SettingsPage(QWidget):
         provider_keys = ["gemini", "openai", "ollama", "heuristic"]
         selected_provider = provider_keys[idx]
 
+        elev_idx = self.elevation_combo.currentIndex()
+        elev_keys = ["auto", "pkexec", "sudo", "none"]
+        selected_elevation = elev_keys[elev_idx]
+
         config = {
             "ai_provider": selected_provider,
             "api_key": self.apikey_input.text().strip(),
             "model": self.model_input.text().strip(),
             "ollama_url": self.ollama_input.text().strip(),
-            "app_mode": self.mode_combo.currentText()
+            "app_mode": self.mode_combo.currentText(),
+            "auto_elevate_root": selected_elevation != "none",
+            "elevation_method": selected_elevation
         }
 
         if save_config(config):

@@ -21,7 +21,9 @@ DEFAULT_CONFIG = {
     "api_key": "",
     "model": "gemini-2.0-flash",
     "ollama_url": "http://localhost:11434",
-    "app_mode": "Professional"
+    "app_mode": "Professional",
+    "auto_elevate_root": True,
+    "elevation_method": "auto"  # Options: 'auto', 'pkexec', 'sudo', 'none'
 }
 
 def resolve_api_key(provider: str, explicit_key: str = "") -> str:

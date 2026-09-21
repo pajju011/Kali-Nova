@@ -20,7 +20,7 @@ class TopBar(QWidget):
         layout.setContentsMargins(16, 10, 16, 10)
         layout.setSpacing(10)
 
-        self.title = QLabel("KALINOVA OS")
+        self.title = QLabel("KALINOVA")
         self.title.setObjectName("topTitle")
 
         self.output_btn = QPushButton("📟 Tool Output")
