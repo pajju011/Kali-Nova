@@ -1,8 +1,8 @@
-# pyrefly: ignore [missing-import]
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QComboBox, QPushButton
-# pyrefly: ignore [missing-import]
-from PyQt6.QtCore import pyqtSignal, QTimer
+from PyQt6.QtCore import pyqtSignal, QTimer, QSize
+from PyQt6.QtGui import QIcon
 from core.app_state import app_state
+from ui.icon_manager import get_nav_icon_path
 
 
 class TopBar(QWidget):
@@ -23,13 +23,17 @@ class TopBar(QWidget):
         self.title = QLabel("KALINOVA")
         self.title.setObjectName("topTitle")
 
-        self.output_btn = QPushButton("📟 Tool Output")
+        self.output_btn = QPushButton(" Terminal Output")
         self.output_btn.setObjectName("outputToggleBtn")
+        output_icon_path = get_nav_icon_path("output")
+        if output_icon_path:
+            self.output_btn.setIcon(QIcon(output_icon_path))
+            self.output_btn.setIconSize(QSize(16, 16))
         self.output_btn.setToolTip("Toggle / Slide Output Panel (F9 or Ctrl+O)")
         self.output_btn.clicked.connect(self.toggle_output_signal.emit)
         self.output_btn.setStyleSheet("""
             QPushButton#outputToggleBtn {
-                padding: 6px 12px;
+                padding: 6px 14px;
                 font-size: 12px;
                 font-weight: 600;
                 background-color: #1a273e;
