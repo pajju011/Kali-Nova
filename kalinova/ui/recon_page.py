@@ -90,7 +90,7 @@ class ReconPage(ToolModulePage):
         self.update_mode(app_state.mode)
 
     def _create_nmap_panel(self):
-        panel, layout = self.create_panel("🎯 Nmap Configuration")
+        panel, layout = self.create_panel("Nmap Port Scanner & Service Detection", "nmap")
 
         self.nmap_target = QLineEdit()
         self.nmap_target.setPlaceholderText("Enter target IP or domain")
@@ -108,7 +108,7 @@ class ReconPage(ToolModulePage):
         self.port_input = QLineEdit()
         self.port_input.setPlaceholderText("Custom Port (e.g. 80,443,8080)")
 
-        self.nmap_btn = self.create_primary_button("Run Nmap")
+        self.nmap_btn = self.create_primary_button("Run Nmap", "nmap")
         self.nmap_btn.clicked.connect(self.build_nmap)
 
         layout.addWidget(QLabel("Target IP / Domain"))
@@ -124,12 +124,12 @@ class ReconPage(ToolModulePage):
         return panel
 
     def _create_whois_panel(self):
-        panel, layout = self.create_panel("🌐 Whois Lookup")
+        panel, layout = self.create_panel("Whois Domain & IP Lookup", "whois")
 
         self.whois_target = QLineEdit()
         self.whois_target.setPlaceholderText("Enter domain (example.com)")
 
-        self.whois_btn = self.create_primary_button("Run Whois")
+        self.whois_btn = self.create_primary_button("Run Whois", "whois")
         self.whois_btn.clicked.connect(self.build_whois)
 
         layout.addWidget(QLabel("Domain"))
@@ -140,7 +140,7 @@ class ReconPage(ToolModulePage):
         return panel
 
     def _create_harvester_panel(self):
-        panel, layout = self.create_panel("🕵️ theHarvester OSINT")
+        panel, layout = self.create_panel("theHarvester OSINT Gathering", "harvester")
 
         self.harvester_domain = QLineEdit()
         self.harvester_domain.setPlaceholderText("Enter domain (e.g. target.com)")
@@ -153,7 +153,7 @@ class ReconPage(ToolModulePage):
             "duckduckgo",
         ])
 
-        self.harvester_btn = self.create_primary_button("Run Harvester")
+        self.harvester_btn = self.create_primary_button("Run Harvester", "harvester")
         self.harvester_btn.clicked.connect(self.build_harvester)
 
         layout.addWidget(QLabel("Domain"))
@@ -166,7 +166,7 @@ class ReconPage(ToolModulePage):
         return panel
 
     def _create_metagoofil_panel(self):
-        panel, layout = self.create_panel("📄 Metagoofil - Document Metadata Extractor")
+        panel, layout = self.create_panel("Metagoofil Metadata Extractor", "metagoofil")
 
         self.metagoofil_domain = QLineEdit()
         self.metagoofil_domain.setPlaceholderText("Target Domain (-d) (e.g. kali.org or target.com)")
@@ -217,7 +217,7 @@ class ReconPage(ToolModulePage):
         self.chk_metagoofil_download = QCheckBox("Download files locally (-w)")
         self.chk_metagoofil_download.setChecked(True)
 
-        self.metagoofil_btn = self.create_primary_button("Run Metagoofil")
+        self.metagoofil_btn = self.create_primary_button("Run Metagoofil", "metagoofil")
         self.metagoofil_btn.clicked.connect(self.build_metagoofil)
 
         layout.addWidget(QLabel("Target Domain (-d)"))
@@ -244,7 +244,7 @@ class ReconPage(ToolModulePage):
         return panel
 
     def _create_amass_panel(self):
-        panel, layout = self.create_panel("🕸️ OWASP Amass - Attack Surface & Network Mapper")
+        panel, layout = self.create_panel("OWASP Amass Attack Surface & Network Mapper", "amass")
 
         self.amass_subcommand = QComboBox()
         self.amass_subcommand.addItems([
@@ -274,7 +274,7 @@ class ReconPage(ToolModulePage):
         self.amass_output_file = QLineEdit()
         self.amass_output_file.setPlaceholderText("Save output results to file (-o) (optional)")
 
-        self.amass_btn = self.create_primary_button("Run Amass")
+        self.amass_btn = self.create_primary_button("Run Amass", "amass")
         self.amass_btn.clicked.connect(self.build_amass)
 
         layout.addWidget(QLabel("Operation Mode"))
@@ -297,7 +297,7 @@ class ReconPage(ToolModulePage):
         return panel
 
     def _create_photon_panel(self):
-        panel, layout = self.create_panel("⚡ Photon - OSINT Web Crawler")
+        panel, layout = self.create_panel("Photon OSINT Web Crawler", "photon")
 
         self.photon_url_input = QLineEdit()
         self.photon_url_input.setPlaceholderText("Root URL (e.g. http://example.com)")
@@ -345,7 +345,7 @@ class ReconPage(ToolModulePage):
         self.chk_photon_ninja = QCheckBox("Ninja / Stealth mode (--ninja)")
         self.chk_photon_verbose = QCheckBox("Verbose output (-v)")
 
-        self.photon_btn = self.create_primary_button("Run Photon Crawler")
+        self.photon_btn = self.create_primary_button("Run Photon Crawler", "photon")
         self.photon_btn.clicked.connect(self.build_photon)
 
         layout.addWidget(QLabel("Target URL"))
@@ -379,7 +379,7 @@ class ReconPage(ToolModulePage):
         return panel
 
     def _create_autopsy_panel(self):
-        panel, layout = self.create_panel("🔬 Autopsy Forensic Browser")
+        panel, layout = self.create_panel("Autopsy Forensic Browser", "autopsy")
 
         # Evidence Locker Directory (-d)
         locker_layout = QHBoxLayout()
@@ -454,7 +454,7 @@ class ReconPage(ToolModulePage):
         live_group.setLayout(live_layout)
         layout.addWidget(live_group)
 
-        self.autopsy_btn = self.create_primary_button("Launch Autopsy Forensic Server")
+        self.autopsy_btn = self.create_primary_button("Launch Autopsy Forensic Server", "autopsy")
         self.autopsy_btn.clicked.connect(self.build_autopsy)
         layout.addWidget(self.autopsy_btn)
         layout.addStretch()

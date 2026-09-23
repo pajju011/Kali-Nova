@@ -125,7 +125,7 @@ class NetworkPage(ToolModulePage):
         )
 
     def _create_netcat_panel(self):
-        panel, layout = self.create_panel("🔗 Netcat Utility")
+        panel, layout = self.create_panel("Netcat Networking Utility", "netcat")
 
         self.netcat_target_input = QLineEdit()
         self.netcat_target_input.setPlaceholderText("Target IP")
@@ -139,7 +139,7 @@ class NetworkPage(ToolModulePage):
             "Listen Mode",
         ])
 
-        self.netcat_btn = self.create_primary_button("Run Netcat")
+        self.netcat_btn = self.create_primary_button("Run Netcat", "netcat")
         self.netcat_btn.clicked.connect(self.build_netcat)
 
         layout.addWidget(QLabel("Target IP"))
@@ -154,14 +154,14 @@ class NetworkPage(ToolModulePage):
         return panel
 
     def _create_wireshark_panel(self):
-        panel, layout = self.create_panel("🔎 Wireshark Packet Analyzer")
+        panel, layout = self.create_panel("Wireshark Packet Analyzer", "wireshark")
 
         info_label = QLabel(
             "Launch Wireshark to start live packet capture and analysis."
         )
         info_label.setWordWrap(True)
 
-        self.wireshark_btn = self.create_primary_button("Launch Wireshark")
+        self.wireshark_btn = self.create_primary_button("Launch Wireshark", "wireshark")
         self.wireshark_btn.clicked.connect(self.launch_wireshark)
 
         layout.addWidget(info_label)
@@ -208,7 +208,7 @@ class NetworkPage(ToolModulePage):
         return row
 
     def _create_wifite_panel(self):
-        panel, layout = self.create_panel("📡 Wifite 2 Wireless Auditor")
+        panel, layout = self.create_panel("Wifite 2 Wireless Auditor", "wifite")
 
         # Mode Selection
         layout.addWidget(QLabel("Operation Mode"))
@@ -305,7 +305,7 @@ class NetworkPage(ToolModulePage):
         attack_group.setLayout(attack_layout)
         layout.addWidget(attack_group)
 
-        self.wifite_btn = self.create_primary_button("Run Wifite")
+        self.wifite_btn = self.create_primary_button("Run Wifite", "wifite")
         self.wifite_btn.clicked.connect(self.build_wifite)
         layout.addWidget(self.wifite_btn)
         layout.addStretch()
@@ -313,10 +313,10 @@ class NetworkPage(ToolModulePage):
         return panel
 
     def _create_sslscan_panel(self):
-        panel, layout = self.create_panel("🔒 SSLScan")
+        panel, layout = self.create_panel("SSLScan SSL/TLS Scanner", "sslscan")
         self.sslscan_target_input = QLineEdit()
         self.sslscan_target_input.setPlaceholderText("Enter host:port or host")
-        self.sslscan_btn = self.create_primary_button("Run SSLScan")
+        self.sslscan_btn = self.create_primary_button("Run SSLScan", "sslscan")
         self.sslscan_btn.clicked.connect(self.build_sslscan)
 
         layout.addWidget(QLabel("Target"))
@@ -326,10 +326,10 @@ class NetworkPage(ToolModulePage):
         return panel
 
     def _create_sslyze_panel(self):
-        panel, layout = self.create_panel("🔐 SSLyze")
+        panel, layout = self.create_panel("SSLyze Deep SSL Scanner", "sslyze")
         self.sslyze_target_input = QLineEdit()
         self.sslyze_target_input.setPlaceholderText("Enter host (or host:port)")
-        self.sslyze_btn = self.create_primary_button("Run SSLyze")
+        self.sslyze_btn = self.create_primary_button("Run SSLyze", "sslyze")
         self.sslyze_btn.clicked.connect(self.build_sslyze)
 
         layout.addWidget(QLabel("Target"))
@@ -339,12 +339,12 @@ class NetworkPage(ToolModulePage):
         return panel
 
     def _create_tlssled_panel(self):
-        panel, layout = self.create_panel("🛡️ TLSSLed")
+        panel, layout = self.create_panel("TLSSLed Evaluator", "tlssled")
         self.tlssled_host_input = QLineEdit()
         self.tlssled_host_input.setPlaceholderText("Enter host")
         self.tlssled_port_input = QLineEdit()
         self.tlssled_port_input.setPlaceholderText("Enter port")
-        self.tlssled_btn = self.create_primary_button("Run TLSSLed")
+        self.tlssled_btn = self.create_primary_button("Run TLSSLed", "tlssled")
         self.tlssled_btn.clicked.connect(self.build_tlssled)
 
         layout.addWidget(QLabel("Host"))
@@ -500,7 +500,7 @@ root@kali:~# tlssled 192.168.1.1 443
         self.run_command.emit(" ".join(cmd))
 
     def _create_wash_panel(self):
-        panel, layout = self.create_panel("📶 Wash - WPS WiFi Scanner")
+        panel, layout = self.create_panel("Wash WPS WiFi Scanner", "wash")
 
         self.wash_interface_input = InterfaceComboBox()
         self._interface_combos.append(self.wash_interface_input)
@@ -519,7 +519,7 @@ root@kali:~# tlssled 192.168.1.1 443
         self.chk_wash_json = QCheckBox("JSON output (-j)")
         self.chk_wash_progress = QCheckBox("Show crack progress (-p)")
 
-        self.wash_btn = self.create_primary_button("Run Wash Scan")
+        self.wash_btn = self.create_primary_button("Run Wash Scan", "wash")
         self.wash_btn.clicked.connect(self.build_wash)
 
         layout.addWidget(QLabel("Interface"))
@@ -540,7 +540,7 @@ root@kali:~# tlssled 192.168.1.1 443
         return panel
 
     def _create_reaver_panel(self):
-        panel, layout = self.create_panel("🔨 Reaver - WPS Attack & PIN Cracker")
+        panel, layout = self.create_panel("Reaver WPS Attack & PIN Cracker", "reaver")
 
         self.reaver_interface_input = InterfaceComboBox()
         self._interface_combos.append(self.reaver_interface_input)
@@ -577,7 +577,7 @@ root@kali:~# tlssled 192.168.1.1 443
         self.chk_reaver_fixed = QCheckBox("Fixed channel / no hopping (-f)")
         self.chk_reaver_no_assoc = QCheckBox("Do not associate (-A)")
 
-        self.reaver_btn = self.create_primary_button("Run Reaver Attack")
+        self.reaver_btn = self.create_primary_button("Run Reaver Attack", "reaver")
         self.reaver_btn.clicked.connect(self.build_reaver)
 
         layout.addWidget(QLabel("Interface"))
@@ -711,7 +711,7 @@ root@kali:~# tlssled 192.168.1.1 443
         self.run_command.emit(f"tlssled {host} {port}")
 
     def _create_sparrowwifi_panel(self):
-        panel, layout = self.create_panel("🛰️ Sparrow-WiFi Analyzer & Agent")
+        panel, layout = self.create_panel("Sparrow-WiFi Analyzer & Agent", "sparrow")
 
         layout.addWidget(QLabel("Execution Target / Launcher Mode"))
         self.sparrow_mode_combo = QComboBox()
@@ -810,7 +810,7 @@ root@kali:~# tlssled 192.168.1.1 443
         self.sparrow_agent_group.hide()
         layout.addWidget(self.sparrow_agent_group)
 
-        self.sparrow_btn = self.create_primary_button("Launch Sparrow-WiFi")
+        self.sparrow_btn = self.create_primary_button("Launch Sparrow-WiFi", "sparrow")
         self.sparrow_btn.clicked.connect(self.build_sparrowwifi)
         layout.addWidget(self.sparrow_btn)
         layout.addStretch()

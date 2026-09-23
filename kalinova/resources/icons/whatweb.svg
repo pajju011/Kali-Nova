@@ -1,9 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect x="8" y="12" width="48" height="40" rx="5" fill="#0f172a" stroke="#3b82f6" stroke-width="2.5"/>
-  <line x1="8" y1="22" x2="56" y2="22" stroke="#3b82f6" stroke-width="2"/>
-  <circle cx="14" cy="17" r="2" fill="#ef4444"/>
-  <circle cx="20" cy="17" r="2" fill="#f59e0b"/>
-  <circle cx="26" cy="17" r="2" fill="#10b981"/>
-  <text x="14" y="38" font-family="monospace" font-size="12" fill="#60a5fa" font-weight="bold">&lt;/&gt;</text>
-  <text x="36" y="44" font-family="sans-serif" font-size="10" fill="#93c5fd">JS</text>
+  <rect x="6" y="12" width="52" height="40" rx="6" fill="#0f172a" stroke="#3b82f6" stroke-width="2.5"/>
+  <line x1="6" y1="22" x2="58" y2="22" stroke="#3b82f6" stroke-width="2"/>
+  <circle cx="12" cy="17" r="2" fill="#ef4444"/>
+  <circle cx="18" cy="17" r="2" fill="#f59e0b"/>
+  <circle cx="24" cy="17" r="2" fill="#10b981"/>
+  <text x="12" y="38" font-family="monospace" font-size="12" fill="#60a5fa" font-weight="bold">&lt;/&gt;</text>
+  <rect x="36" y="28" width="16" height="18" rx="2" fill="#1e3a8a"/>
+  <text x="39" y="41" font-family="sans-serif" font-size="9" fill="#93c5fd" font-weight="bold">TECH</text>
 </svg>

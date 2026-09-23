@@ -15,9 +15,10 @@ from PyQt6.QtWidgets import (
     QCheckBox,
 )
 
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QFont
+from PyQt6.QtCore import Qt, pyqtSignal, QSize
+from PyQt6.QtGui import QFont, QIcon, QPixmap
 
+from ui.icon_manager import get_tool_icon_path
 from ui.tool_icon_button import ToolIconButton
 from ui.ai_copilot_drawer import format_ai_markdown_html
 from core.app_state import app_state
@@ -393,7 +394,7 @@ class ToolModulePage(QScrollArea):
 
     ai_assist_requested = pyqtSignal(dict)
 
-    def create_panel(self, title):
+    def create_panel(self, title, tool_id=None):
         panel = QGroupBox()
         panel.setProperty("class", "toolPanelGroup")
         panel_layout = QVBoxLayout(panel)
@@ -402,6 +403,16 @@ class ToolModulePage(QScrollArea):
 
         header_row = QHBoxLayout()
         header_row.setContentsMargins(0, 0, 0, 4)
+        header_row.setSpacing(8)
+
+        # Official Tool Logo in Panel Header
+        if tool_id:
+            icon_path = get_tool_icon_path(tool_id)
+            if icon_path and os.path.exists(icon_path):
+                icon_label = QLabel()
+                pixmap = QIcon(icon_path).pixmap(24, 24)
+                icon_label.setPixmap(pixmap)
+                header_row.addWidget(icon_label)
         
         title_label = QLabel(title)
         title_label.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
@@ -427,7 +438,6 @@ class ToolModulePage(QScrollArea):
         """)
         ai_assist_btn.clicked.connect(self._on_header_ai_assist_clicked)
 
-
         header_row.addWidget(title_label)
         header_row.addStretch()
         header_row.addWidget(ai_assist_btn)
@@ -441,10 +451,15 @@ class ToolModulePage(QScrollArea):
         self.ai_assist_requested.emit(ctx)
 
 
-    def create_primary_button(self, text):
-        button = QPushButton(text)
+    def create_primary_button(self, text, tool_id=None):
+        button = QPushButton(f"  {text}" if tool_id else text)
         button.setProperty("role", "primary")
         button.setMinimumHeight(42)
+        if tool_id:
+            icon_path = get_tool_icon_path(tool_id)
+            if icon_path and os.path.exists(icon_path):
+                button.setIcon(QIcon(icon_path))
+                button.setIconSize(QSize(20, 20))
         return button
 
     def create_secondary_button(self, text):
