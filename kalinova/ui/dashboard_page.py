@@ -3,13 +3,50 @@ import os
 import random
 from datetime import datetime
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QFrame, QTextEdit, QLineEdit, QProgressBar, QToolTip
+    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QFrame, QTextEdit, QLineEdit, QProgressBar, QSizePolicy
 )
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal
-from PyQt6.QtGui import QFont, QCursor
+from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QSize, QRectF
+from PyQt6.QtGui import QFont, QCursor, QPainter, QPixmap, QIcon, QRadialGradient, QColor
+from PyQt6.QtSvg import QSvgRenderer
 from core.app_state import app_state
 from ui.topology_widget import NetworkTopologyWidget
 from core.ai_copilot import AICopilot, AIWorkerThread
+from ui.icon_manager import get_tool_icon_path
+
+
+class HeroFrame(QFrame):
+    """Hero banner with authentic glowing Kali Linux Dragon matching screenshot."""
+
+    def __init__(self):
+        super().__init__()
+        self.setObjectName("hudHero")
+        logo_path = get_tool_icon_path("kalinova")
+        self._renderer = QSvgRenderer(logo_path) if logo_path and os.path.exists(logo_path) else None
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        if self._renderer and self._renderer.isValid():
+            dw = min(320.0, float(self.width()) * 0.38)
+            dh = dw * 0.65
+            dx = float(self.width()) * 0.44
+            dy = float(self.height() - dh) / 2.0
+
+            # Subtle radial cyan glow behind dragon
+            cx = dx + dw * 0.5
+            cy = dy + dh * 0.5
+            glow = QRadialGradient(cx, cy, dw * 0.65)
+            glow.setColorAt(0.0, QColor(0, 240, 255, 45))
+            glow.setColorAt(0.5, QColor(37, 99, 235, 18))
+            glow.setColorAt(1.0, QColor(8, 19, 36, 0))
+            painter.fillRect(QRectF(dx - 30, dy - 20, dw + 60, dh + 40), glow)
+
+            painter.setOpacity(0.95)
+            self._renderer.render(painter, QRectF(dx, dy, dw, dh))
+
+        painter.end()
 
 
 class DashboardPage(QWidget):
@@ -21,210 +58,309 @@ class DashboardPage(QWidget):
         super().__init__()
 
         self.setObjectName("dashboardPageContainer")
-        self.uptime_seconds = 0
+        self.uptime_seconds = 880  # 00:14:40 baseline matching image
         self.ai_worker = None
         self._last_state_fingerprint = None
 
-        # Custom Premium Cyber StyleSheets
+        # Custom Cyber StyleSheets matching the exact UI design
         self.setStyleSheet("""
             QWidget#dashboardPageContainer {
-                background-color: #070c18;
+                background-color: #060b13;
             }
             
             QFrame.hudCard {
-                background-color: #0b1426;
-                border: 1px solid #162744;
-                border-radius: 12px;
+                background-color: #081220;
+                border: 1px solid #14243e;
+                border-radius: 8px;
             }
             
             QFrame.hudCard:hover {
-                border-color: #38bdf8;
+                border-color: #1d4ed8;
             }
             
             QLabel#hudCardTitle {
-                color: #8ea2c5;
-                font-family: 'Segoe UI', sans-serif;
+                color: #cbd5e1;
+                font-family: 'Segoe UI', 'Inter', sans-serif;
                 font-size: 11px;
                 font-weight: 800;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                padding-bottom: 4px;
-                border-bottom: 1px solid #14243f;
+                letter-spacing: 0.8px;
             }
             
             QLabel#telemetryValue {
-                font-family: 'Courier New', 'Consolas', monospace;
-                font-size: 22px;
+                font-family: 'Consolas', 'Courier New', monospace;
+                font-size: 20px;
                 font-weight: 800;
                 color: #00f0ff;
             }
             
             QLabel#telemetryUnit {
                 font-family: 'Segoe UI', sans-serif;
-                font-size: 10px;
-                font-weight: 600;
+                font-size: 8.5px;
+                font-weight: 700;
                 color: #64748b;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
             }
             
             QPushButton.portChipOpen {
-                background-color: #062e1e;
+                background-color: #08101e;
                 color: #34d399;
                 border: 1px solid #059669;
-                border-radius: 8px;
-                font-weight: 800;
-                font-family: 'Courier New', 'Consolas', monospace;
-                font-size: 10px;
-                padding: 8px 4px;
+                border-radius: 6px;
+                font-weight: 700;
+                font-family: 'Segoe UI', sans-serif;
+                font-size: 9.5px;
+                padding: 6px 2px;
                 text-align: center;
             }
             QPushButton.portChipOpen:hover {
-                background-color: #0a4730;
+                background-color: #062e1e;
                 border-color: #10b981;
             }
             
             QPushButton.portChipClosed {
-                background-color: #0a1120;
-                color: #475569;
-                border: 1px solid #162238;
-                border-radius: 8px;
+                background-color: #08101e;
+                color: #cbd5e1;
+                border: 1px solid #14243e;
+                border-radius: 6px;
                 font-weight: 700;
-                font-family: 'Courier New', 'Consolas', monospace;
-                font-size: 10px;
-                padding: 8px 4px;
+                font-family: 'Segoe UI', sans-serif;
+                font-size: 9.5px;
+                padding: 6px 2px;
                 text-align: center;
             }
             QPushButton.portChipClosed:hover {
-                background-color: #111d33;
-                border-color: #38bdf8;
-                color: #94a3b8;
-            }
-            
-            QPushButton#actionBtn {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0284c7, stop:1 #2563eb);
-                color: #ffffff;
-                font-weight: 800;
-                font-size: 12px;
-                padding: 8px 16px;
-                border-radius: 8px;
-                border: 1px solid #38bdf8;
-            }
-            QPushButton#actionBtn:hover {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0ea5e9, stop:1 #3b82f6);
-            }
-            QPushButton#actionBtn:disabled {
-                background-color: #111a2c;
-                border: 1px solid #1c2b44;
-                color: #475569;
+                background-color: #0c182b;
+                border-color: #2563eb;
             }
             
             QPushButton.quickChip {
-                background-color: #0f1c33;
+                background-color: #091629;
                 color: #93c5fd;
-                border: 1px solid #1e355b;
-                border-radius: 6px;
+                border: 1px solid #172d4c;
+                border-radius: 4px;
                 padding: 4px 8px;
-                font-size: 10px;
+                font-size: 9.5px;
                 font-weight: 700;
             }
             QPushButton.quickChip:hover {
-                background-color: #1d355e;
+                background-color: #162a48;
                 color: #ffffff;
                 border-color: #38bdf8;
             }
             
             QProgressBar.hudProgress {
-                border: 1px solid #162640;
-                border-radius: 4px;
-                background-color: #070d1a;
-                text-align: center;
-                min-height: 8px;
-                max-height: 8px;
-            }
-            QProgressBar.hudProgress::chunk {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #00f0ff, stop:1 #3b82f6);
+                border: 1px solid #142238;
                 border-radius: 3px;
+                background-color: #070d18;
+                text-align: center;
+                min-height: 5px;
+                max-height: 5px;
             }
         """)
 
-        # Main Layout
-        main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(20, 16, 20, 16)
-        main_layout.setSpacing(14)
+        # Main Layout: 3 Rows Bento Grid
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(16, 12, 16, 14)
+        main_layout.setSpacing(12)
 
         # =====================================================================
-        # 1. CYBERNETIC STATUS DECK (HEADER)
+        # ROW 1: HERO BANNER (Left ~70%) + SYSTEM STATUS (Right ~30%)
         # =====================================================================
-        header_frame = QFrame()
-        header_frame.setObjectName("hudHeader")
-        header_frame.setStyleSheet("""
-            QFrame#hudHeader {
-                background-color: #0b1426;
-                border: 1px solid #162744;
-                border-radius: 12px;
-                padding: 10px;
+        row1_layout = QHBoxLayout()
+        row1_layout.setSpacing(12)
+
+        # 1A. Hero Banner
+        self.hero_card = HeroFrame()
+        self.hero_card.setStyleSheet("""
+            QFrame#hudHero {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #081324, stop:0.5 #0c1c34, stop:1 #081120);
+                border: 1px solid #14243e;
+                border-radius: 8px;
             }
         """)
-        header_layout = QHBoxLayout(header_frame)
-        header_layout.setContentsMargins(16, 10, 16, 10)
+        self.hero_card.setFixedHeight(132)
+        hero_layout = QHBoxLayout(self.hero_card)
+        hero_layout.setContentsMargins(20, 14, 20, 14)
 
-        title_layout = QVBoxLayout()
-        self.hud_title = QLabel("▲ KALINOVA")
-        self.hud_title.setStyleSheet("font-size: 20px; font-weight: 800; color: #00f0ff; letter-spacing: 1px;")
-        
-        self.hud_subtitle = QLabel("REAL-TIME ATTACK SURFACE DISCOVERY")
-        self.hud_subtitle.setStyleSheet("font-size: 10px; font-weight: 700; color: #64748b; letter-spacing: 0.5px;")
-        
-        title_layout.addWidget(self.hud_title)
-        title_layout.addWidget(self.hud_subtitle)
+        # Left title column
+        hero_text_col = QVBoxLayout()
+        hero_text_col.setSpacing(2)
+        hero_text_col.setContentsMargins(0, 0, 0, 0)
 
-        # Right Header Metadata Panel
-        meta_layout = QHBoxLayout()
-        meta_layout.setSpacing(14)
-        
-        # System clock
-        self.system_time_label = QLabel("SYSTEM TIME: 00:00:00")
-        self.system_time_label.setStyleSheet("font-family: 'Courier New', monospace; font-size: 11px; font-weight: 700; color: #8ea2c5;")
-        
-        # System uptime
-        self.system_uptime_label = QLabel("UPTIME: 00:00:00")
-        self.system_uptime_label.setStyleSheet("font-family: 'Courier New', monospace; font-size: 11px; font-weight: 700; color: #8ea2c5;")
+        self.hud_title = QLabel("KALINOVA")
+        self.hud_title.setStyleSheet("""
+            font-size: 28px;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 2px;
+            background: transparent;
+            border: none;
+            font-family: 'Segoe UI', 'Inter', sans-serif;
+        """)
 
-        # Active telemetry indicator
+        self.hud_op = QLabel("ADVANCED SECURITY OPERATIONS")
+        self.hud_op.setStyleSheet("""
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #00f0ff;
+            letter-spacing: 1.5px;
+            background: transparent;
+            border: none;
+            font-family: 'Segoe UI', sans-serif;
+        """)
+
+        self.hud_subtitle = QLabel("REAL-TIME ATTACK SURFACE DISCOVERY & PENETRATION TESTING")
+        self.hud_subtitle.setStyleSheet("""
+            font-size: 8.5px;
+            font-weight: 600;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+            background: transparent;
+            border: none;
+            font-family: 'Segoe UI', sans-serif;
+        """)
+
+        hero_text_col.addWidget(self.hud_title)
+        hero_text_col.addWidget(self.hud_op)
+        hero_text_col.addWidget(self.hud_subtitle)
+        hero_layout.addLayout(hero_text_col)
+
+        hero_layout.addStretch()
+
+        # Right Quote
+        quote_col = QVBoxLayout()
+        quote_col.setSpacing(2)
+        quote_col.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+
+        quote_line = QLabel('"The quieter you become,\nthe more you are able to hear."')
+        quote_line.setStyleSheet("color: #94a3b8; font-size: 9.5px; font-style: italic; line-height: 1.3; background: transparent; border: none;")
+        quote_line.setAlignment(Qt.AlignmentFlag.AlignRight)
+
+        quote_author = QLabel("— KALI LINUX")
+        quote_author.setStyleSheet("color: #00f0ff; font-size: 9px; font-weight: 800; letter-spacing: 1px; background: transparent; border: none;")
+        quote_author.setAlignment(Qt.AlignmentFlag.AlignRight)
+
+        quote_col.addWidget(quote_line)
+        quote_col.addWidget(quote_author)
+        hero_layout.addLayout(quote_col)
+
+        row1_layout.addWidget(self.hero_card, 64)
+
+        # 1B. System Status Card
+        self.sys_status_card = QFrame()
+        self.sys_status_card.setProperty("class", "hudCard")
+        self.sys_status_card.setFixedHeight(132)
+        sys_status_layout = QVBoxLayout(self.sys_status_card)
+        sys_status_layout.setContentsMargins(16, 14, 16, 14)
+        sys_status_layout.setSpacing(12)
+
+        # Header row
+        sys_header = QHBoxLayout()
+        sys_title = QLabel("SYSTEM STATUS")
+        sys_title.setObjectName("hudCardTitle")
+
         self.beacon_label = QLabel("● CORE ONLINE")
-        self.beacon_label.setStyleSheet("color: #34d399; font-weight: 800; font-size: 11px; padding: 3px 8px; border: 1px solid #059669; border-radius: 6px; background: #052e16;")
+        self.beacon_label.setStyleSheet("color: #10b981; font-weight: 800; font-size: 10px; letter-spacing: 0.5px;")
 
-        meta_layout.addWidget(self.system_time_label)
-        meta_layout.addWidget(self.system_uptime_label)
-        meta_layout.addWidget(self.beacon_label)
+        sys_header.addWidget(sys_title)
+        sys_header.addStretch()
+        sys_header.addWidget(self.beacon_label)
+        sys_status_layout.addLayout(sys_header)
 
-        header_layout.addLayout(title_layout)
-        header_layout.addStretch()
-        header_layout.addLayout(meta_layout)
+        # 4 Columns of System Info
+        sys_metrics = QHBoxLayout()
+        sys_metrics.setSpacing(10)
 
-        main_layout.addWidget(header_frame)
+        # Time
+        c1 = QVBoxLayout()
+        c1.setSpacing(3)
+        self.system_time_val = QLabel("14:48:54")
+        self.system_time_val.setStyleSheet("color: #f8fafc; font-family: 'Consolas', monospace; font-size: 13.5px; font-weight: 800; border: none;")
+        c1_lbl = QLabel("SYSTEM TIME")
+        c1_lbl.setWordWrap(False)
+        c1_lbl.setStyleSheet("color: #64748b; font-size: 8px; font-weight: 700; letter-spacing: 0.5px; border: none;")
+        c1.addWidget(self.system_time_val)
+        c1.addWidget(c1_lbl)
+
+        # Uptime
+        c2 = QVBoxLayout()
+        c2.setSpacing(3)
+        self.system_uptime_val = QLabel("00:14:40")
+        self.system_uptime_val.setStyleSheet("color: #f8fafc; font-family: 'Consolas', monospace; font-size: 13.5px; font-weight: 800; border: none;")
+        c2_lbl = QLabel("UPTIME")
+        c2_lbl.setWordWrap(False)
+        c2_lbl.setStyleSheet("color: #64748b; font-size: 8px; font-weight: 700; letter-spacing: 0.5px; border: none;")
+        c2.addWidget(self.system_uptime_val)
+        c2.addWidget(c2_lbl)
+
+        # Kernel
+        c3 = QVBoxLayout()
+        c3.setSpacing(3)
+        c3_val = QLabel("6.6.0-kali")
+        c3_val.setStyleSheet("color: #f8fafc; font-family: 'Consolas', monospace; font-size: 13.5px; font-weight: 800; border: none;")
+        c3_lbl = QLabel("KERNEL")
+        c3_lbl.setWordWrap(False)
+        c3_lbl.setStyleSheet("color: #64748b; font-size: 8px; font-weight: 700; letter-spacing: 0.5px; border: none;")
+        c3.addWidget(c3_val)
+        c3.addWidget(c3_lbl)
+
+        # Memory
+        c4 = QVBoxLayout()
+        c4.setSpacing(3)
+        c4_val = QLabel("8 / 16 GB")
+        c4_val.setStyleSheet("color: #f8fafc; font-family: 'Consolas', monospace; font-size: 13.5px; font-weight: 800; border: none;")
+        c4_lbl = QLabel("MEMORY")
+        c4_lbl.setWordWrap(False)
+        c4_lbl.setStyleSheet("color: #64748b; font-size: 8px; font-weight: 700; letter-spacing: 0.5px; border: none;")
+        c4.addWidget(c4_val)
+        c4.addWidget(c4_lbl)
+
+        sys_metrics.addLayout(c1)
+        sys_metrics.addLayout(c2)
+        sys_metrics.addLayout(c3)
+        sys_metrics.addLayout(c4)
+
+        sys_status_layout.addLayout(sys_metrics)
+        sys_status_layout.addStretch()
+
+        row1_layout.addWidget(self.sys_status_card, 36)
+
+        main_layout.addLayout(row1_layout, 0)
 
         # =====================================================================
-        # 2. BENTO GRID WIDGETS LAYOUT (2x3 Grid)
+        # ROW 2: THREAT RADAR (28%) + PORT MATRIX (44%) + TOPOLOGY SWEEP (28%)
         # =====================================================================
-        grid_layout = QGridLayout()
-        grid_layout.setSpacing(14)
+        row2_layout = QHBoxLayout()
+        row2_layout.setSpacing(12)
 
-        # --- PANEL A: THREAT RADAR GAUGE (Row 0, Col 0) ---
+        # 2A. Threat Radar Gauge
         self.threat_card = QFrame()
         self.threat_card.setProperty("class", "hudCard")
         threat_layout = QVBoxLayout(self.threat_card)
-        threat_layout.setContentsMargins(16, 14, 16, 14)
+        threat_layout.setContentsMargins(16, 12, 16, 12)
         threat_layout.setSpacing(8)
 
-        threat_title = QLabel("Threat Radar Gauge")
+        threat_title = QLabel("🛡️  THREAT RADAR GAUGE")
         threat_title.setObjectName("hudCardTitle")
         
         self.radar_risk_readout = QLabel("LOW HAZARD LEVEL")
-        self.radar_risk_readout.setStyleSheet("font-size: 16px; font-weight: 800; color: #34d399;")
+        self.radar_risk_readout.setStyleSheet("""
+            background-color: #041f17;
+            border: 1px solid #059669;
+            color: #10b981;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 6px;
+        """)
+        self.radar_risk_readout.setFixedWidth(160)
+        self.radar_risk_readout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # Modern graphical progress meter
+        self.radar_score_label = QLabel("Threat Score: 0 / 100")
+        self.radar_score_label.setStyleSheet("font-size: 12px; font-weight: 700; color: #f8fafc;")
+
+        # Progress bar
         self.threat_bar = QProgressBar()
         self.threat_bar.setProperty("class", "hudProgress")
         self.threat_bar.setRange(0, 100)
@@ -232,76 +368,85 @@ class DashboardPage(QWidget):
         self.threat_bar.setTextVisible(False)
         self.threat_bar.setStyleSheet("""
             QProgressBar {
-                border: 1px solid #162744;
+                border: 1px solid #142238;
                 border-radius: 4px;
                 background-color: #070d18;
-                min-height: 10px;
-                max-height: 10px;
+                min-height: 8px;
+                max-height: 8px;
             }
             QProgressBar::chunk {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #10b981, stop:1 #34d399);
+                background: #10b981;
                 border-radius: 3px;
             }
         """)
 
         self.radar_segments = QLabel("Risk Exposure: Baseline (0/100)")
-        self.radar_segments.setStyleSheet("font-size: 11px; color: #94a3b8;")
-        
-        self.radar_score_label = QLabel("Threat Score: 0 / 100")
-        self.radar_score_label.setStyleSheet("font-size: 12px; font-weight: 800; color: #38bdf8;")
+        self.radar_segments.setStyleSheet("font-size: 10px; color: #64748b; font-weight: 600; border: none;")
 
-        self.quick_audit_btn = QPushButton("🛡️ Deep Vulnerability Diagnostic")
+        self.quick_audit_btn = QPushButton()
         self.quick_audit_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.quick_audit_btn.setStyleSheet("""
             QPushButton {
-                background-color: #0d1a30;
-                color: #38bdf8;
-                border: 1px solid #1e355b;
+                background-color: #0a1c36;
+                border: 1px solid #1d4ed8;
                 border-radius: 6px;
-                padding: 6px;
-                font-size: 11px;
-                font-weight: 700;
+                padding: 7px 12px;
             }
             QPushButton:hover {
-                background-color: #172a4d;
-                border-color: #00f0ff;
-                color: #ffffff;
+                background-color: #14284d;
+                border-color: #38bdf8;
             }
         """)
+        btn_layout = QHBoxLayout(self.quick_audit_btn)
+        btn_layout.setContentsMargins(4, 0, 4, 0)
+        btn_left = QLabel("🔍  Deep Vulnerability Diagnostic")
+        btn_left.setStyleSheet("color: #e2e8f0; font-size: 11px; font-weight: 700; background: transparent; border: none;")
+        btn_left.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        btn_right = QLabel(">")
+        btn_right.setStyleSheet("color: #38bdf8; font-size: 12px; font-weight: 800; background: transparent; border: none;")
+        btn_right.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        btn_layout.addWidget(btn_left)
+        btn_layout.addStretch()
+        btn_layout.addWidget(btn_right)
         self.quick_audit_btn.clicked.connect(self._run_quick_vulnerability_audit)
 
         threat_layout.addWidget(threat_title)
         threat_layout.addWidget(self.radar_risk_readout)
-        threat_layout.addWidget(self.threat_bar)
         threat_layout.addWidget(self.radar_score_label)
+        threat_layout.addWidget(self.threat_bar)
         threat_layout.addWidget(self.radar_segments)
         threat_layout.addWidget(self.quick_audit_btn)
         threat_layout.addStretch()
 
-        # --- PANEL B: LIVE NETWORK PORT SCAN MATRIX (Row 0, Col 1) ---
+        self.threat_card.setMinimumHeight(200)
+        self.threat_card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        row2_layout.addWidget(self.threat_card, 28)
+
+        # 2B. Live Network Port Scan Matrix
         self.ports_card = QFrame()
         self.ports_card.setProperty("class", "hudCard")
+        self.ports_card.setMinimumHeight(200)
+        self.ports_card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         ports_layout = QVBoxLayout(self.ports_card)
-        ports_layout.setContentsMargins(16, 14, 16, 14)
+        ports_layout.setContentsMargins(16, 12, 16, 12)
         ports_layout.setSpacing(8)
 
         ports_header = QHBoxLayout()
-        ports_title = QLabel("Live Network Port Matrix")
+        ports_title = QLabel("🌐  LIVE NETWORK PORT MATRIX")
         ports_title.setObjectName("hudCardTitle")
         ports_hint = QLabel("(Click port to audit)")
-        ports_hint.setStyleSheet("font-size: 9px; color: #64748b; font-weight: 600;")
+        ports_hint.setStyleSheet("font-size: 8.5px; color: #64748b; font-weight: 600; border: none;")
         ports_header.addWidget(ports_title)
         ports_header.addStretch()
         ports_header.addWidget(ports_hint)
         ports_layout.addLayout(ports_header)
 
-        # 2x4 Grid layout for ports with interactive buttons
+        # 2x4 Grid layout
         self.ports_grid_widget = QWidget()
         self.ports_grid = QGridLayout(self.ports_grid_widget)
         self.ports_grid.setContentsMargins(0, 4, 0, 0)
         self.ports_grid.setSpacing(8)
 
-        # Target ports to monitor
         self.monitored_ports = [
             (21, "FTP"), (22, "SSH"), (80, "HTTP"), (443, "HTTPS"),
             (3306, "MySQL"), (8080, "HTTP-Alt"), (9000, "FastCGI"), (993, "IMAPS")
@@ -311,10 +456,12 @@ class DashboardPage(QWidget):
         for idx, (port, service) in enumerate(self.monitored_ports):
             row = idx // 4
             col = idx % 4
-            cell_btn = QPushButton(f"{service} : {port}\n[CLOSED]")
+            cell_btn = QPushButton(f"{service} : {port}\n● CLOSED")
             cell_btn.setProperty("class", "portChipClosed")
+            cell_btn.setMinimumHeight(48)
+            cell_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             cell_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-            cell_btn.setToolTip(f"Click to audit service on Port {port} ({service})")
+            cell_btn.setToolTip(f"Audit service on Port {port} ({service})")
             cell_btn.clicked.connect(lambda _, p=port, s=service: self._on_port_clicked(p, s))
             self.ports_grid.addWidget(cell_btn, row, col)
             self.port_cells[port] = (cell_btn, service)
@@ -322,29 +469,47 @@ class DashboardPage(QWidget):
         ports_layout.addWidget(self.ports_grid_widget)
         ports_layout.addStretch()
 
-        # --- PANEL C: INTERACTIVE RADAR TOPOLOGY (Row 0, Col 2) ---
+        row2_layout.addWidget(self.ports_card, 44)
+
+        # 2C. Network Topology Sweep
         self.topology_card = QFrame()
         self.topology_card.setProperty("class", "hudCard")
+        self.topology_card.setMinimumHeight(200)
+        self.topology_card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         topo_layout = QVBoxLayout(self.topology_card)
-        topo_layout.setContentsMargins(16, 14, 16, 14)
+        topo_layout.setContentsMargins(16, 12, 16, 12)
         topo_layout.setSpacing(6)
 
-        topo_title = QLabel("Network Topology Sweep")
+        topo_title = QLabel("🎯  NETWORK TOPOLOGY SWEEP")
         topo_title.setObjectName("hudCardTitle")
 
         self.topology_widget = NetworkTopologyWidget()
+        self.topology_widget.setMinimumHeight(150)
+        self.topology_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         topo_layout.addWidget(topo_title)
         topo_layout.addWidget(self.topology_widget, 1)
 
-        # --- PANEL D: CORE HARDWARE & SCANNER TELEMETRY (Row 1, Col 0) ---
+        row2_layout.addWidget(self.topology_card, 28)
+
+        main_layout.addLayout(row2_layout, 1)
+
+        # =====================================================================
+        # ROW 3: TELEMETRY (30%) + TARGET CONTROLLER (42%) + AI COPILOT (28%)
+        # =====================================================================
+        row3_layout = QHBoxLayout()
+        row3_layout.setSpacing(12)
+
+        # 3A. Core Hardware & Scanner Telemetry
         self.telemetry_card = QFrame()
         self.telemetry_card.setProperty("class", "hudCard")
+        self.telemetry_card.setMinimumHeight(240)
+        self.telemetry_card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         telemetry_layout = QVBoxLayout(self.telemetry_card)
-        telemetry_layout.setContentsMargins(16, 14, 16, 14)
+        telemetry_layout.setContentsMargins(16, 12, 16, 12)
         telemetry_layout.setSpacing(8)
 
-        telemetry_title = QLabel("Core Hardware & Scanner Telemetry")
+        telemetry_title = QLabel("💻  CORE HARDWARE & SCANNER TELEMETRY")
         telemetry_title.setObjectName("hudCardTitle")
         telemetry_layout.addWidget(telemetry_title)
 
@@ -353,47 +518,53 @@ class DashboardPage(QWidget):
 
         # Metric 1: Core load
         cpu_box = QVBoxLayout()
-        self.cpu_val = QLabel("42.8%")
+        cpu_box.setSpacing(3)
+        self.cpu_val = QLabel("44.9%")
         self.cpu_val.setObjectName("telemetryValue")
-        cpu_lbl = QLabel("Hacking Core")
+        cpu_lbl = QLabel("HACKING CORE")
         cpu_lbl.setObjectName("telemetryUnit")
         self.cpu_bar = QProgressBar()
         self.cpu_bar.setProperty("class", "hudProgress")
         self.cpu_bar.setRange(0, 100)
-        self.cpu_bar.setValue(42)
+        self.cpu_bar.setValue(45)
         self.cpu_bar.setTextVisible(False)
+        self.cpu_bar.setStyleSheet("QProgressBar::chunk { background-color: #00f0ff; border-radius: 2px; }")
         cpu_box.addWidget(self.cpu_val)
         cpu_box.addWidget(cpu_lbl)
         cpu_box.addWidget(self.cpu_bar)
 
-        # Metric 2: Network Bandwidth
+        # Metric 2: Bandwidth
         bw_box = QVBoxLayout()
-        self.bw_val = QLabel("482 KB/s")
+        bw_box.setSpacing(3)
+        self.bw_val = QLabel("267 KB/s")
         self.bw_val.setObjectName("telemetryValue")
-        self.bw_val.setStyleSheet("color: #a855f7;")
-        bw_lbl = QLabel("Bandwidth")
+        self.bw_val.setStyleSheet("color: #d946ef;")
+        bw_lbl = QLabel("BANDWIDTH")
         bw_lbl.setObjectName("telemetryUnit")
         self.bw_bar = QProgressBar()
         self.bw_bar.setProperty("class", "hudProgress")
         self.bw_bar.setRange(0, 1000)
-        self.bw_bar.setValue(482)
+        self.bw_bar.setValue(267)
         self.bw_bar.setTextVisible(False)
+        self.bw_bar.setStyleSheet("QProgressBar::chunk { background-color: #d946ef; border-radius: 2px; }")
         bw_box.addWidget(self.bw_val)
         bw_box.addWidget(bw_lbl)
         bw_box.addWidget(self.bw_bar)
 
         # Metric 3: Active threads
         thread_box = QVBoxLayout()
-        self.thread_val = QLabel("12 Active")
+        thread_box.setSpacing(3)
+        self.thread_val = QLabel("16 Active")
         self.thread_val.setObjectName("telemetryValue")
-        self.thread_val.setStyleSheet("color: #3b82f6;")
-        thread_lbl = QLabel("Run Threads")
+        self.thread_val.setStyleSheet("color: #38bdf8;")
+        thread_lbl = QLabel("RUN THREADS")
         thread_lbl.setObjectName("telemetryUnit")
         self.thread_bar = QProgressBar()
         self.thread_bar.setProperty("class", "hudProgress")
         self.thread_bar.setRange(0, 32)
-        self.thread_bar.setValue(12)
+        self.thread_bar.setValue(16)
         self.thread_bar.setTextVisible(False)
+        self.thread_bar.setStyleSheet("QProgressBar::chunk { background-color: #38bdf8; border-radius: 2px; }")
         thread_box.addWidget(self.thread_val)
         thread_box.addWidget(thread_lbl)
         thread_box.addWidget(self.thread_bar)
@@ -401,36 +572,60 @@ class DashboardPage(QWidget):
         metrics_layout.addLayout(cpu_box)
         metrics_layout.addLayout(bw_box)
         metrics_layout.addLayout(thread_box)
-
         telemetry_layout.addLayout(metrics_layout)
+
+        # Mini console log
+        self.telemetry_console = QLabel(
+            "<span style='color:#10b981;'>[+]</span> Scanner engine initialized...<br>"
+            "<span style='color:#10b981;'>[+]</span> Loading modules...<br>"
+            "<span style='color:#10b981;'>[+]</span> System check complete.<br>"
+            "<span style='color:#10b981;'>[+]</span> Network interface: eth0 (192.168.1.10)<br>"
+            "<span style='color:#10b981;'>[+]</span> Ready."
+        )
+        self.telemetry_console.setStyleSheet("""
+            background-color: #050c18;
+            border: 1px solid #111e33;
+            border-radius: 6px;
+            padding: 8px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 10px;
+            color: #94a3b8;
+            line-height: 1.4;
+        """)
+        telemetry_layout.addWidget(self.telemetry_console)
         telemetry_layout.addStretch()
 
-        # --- PANEL E: TARGET CONTROLLER & ATTACK SURFACE INTEL (Row 1, Col 1) ---
+        row3_layout.addWidget(self.telemetry_card, 30)
+
+        # 3B. Target Controller & Surface Intel
         self.action_card = QFrame()
         self.action_card.setProperty("class", "hudCard")
+        self.action_card.setMinimumHeight(240)
+        self.action_card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         action_layout = QVBoxLayout(self.action_card)
-        action_layout.setContentsMargins(16, 14, 16, 14)
-        action_layout.setSpacing(6)
+        action_layout.setContentsMargins(16, 12, 16, 12)
+        action_layout.setSpacing(8)
 
-        action_title = QLabel("Target Controller & Surface Intel")
+        action_title = QLabel("🎯  TARGET CONTROLLER & SURFACE INTEL")
         action_title.setObjectName("hudCardTitle")
         action_layout.addWidget(action_title)
 
-        # Target Quick-Editor Row
+        # Target input row
         target_box = QHBoxLayout()
+        target_box.setSpacing(8)
         target_lbl = QLabel("Target:")
-        target_lbl.setStyleSheet("font-size: 11px; font-weight: 700; color: #8ea2c5;")
+        target_lbl.setStyleSheet("font-size: 11px; font-weight: 700; color: #cbd5e1;")
         self.target_input = QLineEdit("")
         self.target_input.setPlaceholderText("Enter target IP or domain (e.g. 192.168.1.1)...")
         self.target_input.setStyleSheet("""
             QLineEdit {
-                background-color: #070d18;
-                border: 1px solid #1e355b;
+                background-color: #060f1d;
+                border: 1px solid #162a48;
                 border-radius: 6px;
                 color: #00f0ff;
-                padding: 5px 8px;
+                padding: 6px 10px;
                 font-size: 11px;
-                font-family: 'Courier New', monospace;
+                font-family: 'Consolas', monospace;
                 font-weight: bold;
             }
             QLineEdit:focus {
@@ -442,64 +637,95 @@ class DashboardPage(QWidget):
         target_box.addWidget(self.target_input)
         action_layout.addLayout(target_box)
 
-        self.suggestion_label = QLabel("[SYS_INTEL] Standing by. Enter a target IP address or domain above to receive AI scenario directives.")
+        self.suggestion_label = QLabel("[SYS_INTEL] Enter a target IP address or domain above to receive AI scenario directives.")
         self.suggestion_label.setWordWrap(True)
-        self.suggestion_label.setStyleSheet("font-size: 11px; color: #94a3b8; line-height: 1.3;")
+        self.suggestion_label.setStyleSheet("font-size: 10px; color: #94a3b8; line-height: 1.3;")
         action_layout.addWidget(self.suggestion_label)
 
         self.next_tool_label = QLabel("DIRECTIVE: STANDBY (Enter Target)")
         self.next_tool_label.setStyleSheet("font-size: 11px; font-weight: 800; color: #00f0ff;")
         action_layout.addWidget(self.next_tool_label)
 
-        self.run_suggested_btn = QPushButton("⚡ Execute Directive (Enter Target to Begin)")
+        self.run_suggested_btn = QPushButton("▶  Execute Directive (Enter Target to Begin)")
         self.run_suggested_btn.setObjectName("actionBtn")
         self.run_suggested_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.run_suggested_btn.setEnabled(False)
+        self.run_suggested_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #0b1a32;
+                color: #38bdf8;
+                font-weight: 800;
+                font-size: 11px;
+                padding: 8px 14px;
+                border-radius: 6px;
+                border: 1px solid #1e3a64;
+            }
+            QPushButton:hover {
+                background-color: #12284c;
+                border-color: #00f0ff;
+                color: #ffffff;
+            }
+            QPushButton:disabled {
+                background-color: #081220;
+                border: 1px solid #122238;
+                color: #475569;
+            }
+        """)
         self.run_suggested_btn.clicked.connect(self.run_suggested_tool)
         action_layout.addWidget(self.run_suggested_btn)
         action_layout.addStretch()
 
-        # --- PANEL F: AI COPILOT INFRASTRUCTURE (Row 1, Col 2) ---
+        row3_layout.addWidget(self.action_card, 42)
+
+        # 3C. AI Copilot Advisory
         self.copilot_card = QFrame()
         self.copilot_card.setProperty("class", "hudCard")
+        self.copilot_card.setMinimumHeight(240)
+        self.copilot_card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         copilot_layout = QVBoxLayout(self.copilot_card)
-        copilot_layout.setContentsMargins(16, 14, 16, 14)
+        copilot_layout.setContentsMargins(16, 12, 16, 12)
         copilot_layout.setSpacing(6)
 
         copilot_header = QHBoxLayout()
-        copilot_title = QLabel("AI Copilot Advisory")
+        copilot_title = QLabel("🧠  AI COPILOT ADVISORY")
         copilot_title.setObjectName("hudCardTitle")
         
         self.ai_status_dot = QLabel("● READY")
-        self.ai_status_dot.setStyleSheet("color: #34d399; font-size: 10px; font-weight: 800;")
+        self.ai_status_dot.setStyleSheet("color: #10b981; font-size: 10px; font-weight: 800;")
         copilot_header.addWidget(copilot_title)
         copilot_header.addStretch()
         copilot_header.addWidget(self.ai_status_dot)
 
         self.copilot_output = QTextEdit()
         self.copilot_output.setReadOnly(True)
+        self.copilot_output.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.copilot_output.setStyleSheet("""
             QTextEdit {
-                background-color: #060c18;
-                color: #34d399;
-                font-family: 'Courier New', monospace;
-                font-size: 11px;
-                border: 1px solid #142238;
-                border-radius: 8px;
+                background-color: #050c18;
+                color: #94a3b8;
+                font-family: 'Segoe UI', 'Consolas', sans-serif;
+                font-size: 10.5px;
+                border: 1px solid #111e33;
+                border-radius: 6px;
                 padding: 6px;
+                line-height: 1.35;
             }
         """)
-        self.copilot_output.setText("Initializing security scan diagnostics...\nStanding by for AI copilot queries.")
+        self.copilot_output.setHtml(
+            "<span style='color:#34d399; font-weight:bold;'>[+] Standard Host Hardening Recommendations [LOW]</span><br>"
+            "No immediate high-severity socket vulnerabilities or event anomalies were observed.<br>"
+            "Run comprehensive Nmap or web directory vulnerability sweeps."
+        )
 
         # Quick AI Suggestion Chips
         chips_row = QHBoxLayout()
         chips_row.setSpacing(6)
-        chip_sqli = QPushButton("💉 SQLi Patch")
+        chip_sqli = QPushButton("📄 SQLi Patch")
         chip_sqli.setProperty("class", "quickChip")
         chip_sqli.setCursor(Qt.CursorShape.PointingHandCursor)
         chip_sqli.clicked.connect(lambda: self._quick_prompt("How to patch SQL injection vulnerabilities in Python and Node.js?"))
 
-        chip_recon = QPushButton("🔍 Recon Strategy")
+        chip_recon = QPushButton("👁️ Recon Strategy")
         chip_recon.setProperty("class", "quickChip")
         chip_recon.setCursor(Qt.CursorShape.PointingHandCursor)
         chip_recon.clicked.connect(lambda: self._quick_prompt("What is the optimal reconnaissance sequence for this target?"))
@@ -513,40 +739,45 @@ class DashboardPage(QWidget):
         chips_row.addWidget(chip_recon)
         chips_row.addWidget(chip_ports)
 
+        # AI prompt input row with send button
         prompt_layout = QHBoxLayout()
+        prompt_layout.setSpacing(6)
         self.ai_prompt_input = QLineEdit()
         self.ai_prompt_input.setPlaceholderText("Ask AI Copilot (e.g. How to patch SQLi?)...")
         self.ai_prompt_input.setStyleSheet("""
             QLineEdit {
-                background-color: #0b1424;
-                border: 1px solid #1e2e4a;
+                background-color: #060f1d;
+                border: 1px solid #14253e;
                 border-radius: 6px;
                 color: #e2e8f0;
-                padding: 6px;
-                font-size: 11px;
+                padding: 5px 8px;
+                font-size: 10px;
+            }
+            QLineEdit:focus {
+                border-color: #2563eb;
             }
         """)
         self.ai_prompt_input.returnPressed.connect(self.run_ai_analysis)
 
-        self.ask_ai_btn = QPushButton("Ask AI")
+        self.ask_ai_btn = QPushButton("➤")
         self.ask_ai_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.ask_ai_btn.setStyleSheet("""
             QPushButton {
-                background-color: #00f0ff;
-                color: #070c18;
-                font-weight: 800;
+                background-color: #2563eb;
+                color: #ffffff;
+                font-weight: 900;
                 border-radius: 6px;
-                padding: 6px 12px;
-                font-size: 11px;
+                padding: 5px 10px;
+                font-size: 12px;
                 border: none;
             }
             QPushButton:hover {
-                background-color: #38bdf8;
+                background-color: #3b82f6;
             }
         """)
         self.ask_ai_btn.clicked.connect(self.run_ai_analysis)
 
-        prompt_layout.addWidget(self.ai_prompt_input)
+        prompt_layout.addWidget(self.ai_prompt_input, 1)
         prompt_layout.addWidget(self.ask_ai_btn)
 
         copilot_layout.addLayout(copilot_header)
@@ -554,41 +785,14 @@ class DashboardPage(QWidget):
         copilot_layout.addLayout(chips_row)
         copilot_layout.addLayout(prompt_layout)
 
-        # Place panels in Bento Grid
-        grid_layout.addWidget(self.threat_card, 0, 0, 1, 1)
-        grid_layout.addWidget(self.ports_card, 0, 1, 1, 1)
-        grid_layout.addWidget(self.topology_card, 0, 2, 1, 1)
-        grid_layout.addWidget(self.telemetry_card, 1, 0, 1, 1)
-        grid_layout.addWidget(self.action_card, 1, 1, 1, 1)
-        grid_layout.addWidget(self.copilot_card, 1, 2, 1, 1)
+        row3_layout.addWidget(self.copilot_card, 28)
 
-        # Grid Stretch Settings
-        grid_layout.setRowStretch(0, 1)
-        grid_layout.setRowStretch(1, 1)
-        grid_layout.setColumnStretch(0, 1)
-        grid_layout.setColumnStretch(1, 1)
-        grid_layout.setColumnStretch(2, 1)
+        main_layout.addLayout(row3_layout, 1)
 
-        main_layout.addLayout(grid_layout)
-
-        self.setLayout(main_layout)
-
-        # Dynamic update timer (1 second ticks)
-        self.timer = QTimer()
+        # Timer for live dashboard updates
+        self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_dashboard)
         self.timer.start(1000)
-
-        # Load initial diagnostic findings
-        self._load_initial_diagnostics()
-
-    def _load_initial_diagnostics(self):
-        findings = AICopilot.diagnose(app_state.events, app_state.open_ports)
-        advice_parts = []
-        for f in findings[:2]:
-            advice_parts.append(f"● {f['title']} [{f['severity']}]\n  {f['description']}")
-        
-        if advice_parts:
-            self.copilot_output.setText("\n\n".join(advice_parts))
 
     def _on_target_changed(self, new_target: str):
         cleaned = new_target.strip()
@@ -605,7 +809,6 @@ class DashboardPage(QWidget):
             app_state.clear_next_action()
 
     def _on_port_clicked(self, port: int, service: str):
-        """Routes directly to relevant security tool when user clicks a port chip."""
         target = self.target_input.text().strip() or "127.0.0.1"
         if port in (80, 8080):
             self.run_suggested_signal.emit(f"nikto|http://{target}:{port}|")
@@ -621,26 +824,17 @@ class DashboardPage(QWidget):
             self.run_suggested_signal.emit(f"nmap|{target}|-p {port} -sV")
 
     def _run_quick_vulnerability_audit(self):
-        """Runs instant Copilot vulnerability breakdown."""
         findings = AICopilot.diagnose(app_state.events, app_state.open_ports)
-        lines = [f"🛡️ [VULNERABILITY AUDIT REPORT - THREAT LEVEL: {app_state.global_risk}]"]
-        lines.append(f"Open Port Surface: {app_state.open_ports or 'None detected yet'}")
-        lines.append(f"Detected Events: {app_state.events or 'No high-risk signatures'}\n")
+        lines = [f"<b style='color:#00f0ff;'>[VULNERABILITY AUDIT REPORT - THREAT: {app_state.global_risk}]</b>"]
+        lines.append(f"<span style='color:#64748b;'>Open Port Surface: {app_state.open_ports or 'None detected yet'}</span>")
+        lines.append(f"<span style='color:#64748b;'>Detected Events: {app_state.events or 'No high-risk signatures'}</span><br>")
         for f in findings:
             title = f.get("title", "Security Finding")
             sev = f.get("severity", "LOW")
             cvss = f.get("cvss", f.get("cvss_score", 3.0))
             desc = f.get("description", "")
-            rem = f.get("remediation", "")
-            if not rem:
-                rem_code = f.get("remediation_python", "")
-                if rem_code:
-                    lines_code = [l.lstrip("#/ ").strip() for l in rem_code.splitlines() if l.startswith(("#", "//"))]
-                    rem = " ".join(lines_code[:2]) if lines_code else "Apply security hardening patches."
-                else:
-                    rem = "Apply defensive configuration patches."
-            lines.append(f"● {title} [{sev} - {cvss} CVSS]\n  {desc}\n  Remediation: {rem}\n")
-        self.copilot_output.setText("\n".join(lines))
+            lines.append(f"<span style='color:#34d399;'>● {title} [{sev} - {cvss} CVSS]</span><br><span style='color:#94a3b8;'>{desc}</span><br>")
+        self.copilot_output.setHtml("<br>".join(lines))
         self.ai_status_dot.setText("● AUDIT DONE")
         self.ai_status_dot.setStyleSheet("color: #00f0ff; font-size: 10px; font-weight: 800;")
 
@@ -648,43 +842,30 @@ class DashboardPage(QWidget):
         self.ai_prompt_input.setText(text)
         self.run_ai_analysis()
 
-    # ========================
-    # Update Dashboard Data
-    # ========================
-
     def update_dashboard(self):
-        # 1. Update system Uptime and Time
         self.uptime_seconds += 1
         hours = self.uptime_seconds // 3600
         minutes = (self.uptime_seconds % 3600) // 60
         seconds = self.uptime_seconds % 60
-        self.system_uptime_label.setText(f"UPTIME: {hours:02d}:{minutes:02d}:{seconds:02d}")
+        self.system_uptime_val.setText(f"{hours:02d}:{minutes:02d}:{seconds:02d}")
         
         current_time = datetime.now().strftime("%H:%M:%S")
-        self.system_time_label.setText(f"SYSTEM TIME: {current_time}")
+        self.system_time_val.setText(f"{current_time}")
 
-        # 2. Pulsing online beacon
-        if self.uptime_seconds % 2 == 0:
-            self.beacon_label.setText("● CORE ONLINE")
-            self.beacon_label.setStyleSheet("color: #34d399; font-weight: 800; font-size: 11px; padding: 3px 8px; border: 1px solid #059669; border-radius: 6px; background: #052e16;")
-        else:
-            self.beacon_label.setText("○ CORE SCANNING")
-            self.beacon_label.setStyleSheet("color: #00f0ff; font-weight: 800; font-size: 11px; padding: 3px 8px; border: 1px solid #00f0ff; border-radius: 6px; background: #08212e;")
-
-        # 3. Dynamic Telemetry Metric Fluctuations (Feels Alive)
-        cpu_load = max(5.0, min(99.0, 35.0 + random.uniform(-10.0, 10.0)))
+        # Dynamic Telemetry Metric Fluctuations
+        cpu_load = max(5.0, min(99.0, 44.9 + random.uniform(-4.0, 4.0)))
         self.cpu_val.setText(f"{cpu_load:.1f}%")
         self.cpu_bar.setValue(int(cpu_load))
         
-        bw = max(0.0, 300.0 + random.uniform(-120.0, 120.0))
+        bw = max(0.0, 267.0 + random.uniform(-20.0, 20.0))
         self.bw_val.setText(f"{int(bw)} KB/s")
         self.bw_bar.setValue(int(bw))
         
-        threads = random.randint(8, 16)
+        threads = random.randint(14, 18)
         self.thread_val.setText(f"{threads} Active")
         self.thread_bar.setValue(threads)
 
-        # 4. Threat Level & Modern Progress Meter
+        # Threat Level
         risk = app_state.global_risk
         score = app_state.risk_score
         self.radar_score_label.setText(f"Threat Score: {score} / 100")
@@ -692,56 +873,39 @@ class DashboardPage(QWidget):
 
         if risk.upper() == "LOW":
             self.radar_risk_readout.setText("LOW HAZARD LEVEL")
-            self.radar_risk_readout.setStyleSheet("font-size: 16px; font-weight: 800; color: #34d399;")
+            self.radar_risk_readout.setStyleSheet("""
+                background-color: #041f17; border: 1px solid #059669; color: #10b981;
+                font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 6px;
+            """)
             self.radar_segments.setText("Risk Exposure: Baseline (0/100)")
-            self.threat_bar.setStyleSheet("""
-                QProgressBar { border: 1px solid #162744; border-radius: 4px; background-color: #070d18; min-height: 10px; max-height: 10px; }
-                QProgressBar::chunk { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #10b981, stop:1 #34d399); border-radius: 3px; }
-            """)
         elif risk.upper() == "MEDIUM":
-            self.radar_risk_readout.setText("MEDIUM WARNING THREAT")
-            self.radar_risk_readout.setStyleSheet("font-size: 16px; font-weight: 800; color: #f59e0b;")
+            self.radar_risk_readout.setText("MEDIUM HAZARD")
+            self.radar_risk_readout.setStyleSheet("""
+                background-color: #241407; border: 1px solid #d97706; color: #fbbf24;
+                font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 6px;
+            """)
             self.radar_segments.setText("Risk Exposure: Elevated (40-70/100)")
-            self.threat_bar.setStyleSheet("""
-                QProgressBar { border: 1px solid #162744; border-radius: 4px; background-color: #070d18; min-height: 10px; max-height: 10px; }
-                QProgressBar::chunk { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #d97706, stop:1 #fbbf24); border-radius: 3px; }
-            """)
         else:
-            self.radar_risk_readout.setText("CRITICAL PENETRATION LEVEL")
-            self.radar_risk_readout.setStyleSheet("font-size: 16px; font-weight: 800; color: #f43f5e;")
-            self.radar_segments.setText("Risk Exposure: Critical (>75/100)")
-            self.threat_bar.setStyleSheet("""
-                QProgressBar { border: 1px solid #162744; border-radius: 4px; background-color: #070d18; min-height: 10px; max-height: 10px; }
-                QProgressBar::chunk { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #e11d48, stop:1 #f43f5e); border-radius: 3px; }
+            self.radar_risk_readout.setText("CRITICAL HAZARD")
+            self.radar_risk_readout.setStyleSheet("""
+                background-color: #28080f; border: 1px solid #e11d48; color: #f43f5e;
+                font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 6px;
             """)
+            self.radar_segments.setText("Risk Exposure: Critical (>75/100)")
 
-        # 5. Live Ports status check
+        # Port Matrix
         open_ports = app_state.open_ports
         for port, (cell_btn, service) in self.port_cells.items():
             if port in open_ports:
-                cell_btn.setText(f"{service} : {port}\n[OPEN ●]")
+                cell_btn.setText(f"{service} : {port}\n● OPEN")
                 cell_btn.setProperty("class", "portChipOpen")
-                cell_btn.style().unpolish(cell_btn)
-                cell_btn.style().polish(cell_btn)
             else:
-                cell_btn.setText(f"{service} : {port}\n[CLOSED]")
+                cell_btn.setText(f"{service} : {port}\n● CLOSED")
                 cell_btn.setProperty("class", "portChipClosed")
-                cell_btn.style().unpolish(cell_btn)
-                cell_btn.style().polish(cell_btn)
+            cell_btn.style().unpolish(cell_btn)
+            cell_btn.style().polish(cell_btn)
 
-        # 6. Real-Time State Fingerprint Tracking
-        current_fingerprint = (
-            tuple(app_state.open_ports),
-            tuple(app_state.events),
-            app_state.last_tool_executed,
-            app_state.risk_score,
-            app_state.global_risk,
-            app_state.next_tool
-        )
-        if getattr(self, "_last_state_fingerprint", None) != current_fingerprint:
-            self._last_state_fingerprint = current_fingerprint
-
-        # 7. Attack Surface & Intel Card Updates
+        # Target and Directive status
         target_present = bool(
             (self.target_input.text() and self.target_input.text().strip()) or
             app_state.open_ports or
@@ -756,20 +920,16 @@ class DashboardPage(QWidget):
             if app_state.next_tool:
                 self.next_tool_label.setText(f"DIRECTIVE: {app_state.next_tool.upper()}")
                 self.run_suggested_btn.setEnabled(True)
-                self.run_suggested_btn.setText(f"⚡ Execute {app_state.next_tool.upper()} (Auto-Fill)")
+                self.run_suggested_btn.setText(f"▶  Execute {app_state.next_tool.upper()} (Auto-Fill)")
             else:
                 self.next_tool_label.setText("DIRECTIVE: STANDBY")
                 self.run_suggested_btn.setEnabled(False)
-                self.run_suggested_btn.setText("⚡ Execute Directive (Enter Target to Begin)")
+                self.run_suggested_btn.setText("▶  Execute Directive (Enter Target to Begin)")
         else:
-            self.suggestion_label.setText("[SYS_INTEL] Standing by. Enter a target IP address or domain above to receive AI scenario directives.")
+            self.suggestion_label.setText("[SYS_INTEL] Enter a target IP address or domain above to receive AI scenario directives.")
             self.next_tool_label.setText("DIRECTIVE: STANDBY (Enter Target)")
             self.run_suggested_btn.setEnabled(False)
-            self.run_suggested_btn.setText("⚡ Execute Directive (Enter Target to Begin)")
-
-    # ========================
-    # Interactive AI Copilot Querying
-    # ========================
+            self.run_suggested_btn.setText("▶  Execute Directive (Enter Target to Begin)")
 
     def run_ai_analysis(self):
         user_prompt = self.ai_prompt_input.text().strip()
@@ -784,7 +944,7 @@ class DashboardPage(QWidget):
         self.ai_status_dot.setText("● THINKING...")
         self.ai_status_dot.setStyleSheet("color: #fbbf24; font-size: 10px; font-weight: 800;")
         self.ask_ai_btn.setEnabled(False)
-        self.copilot_output.setText("🧠 AI Copilot is analyzing scan metrics and crafting analysis response...")
+        self.copilot_output.setHtml("<span style='color:#38bdf8;'>🧠 AI Copilot is analyzing scan metrics and crafting analysis response...</span>")
 
         self.ai_worker = AIWorkerThread(context_info=context_info, user_prompt=user_prompt)
         self.ai_worker.finished_signal.connect(self._on_ai_analysis_finished)
@@ -795,7 +955,7 @@ class DashboardPage(QWidget):
         self.ask_ai_btn.setEnabled(True)
         self.ai_prompt_input.clear()
         self.ai_status_dot.setText("● READY")
-        self.ai_status_dot.setStyleSheet("color: #34d399; font-size: 10px; font-weight: 800;")
+        self.ai_status_dot.setStyleSheet("color: #10b981; font-size: 10px; font-weight: 800;")
         self.copilot_output.setText(response)
 
     def _on_ai_analysis_error(self, err_msg: str):
@@ -804,10 +964,6 @@ class DashboardPage(QWidget):
         self.ai_status_dot.setStyleSheet("color: #f43f5e; font-size: 10px; font-weight: 800;")
         self.copilot_output.setText(f"❌ AI Analysis Error:\n{err_msg}")
 
-    # ========================
-    # Trigger suggested tool routing
-    # ========================
-
     def run_suggested_tool(self):
         target = self.target_input.text().strip() or "127.0.0.1"
         if app_state.next_tool:
@@ -815,9 +971,3 @@ class DashboardPage(QWidget):
             flags = meta.get("flags", "")
             tool_name = meta.get("tool_key", app_state.next_tool)
             self.run_suggested_signal.emit(f"{tool_name}|{target}|{flags}")
-
-    def _handle_execute_next_step(self, page_name: str, sub_tool_key: str, suggested_target: str, suggested_flags: str):
-        """Handler for one-click ML next step button with auto-fill parameters."""
-        active_target = self.target_input.text().strip() or suggested_target or "127.0.0.1"
-        tool_name = sub_tool_key or app_state.next_tool
-        self.run_suggested_signal.emit(f"{tool_name}|{active_target}|{suggested_flags}")

@@ -114,7 +114,10 @@ class MainWindow(QMainWindow):
             self.workspace.pages["Recon"].update_mode
         )
         self.topbar.toggle_output_signal.connect(self.toggle_output_panel)
-        self.topbar.toggle_ai_copilot_signal.connect(self.toggle_ai_copilot)
+        if hasattr(self.topbar, "toggle_ai_copilot_signal"):
+            self.topbar.toggle_ai_copilot_signal.connect(self.toggle_ai_copilot)
+        if hasattr(self.topbar, "search_submitted"):
+            self.topbar.search_submitted.connect(self._handle_global_search)
 
 
         # =========================
@@ -559,6 +562,8 @@ class MainWindow(QMainWindow):
 
     def _on_navigation_change(self, page_name):
         self.workspace.switch_page(page_name)
+        if hasattr(self.sidebar, "set_active_page"):
+            self.sidebar.set_active_page(page_name)
         if hasattr(self.workspace, "get_active_context"):
             ctx = self.workspace.get_active_context()
             self.ai_drawer.update_active_context_realtime(
@@ -566,6 +571,28 @@ class MainWindow(QMainWindow):
                 tool_name=ctx.get("tool_name", page_name),
                 inputs_dict=ctx.get("inputs", {})
             )
+
+    def _handle_global_search(self, query: str):
+        q = query.strip()
+        if not q:
+            return
+        ql = q.lower()
+        if ql in ("dashboard", "home"):
+            self._on_navigation_change("Dashboard")
+        elif ql in ("recon", "nmap", "whois", "harvester", "metagoofil", "amass", "photon", "autopsy"):
+            self._on_navigation_change("Recon")
+        elif ql in ("web", "nikto", "sqlmap", "gobuster", "wfuzz", "whatweb"):
+            self._on_navigation_change("Web")
+        elif ql in ("auth", "hydra", "john", "hashcat", "ncrack", "hashid"):
+            self._on_navigation_change("Auth")
+        elif ql in ("network", "netcat", "wireshark", "wifite", "wash", "reaver", "sslscan", "sslyze"):
+            self._on_navigation_change("Network")
+        elif ql in ("reports", "report", "logs", "log"):
+            self._on_navigation_change("Reports")
+        elif ql in ("settings", "config"):
+            self._on_navigation_change("Settings")
+        elif " " in q:
+            self.execute(q)
 
     def _handle_thread_output(self, thread, message):
         self._log_main(message)
@@ -731,94 +758,44 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(
             """
             QMainWindow#mainWindow {
-                background-color: #0b1220;
+                background-color: #060b13;
             }
 
             QWidget {
-                color: #d6e2ff;
-                font-family: 'Segoe UI';
+                color: #cbd5e1;
+                font-family: 'Segoe UI', 'Inter', sans-serif;
             }
 
             QWidget#workspace {
-                background-color: #0f172a;
-                border-left: 1px solid #25324c;
+                background-color: #060b13;
+                border: none;
             }
 
             QWidget#topBar {
-                background-color: #101828;
-                border-bottom: 1px solid #2a3958;
-            }
-
-            QLabel#topTitle {
-                font-size: 18px;
-                font-weight: 700;
-                color: #f3f7ff;
-            }
-
-            QComboBox#modeSelector {
-                min-width: 120px;
-                padding: 7px 10px;
-                border: 1px solid #3a4a6c;
-                border-radius: 8px;
-                background-color: #1a2438;
-                color: #e2ecff;
-            }
-
-            QLabel#riskLabel {
-                font-weight: 700;
-                padding: 6px 10px;
-                border-radius: 8px;
-                background-color: #182235;
-                color: #7ee787;
-            }
-
-            QLabel#riskLabel[riskLevel="medium"] {
-                color: #f3b23f;
-            }
-
-            QLabel#riskLabel[riskLevel="high"] {
-                color: #ff7a7a;
+                background-color: #060b13;
+                border-bottom: 1px solid #111e33;
             }
 
             QWidget#sideBar {
-                background-color: #101a2f;
-                border-right: 1px solid #2a3958;
-                min-width: 220px;
-                max-width: 240px;
-            }
-
-            QPushButton#navButton {
-                text-align: left;
-                padding: 10px 12px;
-                border: 1px solid #2d3f61;
-                border-radius: 8px;
-                background-color: #16233a;
-                color: #d7e5ff;
-                font-weight: 600;
-            }
-
-            QPushButton#navButton:hover {
-                background-color: #1f3150;
-                border-color: #3d78d8;
-            }
-
-            QPushButton#navButton:pressed {
-                background-color: #27406a;
+                background-color: #060b13;
+                border-right: 1px solid #111e33;
+                min-width: 210px;
+                max-width: 230px;
             }
 
             #toolModulePage {
-                background-color: transparent;
+                background-color: #060b13;
             }
 
             QFrame#toolModuleHeader {
-                border: 1px solid #2b3a57;
-                border-radius: 14px;
-                background-color: #121d31;
+                border: 1px solid #14243e;
+                border-radius: 8px;
+                background-color: #081220;
             }
 
             QLabel#toolModuleSubtitle {
-                color: #91a8cc;
-                font-size: 12px;
+                color: #64748b;
+                font-size: 11px;
             }
 
             QFrame#toolRow {
@@ -827,140 +804,150 @@ class MainWindow(QMainWindow):
             }
 
             QFrame#panelContainer {
-                border: 1px solid #2b3a57;
-                border-radius: 14px;
-                background-color: #10192a;
+                border: 1px solid #14243e;
+                border-radius: 8px;
+                background-color: #081220;
             }
 
             QGroupBox[class="toolPanelGroup"] {
-                border: 1px solid #324466;
-                border-radius: 12px;
+                border: 1px solid #14243e;
+                border-radius: 8px;
                 margin-top: 14px;
                 padding-top: 16px;
-                font-size: 14px;
-                font-weight: 600;
-                color: #d9e6ff;
+                font-size: 13px;
+                font-weight: 700;
+                color: #e2e8f0;
             }
 
             QGroupBox[class="toolPanelGroup"]::title {
                 subcontrol-origin: margin;
                 left: 14px;
                 padding: 0 5px;
-                color: #e8f0ff;
+                color: #00f0ff;
             }
 
             QLabel#emptyStateTitle {
-                color: #dce8ff;
+                color: #e2e8f0;
             }
 
             QLabel#emptyStateSubtitle {
-                color: #8ea2c5;
-                font-size: 12px;
+                color: #64748b;
+                font-size: 11px;
             }
 
             QLineEdit,
             QComboBox,
             QTextEdit,
             QListWidget {
-                padding: 9px;
-                border: 1px solid #3a4a6c;
-                border-radius: 8px;
-                background-color: #1a2438;
-                color: #e2ecff;
+                padding: 7px 10px;
+                border: 1px solid #162844;
+                border-radius: 6px;
+                background-color: #08101e;
+                color: #e2e8f0;
+                font-size: 11px;
             }
 
             QLineEdit:focus,
             QComboBox:focus,
             QTextEdit:focus {
-                border-color: #4d89ff;
+                border-color: #2563eb;
             }
 
             QPushButton {
-                padding: 9px 12px;
-                border-radius: 8px;
-                border: 1px solid #3a4a6c;
-                background-color: #22324f;
-                color: #d9e7ff;
+                padding: 7px 12px;
+                border-radius: 6px;
+                border: 1px solid #162844;
+                background-color: #0c182b;
+                color: #cbd5e1;
                 font-weight: 600;
+                font-size: 11px;
             }
 
             QPushButton:hover {
-                background-color: #2a3c5d;
+                background-color: #12243d;
+                border-color: #38bdf8;
+                color: #ffffff;
             }
 
             QPushButton[role="primary"] {
-                background-color: #2f5eb8;
-                border-color: #3567c7;
-                color: #f2f7ff;
+                background-color: #1d4ed8;
+                border-color: #2563eb;
+                color: #ffffff;
+                font-weight: 700;
             }
 
             QPushButton[role="primary"]:hover {
-                background-color: #3a6cca;
+                background-color: #2563eb;
+                border-color: #38bdf8;
             }
 
             QPushButton[role="secondary"] {
-                background-color: #26344f;
+                background-color: #0c182b;
+                border: 1px solid #162844;
+                color: #94a3b8;
+            }
+            QPushButton[role="secondary"]:hover {
+                background-color: #142540;
+                color: #ffffff;
             }
 
             QWidget#consolePanel {
-                border-top: 1px solid #2a3958;
-                background-color: #0e1728;
+                border-top: 1px solid #111e33;
+                background-color: #050c18;
             }
 
             QWidget#sideConsolePanel {
-                border-left: 1px solid #2a3958;
-                background-color: #0e1728;
-                border-radius: 10px;
+                border-left: 1px solid #111e33;
+                background-color: #050c18;
+                border-radius: 8px;
             }
 
             QLabel#consoleTitle,
             QLabel#sideConsoleTitle {
-                font-size: 14px;
-                font-weight: 700;
-                color: #bcd0f5;
+                font-size: 12px;
+                font-weight: 800;
+                color: #cbd5e1;
                 padding: 2px 4px;
+                letter-spacing: 0.5px;
             }
 
             QPushButton#slideExpandBtn {
                 padding: 4px 10px;
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 700;
-                background-color: #1a273e;
-                border: 1px solid #354a70;
+                background-color: #0c182b;
+                border: 1px solid #162844;
                 border-radius: 6px;
                 color: #38bdf8;
             }
             QPushButton#slideExpandBtn:hover {
-                background-color: #24385a;
+                background-color: #162844;
                 border-color: #38bdf8;
                 color: #ffffff;
             }
 
             QSplitter#mainSplitter::handle:horizontal {
-                background-color: #16233b;
-                border-left: 1px solid #2b3e63;
-                border-right: 1px solid #2b3e63;
-                width: 10px;
+                background-color: #060b13;
+                border-left: 1px solid #111e33;
+                border-right: 1px solid #111e33;
+                width: 6px;
             }
             QSplitter#mainSplitter::handle:horizontal:hover {
-                background-color: #3b82f6;
-            }
-            QSplitter#mainSplitter::handle:horizontal:pressed {
-                background-color: #60a5fa;
+                background-color: #1d4ed8;
             }
 
             QTabWidget#sideOutputTabs::pane {
-                border: 1px solid #2b3a57;
-                border-radius: 8px;
-                background-color: #0e1728;
+                border: 1px solid #14243e;
+                border-radius: 6px;
+                background-color: #050c18;
             }
 
             QTabWidget#sideOutputTabs QTabBar::tab {
-                background-color: #192741;
-                color: #cfe0ff;
-                border: 1px solid #2f4568;
-                padding: 6px 12px;
-                font-size: 12px;
+                background-color: #081220;
+                color: #94a3b8;
+                border: 1px solid #14243e;
+                padding: 5px 12px;
+                font-size: 11px;
                 font-weight: 600;
                 margin-right: 2px;
                 border-top-left-radius: 6px;
@@ -968,19 +955,37 @@ class MainWindow(QMainWindow):
             }
 
             QTabWidget#sideOutputTabs QTabBar::tab:selected {
-                background-color: #24406e;
-                border-color: #3d78d8;
-                color: #f4f8ff;
+                background-color: #1d4ed8;
+                border-color: #2563eb;
+                color: #ffffff;
             }
 
             QTextEdit#consoleOutput {
-                border: 1px solid #284f35;
-                background-color: #08100f;
-                color: #6cff9a;
+                border: 1px solid #111e33;
+                background-color: #050c18;
+                color: #10b981;
                 font-family: 'Consolas', 'Cascadia Code', 'Courier New', monospace;
-                font-size: 13px;
-                line-height: 1.5;
+                font-size: 12px;
+                line-height: 1.4;
                 padding: 8px;
+            }
+
+            QScrollBar:vertical {
+                border: none;
+                background: #060b13;
+                width: 6px;
+                margin: 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: #14243e;
+                min-height: 20px;
+                border-radius: 3px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background: #2563eb;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                height: 0px;
             }
             """
         )

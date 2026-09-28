@@ -83,41 +83,43 @@ class ToolIconButton(QWidget):
         accent_soft = self._alpha_color(accent, 48)
 
         if self._is_active:
-            icon_bg = accent
-            border_color = accent
-            name_color = "#f8fbff"
-            desc_color = "#dbeafe"
-            card_bg = accent_soft
+            icon_bg = "#1d4ed8"
+            border_color = "#2563eb"
+            name_color = "#ffffff"
+            desc_color = "#93c5fd"
+            card_bg = "#0e2244"
         else:
-            icon_bg = "#1c273d"
-            border_color = "#3a4a67"
-            name_color = "#d7e2f4"
-            desc_color = "#91a4c4"
-            card_bg = "#111a2e"
+            icon_bg = "#08101e"
+            border_color = "#14243e"
+            name_color = "#cbd5e1"
+            desc_color = "#64748b"
+            card_bg = "#081220"
 
         self.setStyleSheet(
             f"""
             QWidget#toolCard {{
                 border: 1px solid {border_color};
-                border-radius: 12px;
+                border-radius: 8px;
                 background-color: {card_bg};
             }}
             QWidget#toolCard:hover {{
-                border-color: {accent};
+                border-color: #38bdf8;
+                background-color: #0c182b;
             }}
             QPushButton#toolIconButton {{
                 background-color: {icon_bg};
-                border: 2px solid {border_color};
-                border-radius: 10px;
+                border: 1px solid {border_color};
+                border-radius: 8px;
                 color: white;
             }}
             QPushButton#toolIconButton:hover {{
-                border-color: {accent};
+                border-color: #38bdf8;
             }}
             QLabel#toolNameLabel {{
                 color: {name_color};
                 border: none;
                 background: transparent;
+                font-weight: 700;
             }}
             QLabel#toolDescLabel {{
                 color: {desc_color};
