@@ -1,15 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <line x1="32" y1="14" x2="14" y2="44" stroke="#7c3aed" stroke-width="2"/>
-  <line x1="32" y1="14" x2="50" y2="44" stroke="#7c3aed" stroke-width="2"/>
-  <line x1="14" y1="44" x2="50" y2="44" stroke="#7c3aed" stroke-width="2"/>
-  <line x1="32" y1="14" x2="32" y2="34" stroke="#c084fc" stroke-width="2"/>
-  <line x1="14" y1="44" x2="32" y2="34" stroke="#c084fc" stroke-width="2"/>
-  <line x1="50" y1="44" x2="32" y2="34" stroke="#c084fc" stroke-width="2"/>
-  <circle cx="32" cy="14" r="6" fill="#8b5cf6" stroke="#c084fc" stroke-width="2"/>
-  <circle cx="14" cy="44" r="6" fill="#8b5cf6" stroke="#c084fc" stroke-width="2"/>
-  <circle cx="50" cy="44" r="6" fill="#8b5cf6" stroke="#c084fc" stroke-width="2"/>
-  <circle cx="32" cy="34" r="6" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
-  <circle cx="23" cy="24" r="2.5" fill="#34d399"/>
-  <circle cx="41" cy="24" r="2.5" fill="#34d399"/>
-  <circle cx="32" cy="48" r="2.5" fill="#f43f5e"/>
-</svg>
+<svg width="512" height="512" version="1.1" viewBox="0 0 135.47 135.47" xmlns="http://www.w3.org/2000/svg"><path d="m51.075 17.677-39.005 100.12v9.475h29.214l6.7019-22.582h38.223l7.0294 22.582h30.162v-9.475l-37.426-100.12zm15.567 24.151 11.899 38.225h-23.243z" fill="#951212" stroke-width=".95749"/><path d="m51.075 8.2023-39.005 109.59h29.214l6.7019-22.582h38.223l7.0294 22.582h30.162l-37.426-109.59zm15.567 24.151 11.899 38.225h-23.243z" fill="#d41919" stroke-width=".95749"/><path d="m51.075 8.2023-39.005 109.59h0.90152l38.103-107.06h34.9l36.561 107.06h0.86491l-37.426-109.59zm4.2222 62.377-6.4e-5 2.5332h23.243l1.25e-4 -2.5332z" fill="#fff" opacity=".2" stroke-width=".95749"/></svg>

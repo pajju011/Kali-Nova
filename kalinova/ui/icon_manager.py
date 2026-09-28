@@ -362,11 +362,11 @@ TOOL_SVG_MAP: Dict[str, str] = {
 }
 
 def ensure_tool_svg_icons(force: bool = False) -> None:
-    """Writes SVG icon files to disk, updating if force is True or file missing."""
+    """Writes SVG icon files to disk if file missing."""
     icons_dir = get_icons_dir()
     for tool_id, svg_content in TOOL_SVG_MAP.items():
         svg_file = icons_dir / f"{tool_id}.svg"
-        if force or not svg_file.exists():
+        if not svg_file.exists():
             try:
                 svg_file.write_text(svg_content.strip(), encoding="utf-8")
             except Exception as e:
@@ -374,30 +374,33 @@ def ensure_tool_svg_icons(force: bool = False) -> None:
 
 def get_tool_icon_path(tool_id: str) -> str:
     """
-    Returns path to SVG icon file for a tool, generating it if necessary.
+    Returns path to SVG or PNG icon file for a tool, checking resources/icons first.
     Falls back to a default SVG if specific tool_id is missing.
     """
     ensure_tool_svg_icons()
     icons_dir = get_icons_dir()
     tool_clean = tool_id.lower().strip()
     
-    # Check direct name match
-    target_path = icons_dir / f"{tool_clean}.svg"
-    if target_path.exists():
-        return str(target_path)
+    # Check direct name match for SVG or PNG
+    for ext in (".svg", ".png"):
+        target_path = icons_dir / f"{tool_clean}{ext}"
+        if target_path.exists():
+            return str(target_path)
         
     # Alias matches
     aliases = {
         "harvester": "harvester",
         "theharvester": "harvester",
         "sparrowwifi": "sparrow",
-        "hash_identifier": "hashid",
+        "hash_identifier": "hash-identifier",
+        "hashid": "hashid",
     }
     alias_key = aliases.get(tool_clean)
     if alias_key:
-        alias_path = icons_dir / f"{alias_key}.svg"
-        if alias_path.exists():
-            return str(alias_path)
+        for ext in (".svg", ".png"):
+            alias_path = icons_dir / f"{alias_key}{ext}"
+            if alias_path.exists():
+                return str(alias_path)
     
     # Generic fallback SVG if tool icon not found
     fallback_path = icons_dir / "nmap.svg"
