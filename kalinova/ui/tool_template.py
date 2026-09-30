@@ -485,13 +485,20 @@ class ToolModulePage(QScrollArea):
         insert_index = max(self.tools_layout.count() - 1, 0)
         self.tools_layout.insertWidget(insert_index, tool_button)
 
-        # Attach Next Step Recommendation Card to panel
+        # Attach Next Step Recommendation Card directly under the run button, before any trailing stretch
         if tool_id in self._next_step_cards:
             card = self._next_step_cards[tool_id]
             card.active_tool_name = name
             panel_layout = panel.layout()
             if panel_layout is not None and card.parent() is None:
-                panel_layout.addWidget(card)
+                insert_pos = panel_layout.count()
+                for idx in range(panel_layout.count() - 1, -1, -1):
+                    item = panel_layout.itemAt(idx)
+                    if item and item.spacerItem():
+                        insert_pos = idx
+                    else:
+                        break
+                panel_layout.insertWidget(insert_pos, card)
 
             if focus_widget is not None and isinstance(focus_widget, QLineEdit):
                 focus_widget.textChanged.connect(card.set_target)
