@@ -29,7 +29,7 @@ class CommandThread(QThread):
     def __init__(self, command):
         super().__init__()
         self.command = command
-        self.start_time = None
+        self.start_time: float = 0.0
         self.line_count = 0
         self._process = None
         self._stop_requested = False
@@ -124,17 +124,18 @@ class CommandThread(QThread):
                 )
                 self._process = process
 
-                for line in process.stdout:
-                    if self._stop_requested:
-                        break
-                    clean = line.strip()
-                    if clean:  # Only emit non-empty lines
-                        self.process_output_line(clean)
+                if process.stdout is not None:
+                    for line in process.stdout:
+                        if self._stop_requested:
+                            break
+                        clean = line.strip()
+                        if clean:  # Only emit non-empty lines
+                            self.process_output_line(clean)
 
                 process.wait()
                 
                 # Calculate execution time
-                elapsed_time = time.time() - self.start_time
+                elapsed_time = time.time() - (self.start_time or time.time())
                 
                 self.output_signal.emit(f"\n{'='*60}")
                 if self._stop_requested:
@@ -906,7 +907,7 @@ class CommandThread(QThread):
             self.process_output_line(line)
             time.sleep(random.uniform(0.08, 0.20))
 
-        elapsed_time = time.time() - self.start_time
+        elapsed_time = time.time() - (self.start_time or time.time())
         self.output_signal.emit(f"\n{'='*60}")
         if self._stop_requested:
             self.output_signal.emit("Tool execution stopped by user.")

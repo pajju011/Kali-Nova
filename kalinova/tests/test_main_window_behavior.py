@@ -10,6 +10,7 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QApplication
 
 from ui.main_window import MainWindow
+from ui.console import Console
 
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -117,7 +118,8 @@ class MainWindowBehaviorTests(unittest.TestCase):
             self.assertFalse(window.side_console.isHidden())
             self.assertEqual(window.side_tabs.count(), 1)
 
-            window.thread.finished_signal.emit()
+            assert window.active_command_thread is not None
+            window.active_command_thread.finished_signal.emit()
 
         self.assertFalse(window.side_console.isHidden())
 
@@ -155,6 +157,8 @@ class MainWindowBehaviorTests(unittest.TestCase):
         self.assertEqual(window.side_tabs.count(), 2)
         first_tab_console = window.side_tabs.widget(0)
         second_tab_console = window.side_tabs.widget(1)
+        assert isinstance(first_tab_console, Console)
+        assert isinstance(second_tab_console, Console)
         self.assertIn("nmap line 1", first_tab_console.output.toPlainText().lower())
         self.assertIn("sqlmap line 1", second_tab_console.output.toPlainText().lower())
 
@@ -186,7 +190,7 @@ class MainWindowBehaviorTests(unittest.TestCase):
         stub_thread_1 = StoppableThread()
         stub_thread_2 = StoppableThread()
         window._threads = [stub_thread_1, stub_thread_2]
-        window.thread = stub_thread_2
+        window.active_command_thread = stub_thread_2
 
         window.close()
 

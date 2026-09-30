@@ -1,6 +1,7 @@
 import json
 import os
 import ssl
+from typing import Any, Dict
 import urllib.request
 import urllib.error
 # pyrefly: ignore [missing-import]
@@ -414,7 +415,7 @@ const secureEmail = 'info' + '@' + 'targetdomain.com';
         prompt_lower = user_prompt.lower().strip()
         context_lower = context_info.lower().strip()
 
-        tools_db = {
+        tools_db: Dict[str, Dict[str, Any]] = {
             "nmap": {
                 "name": "Nmap (Network Mapper)",
                 "usage": "nmap -sV -A <target_ip>",
@@ -1022,9 +1023,13 @@ async function verifyPassword(plainPassword, hashedPassword) {
                 res += f"🛡️ **Security Recommendation & Hardening for {tool_info['name']}**\n\n"
                 res += f"📋 **Defensive Directive:**\n{tool_info['advice']}\n\n"
                 if "remediation_python" in tool_info:
-                    res += f"🐍 **Python Code Patch:**\n```python\n{tool_info['remediation_python'].strip()}\n```\n\n"
+                    remed_py = tool_info['remediation_python']
+                    if isinstance(remed_py, str):
+                        res += f"🐍 **Python Code Patch:**\n```python\n{remed_py.strip()}\n```\n\n"
                 if "remediation_node" in tool_info:
-                    res += f"🟢 **Node.js / Server Patch:**\n```javascript\n{tool_info['remediation_node'].strip()}\n```\n\n"
+                    remed_node = tool_info['remediation_node']
+                    if isinstance(remed_node, str):
+                        res += f"🟢 **Node.js / Server Patch:**\n```javascript\n{remed_node.strip()}\n```\n\n"
 
             # --- INTENT BRANCH 3: EXPLAIN USAGE ---
             elif is_usage_intent:
@@ -1033,7 +1038,8 @@ async function verifyPassword(plainPassword, hashedPassword) {
                 res += f"📖 **Step-by-Step Workflow Guide:**\n"
                 res += f"1. Enter your target parameters in the tool form above.\n"
                 res += f"2. Review recommended flags: `{tool_info['flags'][0]}`.\n"
-                res += f"3. Click **Run {tool_info['name'].split()[0]}** to launch process execution.\n"
+                tool_first_word = str(tool_info.get('name', 'Tool')).split()[0]
+                res += f"3. Click **Run {tool_first_word}** to launch process execution.\n"
                 res += f"4. Inspect live stdout streaming in the Tool Output panel.\n\n"
                 res += f"💻 **Command Syntax:**\n`{tool_info['usage']}`\n\n"
                 res += f"🛡️ **Security Note:** {tool_info['advice']}\n\n"

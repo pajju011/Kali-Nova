@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
         if app_icon_path and os.path.exists(app_icon_path):
             self.setWindowIcon(QIcon(app_icon_path))
 
-        self.thread = None
+        self.active_command_thread = None
         self._threads = []
         self._thread_consoles = {}
         self._thread_tab_base_titles = {}
@@ -150,8 +150,8 @@ class MainWindow(QMainWindow):
         self._apply_theme()
 
     def _handle_main_console_input(self, text: str):
-        if self.thread is not None and self.thread.isRunning():
-            self.thread.send_input(text)
+        if self.active_command_thread is not None and self.active_command_thread.isRunning():
+            self.active_command_thread.send_input(text)
         else:
             self.execute(text)
 
@@ -178,7 +178,7 @@ class MainWindow(QMainWindow):
         thread.finished_signal.connect(lambda t=thread: self._on_thread_finished(t))
         tab_console.input_submitted.connect(lambda text, t=thread: t.send_input(text))
 
-        self.thread = thread
+        self.active_command_thread = thread
         self._threads.append(thread)
         self._thread_consoles[thread] = tab_console
         self._thread_tab_base_titles[thread] = base_title
@@ -650,8 +650,8 @@ class MainWindow(QMainWindow):
         self.ai_drawer.handle_scan_completed(tool_name, stdout_txt)
         if thread in self._threads:
             self._threads.remove(thread)
-        if self.thread is thread:
-            self.thread = None
+        if self.active_command_thread is thread:
+            self.active_command_thread = None
 
     def _close_output_tab(self, tab_index):
         tab_widget = self.side_tabs.widget(tab_index)
@@ -667,8 +667,8 @@ class MainWindow(QMainWindow):
                 self._thread_tab_base_titles.pop(thread, None)
                 if thread in self._threads:
                     self._threads.remove(thread)
-                if self.thread is thread:
-                    self.thread = None
+                if self.active_command_thread is thread:
+                    self.active_command_thread = None
                 break
 
         self.side_tabs.removeTab(tab_index)
@@ -676,7 +676,8 @@ class MainWindow(QMainWindow):
         if self.side_tabs.count() == 0:
             self.side_console.hide()
 
-    def closeEvent(self, event):
+    def closeEvent(self, a0):
+        event = a0
         running_threads = list(self._threads)
         if running_threads:
             self._set_main_status("Stopping running commands before exit...", "running")
@@ -692,8 +693,8 @@ class MainWindow(QMainWindow):
         self._threads.clear()
         self._thread_consoles.clear()
         self._thread_tab_base_titles.clear()
-        self.thread = None
-        super().closeEvent(event)
+        self.active_command_thread = None
+        super().closeEvent(a0)
 
     def set_output_panel_split(self, ratio=0.35):
         if not self.side_console.isVisible():
@@ -711,7 +712,8 @@ class MainWindow(QMainWindow):
         else:
             self.set_output_panel_split(0.40)
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, a0):
+        event = a0
         if event.key() == Qt.Key.Key_F11:
             if self.isFullScreen():
                 self.showMaximized()
@@ -725,7 +727,7 @@ class MainWindow(QMainWindow):
         elif event.key() == Qt.Key.Key_F9 or (event.key() == Qt.Key.Key_O and (event.modifiers() & Qt.KeyboardModifier.ControlModifier)):
             self.toggle_output_panel()
         else:
-            super().keyPressEvent(event)
+            super().keyPressEvent(a0)
 
     def _apply_theme(self):
         self.setStyleSheet(
