@@ -143,6 +143,8 @@ class MainWindow(QMainWindow):
         for page in [recon, web, auth, network]:
             if hasattr(page, "ai_assist_requested"):
                 page.ai_assist_requested.connect(self._handle_in_tool_ai_assist)
+            if hasattr(page, "run_suggested_signal"):
+                page.run_suggested_signal.connect(self.handle_suggested_tool)
 
         # Connect bottom console input
         self.console.input_submitted.connect(self._handle_main_console_input)
@@ -648,6 +650,13 @@ class MainWindow(QMainWindow):
         tool_name = self._extract_tool_name(getattr(thread, "command", ""))
         stdout_txt = "\n".join(getattr(thread, "stdout_lines", []))
         self.ai_drawer.handle_scan_completed(tool_name, stdout_txt)
+
+        # Refresh in-tool next-step recommendations across all pages
+        for p_name in ["Recon", "Web", "Auth", "Network"]:
+            p = self.workspace.pages.get(p_name)
+            if p and hasattr(p, "refresh_recommendations"):
+                p.refresh_recommendations()
+
         if thread in self._threads:
             self._threads.remove(thread)
         if self.active_command_thread is thread:

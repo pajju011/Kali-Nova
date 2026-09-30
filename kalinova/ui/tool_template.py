@@ -252,16 +252,22 @@ class ToolCopilotWidget(QFrame):
 
 
 
+from ui.components.next_step_card import NextStepCard
+
+
 class ToolModulePage(QScrollArea):
     """
     Shared module layout:
     - Header with title/subtitle
     - Horizontal tool cards
     - Empty state + stacked tool panels
+    - Embedded Next-Step Tactical Recommendation Cards
     - Embedded AI Copilot Assistant Widget
     """
 
     validation_error = pyqtSignal(str)
+    ai_assist_requested = pyqtSignal(dict)
+    run_suggested_signal = pyqtSignal(str)
 
     def __init__(self, title, accent_color, subtitle):
         super().__init__()
@@ -272,6 +278,7 @@ class ToolModulePage(QScrollArea):
         self._tool_panel_index = {}
         self._tool_focus_widget = {}
         self._tool_names = {}
+        self._next_step_cards = {}
 
         self.setObjectName("toolModulePage")
         self.setWidgetResizable(True)
@@ -333,7 +340,6 @@ class ToolModulePage(QScrollArea):
 
         self.setWidget(self.container)
 
-
     def get_active_tool_context(self):
         tool_id = self._selected_tool
         if not tool_id or tool_id not in self._tool_panel_index:
@@ -367,7 +373,6 @@ class ToolModulePage(QScrollArea):
         }
 
     def _build_empty_panel(self):
-
         empty = QWidget()
         layout = QVBoxLayout(empty)
         layout.setContentsMargins(24, 40, 24, 40)
@@ -392,8 +397,6 @@ class ToolModulePage(QScrollArea):
 
         return empty
 
-    ai_assist_requested = pyqtSignal(dict)
-
     def create_panel(self, title, tool_id=None):
         panel = QGroupBox()
         panel.setProperty("class", "toolPanelGroup")
@@ -413,7 +416,7 @@ class ToolModulePage(QScrollArea):
                 pixmap = QIcon(icon_path).pixmap(24, 24)
                 icon_label.setPixmap(pixmap)
                 header_row.addWidget(icon_label)
-        
+
         title_label = QLabel(title)
         title_label.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
         title_label.setStyleSheet("color: #00f0ff; letter-spacing: 0.5px;")
@@ -444,12 +447,18 @@ class ToolModulePage(QScrollArea):
 
         panel_layout.addLayout(header_row)
 
+        # Create In-Tool Next Step Recommendation Card
+        if tool_id:
+            card = NextStepCard(active_tool_id=tool_id)
+            card.run_suggested_signal.connect(self.run_suggested_signal.emit)
+            card.ai_assist_requested.connect(self.ai_assist_requested.emit)
+            self._next_step_cards[tool_id] = card
+
         return panel, panel_layout
 
     def _on_header_ai_assist_clicked(self):
         ctx = self.get_active_tool_context()
         self.ai_assist_requested.emit(ctx)
-
 
     def create_primary_button(self, text, tool_id=None):
         button = QPushButton(f"  {text}" if tool_id else text)
@@ -476,6 +485,17 @@ class ToolModulePage(QScrollArea):
         insert_index = max(self.tools_layout.count() - 1, 0)
         self.tools_layout.insertWidget(insert_index, tool_button)
 
+        # Attach Next Step Recommendation Card to panel
+        if tool_id in self._next_step_cards:
+            card = self._next_step_cards[tool_id]
+            card.active_tool_name = name
+            panel_layout = panel.layout()
+            if panel_layout is not None and card.parent() is None:
+                panel_layout.addWidget(card)
+
+            if focus_widget is not None and isinstance(focus_widget, QLineEdit):
+                focus_widget.textChanged.connect(card.set_target)
+
         panel_index = self.panel_stack.addWidget(panel)
 
         self._tool_buttons[tool_id] = tool_button
@@ -497,11 +517,29 @@ class ToolModulePage(QScrollArea):
             tool_name = self._tool_names[tool_id]
             self.copilot_widget.set_tool(tool_id, tool_name)
 
+        # Refresh recommendation for active tool
+        self.refresh_recommendations()
+
         focus_widget = self._tool_focus_widget.get(tool_id)
         if focus_widget is not None:
             focus_widget.setFocus()
             if hasattr(focus_widget, "selectAll"):
                 focus_widget.selectAll()
+
+    def refresh_recommendations(self):
+        """Refreshes all embedded next-step cards with latest input values and app_state."""
+        ctx = self.get_active_tool_context()
+        target = ""
+        inputs = ctx.get("inputs", {})
+        for k, v in inputs.items():
+            if any(term in k.lower() for term in ["target", "url", "host", "domain", "ip"]):
+                target = v
+                break
+
+        for tid, card in self._next_step_cards.items():
+            if target:
+                card.active_target = target
+            card.refresh_guidance()
 
     def populate_tool_inputs(self, tool_id, target="", flags=""):
         """Activates specified tool and pre-populates target input and parameters."""
