@@ -1,0 +1,10 @@
+PyQt6>=6.5.0
+Pygments>=2.15.0
+Pillow>=10.0.0
+reportlab>=4.0.0
+colorama>=0.4.6
+
+[dev]
+pytest>=7.0.0
+build>=1.0.0
+twine>=4.0.0

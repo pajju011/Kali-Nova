@@ -1,9 +1,13 @@
 import sys
 from PyQt6.QtWidgets import QApplication
-from ui.main_window import MainWindow
 
-if __name__ == "__main__":
+def main():
+    """Application entrypoint for kalinova console script and library launcher."""
+    from ui.main_window import MainWindow
     app = QApplication(sys.argv)
     window = MainWindow()
     window.showMaximized()
-    sys.exit(app.exec())   
+    return app.exec()
+
+if __name__ == "__main__":
+    sys.exit(main())   

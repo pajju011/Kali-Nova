@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kalinova"
+version = "1.0.0"
+description = "Next-Generation AI-Augmented Security & Penetration Testing Desktop Control Center"
+readme = "README.md"
+license = { text = "GPL-3.0-or-later" }
+authors = [
+    { name = "Prajwal R Poojary" },
+    { name = "Shravyashree M S" },
+    { name = "Pooja" },
+    { name = "Shreyank" }
+]
+maintainers = [
+    { name = "Kali-Nova Team" }
+]
+keywords = [
+    "security",
+    "penetration-testing",
+    "ethical-hacking",
+    "cybersecurity",
+    "ai",
+    "copilot",
+    "nmap",
+    "sqlmap",
+    "osint",
+    "pyqt6",
+    "gui"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Topic :: Security",
+    "Topic :: System :: Networking :: Monitoring",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "PyQt6>=6.5.0",
+    "Pygments>=2.15.0",
+    "Pillow>=10.0.0",
+    "reportlab>=4.0.0",
+    "colorama>=0.4.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "build>=1.0.0",
+    "twine>=4.0.0",
+]
+
+[project.scripts]
+kalinova = "kalinova.main:main"
+
+[project.urls]
+Homepage = "https://github.com/pajju011/Kali-Nova"
+Documentation = "https://github.com/pajju011/Kali-Nova#readme"
+Repository = "https://github.com/pajju011/Kali-Nova"
+Issues = "https://github.com/pajju011/Kali-Nova/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["kalinova*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.png", "*.svg", "*.json", "*.qss", "*.md"]

@@ -1,0 +1,2 @@
+[console_scripts]
+kalinova = kalinova.main:main
