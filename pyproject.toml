@@ -7,7 +7,8 @@ name = "kalinova"
 version = "1.0.0"
 description = "Next-Generation AI-Augmented Security & Penetration Testing Desktop Control Center"
 readme = "README.md"
-license = { text = "GPL-3.0-or-later" }
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
 authors = [
     { name = "Prajwal R Poojary" },
     { name = "Shravyashree M S" },
@@ -70,7 +71,12 @@ Issues = "https://github.com/pajju011/Kali-Nova/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["kalinova*"]
+include = ["kalinova", "kalinova.*"]
+exclude = ["kalinova.venv*", "kalinova.tests*", "kalinova.logs*", "*.pytest_cache*"]
 
 [tool.setuptools.package-data]
-"*" = ["*.png", "*.svg", "*.json", "*.qss", "*.md"]
+kalinova = ["*.json", "*.qss", "*.md"]
+"kalinova.resources" = ["*.png", "*.svg", "*.ico"]
+
+[tool.setuptools.exclude-package-data]
+kalinova = ["venv/**", "logs/**", "*.db", ".pytest_cache/**"]
