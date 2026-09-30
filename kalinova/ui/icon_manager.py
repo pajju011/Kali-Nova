@@ -16,286 +16,740 @@ def get_icons_dir() -> Path:
 
 TOOL_SVG_MAP: Dict[str, str] = {
     # ---------------------------------------------------------
-    # Official Kali-Nova Brand & System Logos
+    # Official Kali-Nova Brand Logo (Kali Doc Style)
     # ---------------------------------------------------------
-    "kalinova": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+    "kalinova": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
   <defs>
-    <linearGradient id="kaliGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00f0ff"/>
-      <stop offset="50%" stop-color="#3b82f6"/>
-      <stop offset="100%" stop-color="#7c3aed"/>
+    <linearGradient id="bg_kn" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+    <linearGradient id="cyan_kn" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
     </linearGradient>
   </defs>
-  <path d="M32 4 L56 14 V32 C56 48 32 60 32 60 C32 60 8 48 8 32 V14 Z" fill="#0b1220" stroke="url(#kaliGrad)" stroke-width="2.8" stroke-linejoin="round"/>
-  <path d="M32 12 C36 18 44 20 44 28 C44 36 36 42 32 46 C28 42 20 36 20 28 C20 20 28 18 32 12 Z" fill="none" stroke="#00f0ff" stroke-width="2" stroke-linejoin="round"/>
-  <polygon points="32,20 36,28 32,36 28,28" fill="#38bdf8"/>
-  <circle cx="32" cy="28" r="2.5" fill="#f8fafc"/>
-  <line x1="22" y1="28" x2="42" y2="28" stroke="#00f0ff" stroke-width="1.5" stroke-opacity="0.7"/>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_kn)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <path d="M50 16 L76 28 V52 C76 68 50 82 50 82 C50 82 24 68 24 52 V28 Z" fill="#090d16" stroke="#38bdf8" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M50 26 C55 33 63 36 63 46 C63 56 54 62 50 67 C46 62 37 56 37 46 C37 36 45 33 50 26 Z" fill="none" stroke="#00e5ff" stroke-width="2.5" stroke-linejoin="round"/>
+  <polygon points="50,36 55,46 50,56 45,46" fill="#38bdf8"/>
+  <circle cx="50" cy="46" r="3" fill="#ffffff"/>
+  <line x1="38" y1="46" x2="62" y2="46" stroke="#00e5ff" stroke-width="2" stroke-opacity="0.8"/>
 </svg>""",
 
     # ---------------------------------------------------------
-    # Reconnaissance & OSINT Tools
+    # Reconnaissance & OSINT Tools (Official Kali Doc Style)
     # ---------------------------------------------------------
-    "nmap": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+    "nmap": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
   <defs>
-    <radialGradient id="nmapGrad" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#0284c7" stop-opacity="0.4"/>
-      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9"/>
+    <linearGradient id="bg_nmap" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+    <radialGradient id="iris_nmap" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7dd3fc"/>
+      <stop offset="40%" stop-color="#38bdf8"/>
+      <stop offset="80%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#0369a1"/>
     </radialGradient>
-    <linearGradient id="sweepGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8"/>
-      <stop offset="100%" stop-color="#0284c7" stop-opacity="0.0"/>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_nmap)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <path d="M14 50 C26 26 74 26 86 50 C74 74 26 74 14 50 Z" fill="#0284c7" stroke="#38bdf8" stroke-width="4.5" stroke-linejoin="round"/>
+  <path d="M20 50 C30 30 70 30 80 50 C70 70 30 70 20 50 Z" fill="#e0f2fe"/>
+  <circle cx="50" cy="50" r="19" fill="url(#iris_nmap)" stroke="#38bdf8" stroke-width="2"/>
+  <circle cx="50" cy="50" r="13" fill="#38bdf8" fill-opacity="0.4" stroke="#bae6fd" stroke-width="1.5"/>
+  <circle cx="50" cy="50" r="7" fill="#0284c7" fill-opacity="0.6"/>
+  <line x1="32" y1="50" x2="68" y2="50" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round"/>
+  <line x1="50" y1="32" x2="50" y2="68" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round"/>
+</svg>""",
+
+    "whois": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_whois" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
     </linearGradient>
   </defs>
-  <circle cx="32" cy="32" r="28" fill="url(#nmapGrad)" stroke="#38bdf8" stroke-width="2.5"/>
-  <circle cx="32" cy="32" r="20" fill="none" stroke="#0284c7" stroke-width="1.5" stroke-dasharray="4,3"/>
-  <circle cx="32" cy="32" r="11" fill="none" stroke="#0369a1" stroke-width="1.5"/>
-  <line x1="32" y1="4" x2="32" y2="60" stroke="#38bdf8" stroke-width="1.2" stroke-opacity="0.5"/>
-  <line x1="4" y1="32" x2="60" y2="32" stroke="#38bdf8" stroke-width="1.2" stroke-opacity="0.5"/>
-  <polygon points="32,32 54,14 50,32" fill="url(#sweepGrad)"/>
-  <circle cx="45" cy="19" r="3.5" fill="#f43f5e"/>
-  <circle cx="20" cy="42" r="2.5" fill="#38bdf8"/>
-  <circle cx="24" cy="20" r="2" fill="#34d399"/>
-  <circle cx="32" cy="32" r="3" fill="#38bdf8"/>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_whois)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <circle cx="44" cy="50" r="24" fill="#0b1320" stroke="#38bdf8" stroke-width="3"/>
+  <ellipse cx="44" cy="50" rx="11" ry="24" fill="none" stroke="#0284c7" stroke-width="2"/>
+  <line x1="20" y1="50" x2="68" y2="50" stroke="#0284c7" stroke-width="2"/>
+  <line x1="24" y1="38" x2="64" y2="38" stroke="#0284c7" stroke-width="1.5" stroke-opacity="0.8"/>
+  <line x1="24" y1="62" x2="64" y2="62" stroke="#0284c7" stroke-width="1.5" stroke-opacity="0.8"/>
+  <circle cx="62" cy="58" r="14" fill="#0f172a" stroke="#38bdf8" stroke-width="3"/>
+  <line x1="72" y1="68" x2="84" y2="80" stroke="#38bdf8" stroke-width="4.5" stroke-linecap="round"/>
+  <circle cx="62" cy="58" r="6" fill="#0284c7" stroke="#bae6fd" stroke-width="1.5"/>
 </svg>""",
 
-    "whois": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <circle cx="32" cy="32" r="27" fill="#0f172a" stroke="#818cf8" stroke-width="2.5"/>
-  <ellipse cx="32" cy="32" rx="13" ry="27" fill="none" stroke="#6366f1" stroke-width="1.8"/>
-  <line x1="5" y1="32" x2="59" y2="32" stroke="#6366f1" stroke-width="1.8"/>
-  <line x1="10" y1="18" x2="54" y2="18" stroke="#818cf8" stroke-width="1.2" stroke-opacity="0.7"/>
-  <line x1="10" y1="46" x2="54" y2="46" stroke="#818cf8" stroke-width="1.2" stroke-opacity="0.7"/>
-  <rect x="34" y="24" width="22" height="26" rx="4" fill="#1e1b4b" stroke="#a78bfa" stroke-width="2"/>
-  <line x1="38" y1="30" x2="52" y2="30" stroke="#c4b5fd" stroke-width="1.8" stroke-linecap="round"/>
-  <line x1="38" y1="36" x2="48" y2="36" stroke="#c4b5fd" stroke-width="1.8" stroke-linecap="round"/>
-  <line x1="38" y1="42" x2="50" y2="42" stroke="#c4b5fd" stroke-width="1.8" stroke-linecap="round"/>
-  <circle cx="48" cy="18" r="4" fill="#a78bfa"/>
+    "harvester": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_harv" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_harv)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <path d="M22 64 C22 36 44 20 72 20" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+  <path d="M34 68 C34 46 50 34 72 34" fill="none" stroke="#0284c7" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="42" y1="48" x2="74" y2="76" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="74" cy="76" r="7" fill="#0284c7" stroke="#38bdf8" stroke-width="2.5"/>
+  <circle cx="28" cy="32" r="5" fill="#38bdf8"/>
+  <circle cx="50" cy="22" r="4.5" fill="#00e5ff"/>
+  <circle cx="76" cy="36" r="5" fill="#38bdf8"/>
+  <rect x="18" y="66" width="26" height="16" rx="3" fill="#0b1320" stroke="#38bdf8" stroke-width="2.5"/>
+  <polyline points="18,66 31,76 44,66" fill="none" stroke="#38bdf8" stroke-width="2"/>
 </svg>""",
 
-    "harvester": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <path d="M12 40 C12 22 26 10 44 10" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-  <path d="M20 44 C20 30 30 20 44 20" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
-  <line x1="28" y1="28" x2="48" y2="48" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-  <circle cx="48" cy="48" r="5" fill="#d97706" stroke="#fbbf24" stroke-width="2"/>
-  <circle cx="16" cy="18" r="3.5" fill="#38bdf8"/>
-  <circle cx="32" cy="12" r="3" fill="#34d399"/>
-  <circle cx="50" cy="22" r="3.5" fill="#f43f5e"/>
-  <line x1="16" y1="18" x2="28" y2="28" stroke="#38bdf8" stroke-width="1.2" stroke-dasharray="2,2"/>
-  <line x1="32" y1="12" x2="36" y2="22" stroke="#34d399" stroke-width="1.2" stroke-dasharray="2,2"/>
-  <rect x="8" y="44" width="18" height="12" rx="2" fill="#0f172a" stroke="#f59e0b" stroke-width="1.8"/>
-  <polyline points="8,44 17,51 26,44" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+    "metagoofil": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_meta" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_meta)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <rect x="18" y="24" width="38" height="48" rx="5" fill="#0b1320" stroke="#38bdf8" stroke-width="3"/>
+  <line x1="26" y1="34" x2="48" y2="34" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="26" y1="44" x2="44" y2="44" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="26" y1="54" x2="48" y2="54" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="58" cy="58" r="15" fill="#090d16" stroke="#00e5ff" stroke-width="3"/>
+  <line x1="68" y1="68" x2="80" y2="80" stroke="#00e5ff" stroke-width="4.5" stroke-linecap="round"/>
+  <text x="49" y="62" font-family="monospace" font-size="11" fill="#38bdf8" font-weight="bold">XML</text>
 </svg>""",
 
-    "metagoofil": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect x="10" y="16" width="30" height="38" rx="4" fill="#0f172a" stroke="#059669" stroke-width="2"/>
-  <rect x="18" y="10" width="30" height="38" rx="4" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
-  <line x1="24" y1="18" x2="42" y2="18" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
-  <line x1="24" y1="24" x2="38" y2="24" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
-  <line x1="24" y1="30" x2="42" y2="30" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
-  <circle cx="44" cy="40" r="10" fill="#0f172a" stroke="#fbbf24" stroke-width="2.5"/>
-  <line x1="51" y1="47" x2="59" y2="55" stroke="#fbbf24" stroke-width="3.5" stroke-linecap="round"/>
-  <text x="38" y="44" font-family="monospace" font-size="9" fill="#34d399" font-weight="bold">XML</text>
+    "amass": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_amass" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_amass)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <line x1="50" y1="24" x2="24" y2="68" stroke="#0284c7" stroke-width="3"/>
+  <line x1="50" y1="24" x2="76" y2="68" stroke="#0284c7" stroke-width="3"/>
+  <line x1="24" y1="68" x2="76" y2="68" stroke="#0284c7" stroke-width="3"/>
+  <line x1="50" y1="24" x2="50" y2="52" stroke="#38bdf8" stroke-width="2.5"/>
+  <line x1="24" y1="68" x2="50" y2="52" stroke="#38bdf8" stroke-width="2.5"/>
+  <line x1="76" y1="68" x2="50" y2="52" stroke="#38bdf8" stroke-width="2.5"/>
+  <circle cx="50" cy="24" r="8" fill="#0284c7" stroke="#38bdf8" stroke-width="2.5"/>
+  <circle cx="24" cy="68" r="8" fill="#0284c7" stroke="#38bdf8" stroke-width="2.5"/>
+  <circle cx="76" cy="68" r="8" fill="#0284c7" stroke="#38bdf8" stroke-width="2.5"/>
+  <circle cx="50" cy="52" r="9" fill="#0b1320" stroke="#00e5ff" stroke-width="3"/>
+  <circle cx="50" cy="52" r="4" fill="#38bdf8"/>
 </svg>""",
 
-    "amass": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <line x1="32" y1="14" x2="14" y2="44" stroke="#7c3aed" stroke-width="2"/>
-  <line x1="32" y1="14" x2="50" y2="44" stroke="#7c3aed" stroke-width="2"/>
-  <line x1="14" y1="44" x2="50" y2="44" stroke="#7c3aed" stroke-width="2"/>
-  <line x1="32" y1="14" x2="32" y2="34" stroke="#c084fc" stroke-width="2"/>
-  <line x1="14" y1="44" x2="32" y2="34" stroke="#c084fc" stroke-width="2"/>
-  <line x1="50" y1="44" x2="32" y2="34" stroke="#c084fc" stroke-width="2"/>
-  <circle cx="32" cy="14" r="6" fill="#8b5cf6" stroke="#c084fc" stroke-width="2"/>
-  <circle cx="14" cy="44" r="6" fill="#8b5cf6" stroke="#c084fc" stroke-width="2"/>
-  <circle cx="50" cy="44" r="6" fill="#8b5cf6" stroke="#c084fc" stroke-width="2"/>
-  <circle cx="32" cy="34" r="6" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
-  <circle cx="23" cy="24" r="2.5" fill="#34d399"/>
-  <circle cx="41" cy="24" r="2.5" fill="#34d399"/>
-  <circle cx="32" cy="48" r="2.5" fill="#f43f5e"/>
+    "photon": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_phot" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_phot)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <circle cx="50" cy="50" r="32" fill="#0b1320" stroke="#0284c7" stroke-width="2.5"/>
+  <polygon points="56,18 28,52 48,52 42,82 72,46 52,46" fill="#38bdf8" stroke="#00e5ff" stroke-width="2" stroke-linejoin="round"/>
 </svg>""",
 
-    "photon": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <circle cx="32" cy="32" r="27" fill="#0f172a" stroke="#f43f5e" stroke-width="2.5"/>
-  <polygon points="36,8 18,32 32,32 28,56 46,28 32,28" fill="#f43f5e" stroke="#fb7185" stroke-width="1.5" stroke-linejoin="round"/>
-  <circle cx="18" cy="18" r="2" fill="#fb7185"/>
-  <circle cx="46" cy="46" r="2" fill="#fb7185"/>
-</svg>""",
-
-    "autopsy": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <circle cx="28" cy="28" r="20" fill="#0f172a" stroke="#f59e0b" stroke-width="2.5"/>
-  <circle cx="28" cy="28" r="12" fill="#1e293b" stroke="#d97706" stroke-width="1.8"/>
-  <circle cx="28" cy="28" r="4" fill="#fbbf24"/>
-  <line x1="28" y1="8" x2="28" y2="16" stroke="#f59e0b" stroke-width="1.5"/>
-  <line x1="28" y1="40" x2="28" y2="48" stroke="#f59e0b" stroke-width="1.5"/>
-  <line x1="8" y1="28" x2="16" y2="28" stroke="#f59e0b" stroke-width="1.5"/>
-  <line x1="40" y1="28" x2="48" y2="28" stroke="#f59e0b" stroke-width="1.5"/>
-  <circle cx="38" cy="38" r="11" fill="#0f172a" stroke="#38bdf8" stroke-width="2.5"/>
-  <line x1="46" y1="46" x2="57" y2="57" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
-  <path d="M34 38 L37 41 L43 35" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>""",
-
-    # ---------------------------------------------------------
-    # Web Testing Tools
-    # ---------------------------------------------------------
-    "nikto": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <path d="M32 6 L54 14 V32 C54 46 32 58 32 58 C32 58 10 46 10 32 V14 Z" fill="#0f172a" stroke="#38bdf8" stroke-width="2.5" stroke-linejoin="round"/>
-  <circle cx="32" cy="28" r="12" fill="none" stroke="#0284c7" stroke-width="1.5" stroke-dasharray="3,3"/>
-  <line x1="32" y1="16" x2="32" y2="40" stroke="#38bdf8" stroke-width="1.5"/>
-  <line x1="20" y1="28" x2="44" y2="28" stroke="#38bdf8" stroke-width="1.5"/>
-  <circle cx="32" cy="28" r="3.5" fill="#f43f5e"/>
-</svg>""",
-
-    "sqlmap": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <ellipse cx="32" cy="15" rx="20" ry="7" fill="#1e293b" stroke="#ef4444" stroke-width="2.5"/>
-  <path d="M12 15 V30 C12 34 21 37 32 37 C43 37 52 34 52 30 V15" fill="none" stroke="#ef4444" stroke-width="2.5"/>
-  <path d="M12 30 V45 C12 49 21 52 32 52 C43 52 52 49 52 45 V30" fill="none" stroke="#ef4444" stroke-width="2.5"/>
-  <polygon points="46,8 56,18 42,32 36,30 34,24" fill="#ef4444" stroke="#f87171" stroke-width="1.5"/>
-  <line x1="34" y1="34" x2="26" y2="42" stroke="#fca5a5" stroke-width="2.5" stroke-linecap="round"/>
-  <circle cx="24" cy="44" r="2" fill="#ef4444"/>
-</svg>""",
-
-    "gobuster": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <path d="M8 18 C8 15.7 9.8 14 12 14 H24 L28 20 H52 C54.2 20 56 21.8 56 24 V48 C56 50.2 54.2 52 52 52 H12 C9.8 52 8 50.2 8 48 Z" fill="#0f172a" stroke="#10b981" stroke-width="2.5"/>
-  <line x1="18" y1="28" x2="18" y2="44" stroke="#34d399" stroke-width="2"/>
-  <line x1="18" y1="34" x2="28" y2="34" stroke="#34d399" stroke-width="2"/>
-  <line x1="18" y1="42" x2="28" y2="42" stroke="#34d399" stroke-width="2"/>
-  <circle cx="38" cy="36" r="8" fill="#1e293b" stroke="#34d399" stroke-width="2.2"/>
-  <line x1="44" y1="42" x2="52" y2="50" stroke="#34d399" stroke-width="3" stroke-linecap="round"/>
-</svg>""",
-
-    "wfuzz": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect x="8" y="10" width="48" height="44" rx="6" fill="#0f172a" stroke="#8b5cf6" stroke-width="2.5"/>
-  <line x1="8" y1="24" x2="56" y2="24" stroke="#a78bfa" stroke-width="1.5"/>
-  <line x1="8" y1="38" x2="56" y2="38" stroke="#a78bfa" stroke-width="1.5"/>
-  <line x1="24" y1="10" x2="24" y2="54" stroke="#a78bfa" stroke-width="1.5"/>
-  <line x1="40" y1="10" x2="40" y2="54" stroke="#a78bfa" stroke-width="1.5"/>
-  <circle cx="32" cy="31" r="5" fill="#f43f5e"/>
-  <text x="12" y="20" font-family="monospace" font-size="8" fill="#c084fc" font-weight="bold">FUZZ</text>
-</svg>""",
-
-    "whatweb": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect x="6" y="12" width="52" height="40" rx="6" fill="#0f172a" stroke="#3b82f6" stroke-width="2.5"/>
-  <line x1="6" y1="22" x2="58" y2="22" stroke="#3b82f6" stroke-width="2"/>
-  <circle cx="12" cy="17" r="2" fill="#ef4444"/>
-  <circle cx="18" cy="17" r="2" fill="#f59e0b"/>
-  <circle cx="24" cy="17" r="2" fill="#10b981"/>
-  <text x="12" y="38" font-family="monospace" font-size="12" fill="#60a5fa" font-weight="bold">&lt;/&gt;</text>
-  <rect x="36" y="28" width="16" height="18" rx="2" fill="#1e3a8a"/>
-  <text x="39" y="41" font-family="sans-serif" font-size="9" fill="#93c5fd" font-weight="bold">TECH</text>
-</svg>""",
-
-    # ---------------------------------------------------------
-    # Authentication & Cracking Tools
-    # ---------------------------------------------------------
-    "hydra": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <path d="M32 54 V36" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
-  <path d="M32 36 V16 C32 12 36 8 38 8 C40 8 40 14 36 16" fill="none" stroke="#fb923c" stroke-width="2.5" stroke-linecap="round"/>
-  <circle cx="38" cy="9" r="3" fill="#ea580c"/>
-  <path d="M32 36 C24 34 16 26 14 16 C12 10 18 10 20 14" fill="none" stroke="#fb923c" stroke-width="2.5" stroke-linecap="round"/>
-  <circle cx="15" cy="12" r="3" fill="#ea580c"/>
-  <path d="M32 36 C40 34 48 26 50 16 C52 10 46 10 44 14" fill="none" stroke="#fb923c" stroke-width="2.5" stroke-linecap="round"/>
-  <circle cx="49" cy="12" r="3" fill="#ea580c"/>
-  <rect x="20" y="38" width="24" height="18" rx="4" fill="#0f172a" stroke="#f97316" stroke-width="2.2"/>
-  <circle cx="32" cy="46" r="3" fill="#fb923c"/>
-</svg>""",
-
-    "john": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect x="14" y="24" width="36" height="32" rx="4" fill="#0f172a" stroke="#dc2626" stroke-width="2.5"/>
-  <path d="M22 24 V16 C22 10.5 26.5 6 32 6 C37.5 6 42 10.5 42 16 V20" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
-  <path d="M24 38 L30 42 L26 48 L36 50" fill="none" stroke="#f87171" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="38" cy="34" r="3" fill="#ef4444"/>
-</svg>""",
-
-    "hashcat": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect x="12" y="14" width="40" height="36" rx="4" fill="#0f172a" stroke="#e11d48" stroke-width="2.5"/>
-  <line x1="20" y1="8" x2="20" y2="14" stroke="#e11d48" stroke-width="2.2"/>
-  <line x1="32" y1="8" x2="32" y2="14" stroke="#e11d48" stroke-width="2.2"/>
-  <line x1="44" y1="8" x2="44" y2="14" stroke="#e11d48" stroke-width="2.2"/>
-  <line x1="20" y1="50" x2="20" y2="56" stroke="#e11d48" stroke-width="2.2"/>
-  <line x1="32" y1="50" x2="32" y2="56" stroke="#e11d48" stroke-width="2.2"/>
-  <line x1="44" y1="50" x2="44" y2="56" stroke="#e11d48" stroke-width="2.2"/>
-  <path d="M32 20 C34 26 40 28 40 36 C40 41 36 44 32 44 C28 44 24 41 24 36 C24 31 28 28 32 20 Z" fill="#f43f5e" stroke="#fb7185" stroke-width="1.5"/>
-  <circle cx="32" cy="38" r="2.5" fill="#fef08a"/>
-</svg>""",
-
-    "hashid": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <path d="M10 16 H36 L52 32 L36 48 H10 Z" fill="#0f172a" stroke="#6366f1" stroke-width="2.5" stroke-linejoin="round"/>
-  <circle cx="22" cy="32" r="4.5" fill="#818cf8"/>
-  <text x="30" y="37" font-family="monospace" font-size="12" fill="#c7d2fe" font-weight="bold">#ID</text>
-</svg>""",
-
-    "ncrack": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect x="14" y="24" width="36" height="30" rx="5" fill="#0f172a" stroke="#f59e0b" stroke-width="2.5"/>
-  <path d="M22 24 V17 C22 11.5 26.5 7 32 7 C37.5 7 42 11.5 42 17 V24" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
-  <polygon points="34,28 26,40 33,40 30,50 40,36 33,36" fill="#f59e0b" stroke="#fbbf24" stroke-width="1.2"/>
-  <circle cx="8" cy="38" r="3" fill="#38bdf8"/>
-  <circle cx="56" cy="38" r="3" fill="#38bdf8"/>
-  <line x1="8" y1="38" x2="14" y2="38" stroke="#38bdf8" stroke-width="2"/>
-  <line x1="50" y1="38" x2="56" y2="38" stroke="#38bdf8" stroke-width="2"/>
+    "autopsy": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_auto" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_auto)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <circle cx="44" cy="44" r="26" fill="#0b1320" stroke="#38bdf8" stroke-width="3"/>
+  <circle cx="44" cy="44" r="16" fill="#05070a" stroke="#0284c7" stroke-width="2"/>
+  <circle cx="44" cy="44" r="6" fill="#00e5ff"/>
+  <line x1="63" y1="63" x2="82" y2="82" stroke="#38bdf8" stroke-width="5" stroke-linecap="round"/>
+  <path d="M54 34 L62 42 L52 52" fill="none" stroke="#00e5ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>""",
 
     # ---------------------------------------------------------
-    # Network & Wireless Tools
+    # Web Testing Tools (Official Kali Doc Style)
     # ---------------------------------------------------------
-    "netcat": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect x="6" y="12" width="52" height="40" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="2.5"/>
-  <polyline points="14,24 22,32 14,40" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <line x1="26" y1="40" x2="36" y2="40" stroke="#34d399" stroke-width="3" stroke-linecap="round"/>
-  <text x="36" y="32" font-family="monospace" font-size="12" fill="#6ee7b7" font-weight="bold">nc</text>
+    "nikto": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_nikto" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_nikto)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <path d="M50 18 L76 28 V50 C76 68 50 80 50 80 C50 80 24 68 24 50 V28 Z" fill="#0b1320" stroke="#38bdf8" stroke-width="3.5" stroke-linejoin="round"/>
+  <circle cx="50" cy="46" r="16" fill="none" stroke="#0284c7" stroke-width="2" stroke-dasharray="4,4"/>
+  <line x1="50" y1="30" x2="50" y2="62" stroke="#38bdf8" stroke-width="2.5"/>
+  <line x1="34" y1="46" x2="66" y2="46" stroke="#38bdf8" stroke-width="2.5"/>
+  <circle cx="50" cy="46" r="5" fill="#00e5ff"/>
 </svg>""",
 
-    "wireshark": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <path d="M10 44 C22 44 26 22 38 12 C34 24 44 28 54 26 C44 38 32 46 10 44 Z" fill="#0284c7" stroke="#38bdf8" stroke-width="2.5" stroke-linejoin="round"/>
-  <path d="M6 50 C22 50 36 46 58 46" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
-  <path d="M12 56 C26 56 40 52 54 52" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-dasharray="4,3"/>
+    "sqlmap": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_sql" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_sql)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <ellipse cx="46" cy="28" rx="24" ry="9" fill="#0b1320" stroke="#38bdf8" stroke-width="3"/>
+  <path d="M22 28 V46 C22 51 33 55 46 55 C59 55 70 51 70 46 V28" fill="none" stroke="#38bdf8" stroke-width="3"/>
+  <path d="M22 46 V64 C22 69 33 73 46 73 C59 73 70 69 70 64 V46" fill="none" stroke="#38bdf8" stroke-width="3"/>
+  <polygon points="68,22 80,34 62,52 54,50 52,42" fill="#00e5ff" stroke="#38bdf8" stroke-width="2"/>
+  <line x1="52" y1="54" x2="42" y2="64" stroke="#bae6fd" stroke-width="3.5" stroke-linecap="round"/>
 </svg>""",
 
-    "wifite": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <path d="M10 18 C22 8 42 8 54 18" fill="none" stroke="#8b5cf6" stroke-width="3.5" stroke-linecap="round"/>
-  <path d="M16 26 C25 18 39 18 48 26" fill="none" stroke="#a78bfa" stroke-width="3" stroke-linecap="round"/>
-  <path d="M22 34 C28 28 36 28 42 34" fill="none" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
-  <circle cx="32" cy="46" r="4.5" fill="#8b5cf6" stroke="#c084fc" stroke-width="2"/>
-  <line x1="32" y1="46" x2="32" y2="38" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/>
+    "gobuster": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_go" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="0%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_go)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <path d="M16 28 C16 24.5 19 22 22 22 H40 L46 30 H76 C79.5 30 82 32.5 82 36 V70 C82 73.5 79.5 76 76 76 H22 C19 76 16 73.5 16 70 Z" fill="#0b1320" stroke="#38bdf8" stroke-width="3.5"/>
+  <line x1="28" y1="42" x2="28" y2="64" stroke="#00e5ff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="28" y1="50" x2="42" y2="50" stroke="#00e5ff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="28" y1="62" x2="42" y2="62" stroke="#00e5ff" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="58" cy="54" r="11" fill="#05070a" stroke="#38bdf8" stroke-width="3"/>
+  <line x1="66" y1="62" x2="76" y2="72" stroke="#38bdf8" stroke-width="4.5" stroke-linecap="round"/>
 </svg>""",
 
-    "wash": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <line x1="32" y1="20" x2="32" y2="54" stroke="#06b6d4" stroke-width="3.5" stroke-linecap="round"/>
-  <circle cx="32" cy="16" r="4.5" fill="#22d3ee"/>
-  <path d="M18 28 C26 20 38 20 46 28" fill="none" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
-  <path d="M12 20 C24 8 40 8 52 20" fill="none" stroke="#22d3ee" stroke-width="2.5" stroke-linecap="round"/>
-  <rect x="20" y="40" width="24" height="14" rx="3" fill="#0f172a" stroke="#67e8f9" stroke-width="1.8"/>
-  <text x="23" y="50" font-family="sans-serif" font-size="8" fill="#67e8f9" font-weight="bold">WPS</text>
+    "wfuzz": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_wfuzz" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_wfuzz)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <rect x="18" y="22" width="64" height="56" rx="8" fill="#0b1320" stroke="#38bdf8" stroke-width="3"/>
+  <line x1="18" y1="40" x2="82" y2="40" stroke="#0284c7" stroke-width="2"/>
+  <line x1="18" y1="58" x2="82" y2="58" stroke="#0284c7" stroke-width="2"/>
+  <circle cx="50" cy="49" r="7" fill="#00e5ff"/>
+  <text x="24" y="34" font-family="monospace" font-size="10" fill="#38bdf8" font-weight="bold">FUZZ</text>
 </svg>""",
 
-    "reaver": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <circle cx="32" cy="32" r="26" fill="#0f172a" stroke="#ec4899" stroke-width="2.5"/>
-  <path d="M22 32 L28 38 L42 22" fill="none" stroke="#f472b6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="18" y="44" width="28" height="12" rx="2" fill="#831843"/>
-  <text x="21" y="53" font-family="sans-serif" font-size="8" fill="#fbcfe8" font-weight="bold">PIN-KEY</text>
+    "whatweb": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_ww" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_ww)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <rect x="16" y="22" width="68" height="56" rx="8" fill="#0b1320" stroke="#38bdf8" stroke-width="3"/>
+  <line x1="16" y1="36" x2="84" y2="36" stroke="#0284c7" stroke-width="2.5"/>
+  <circle cx="24" cy="29" r="3" fill="#38bdf8"/>
+  <circle cx="33" cy="29" r="3" fill="#0284c7"/>
+  <circle cx="42" cy="29" r="3" fill="#0369a1"/>
+  <text x="24" y="58" font-family="monospace" font-size="16" fill="#00e5ff" font-weight="bold">&lt;/&gt;</text>
+  <rect x="54" y="44" width="22" height="24" rx="3" fill="#0284c7"/>
+  <text x="57" y="60" font-family="sans-serif" font-size="10" fill="#ffffff" font-weight="bold">WEB</text>
 </svg>""",
 
-    "sparrow": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <path d="M6 46 C14 46 18 16 26 16 C34 16 38 42 46 42 C50 42 54 26 58 26" fill="none" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"/>
-  <line x1="6" y1="52" x2="58" y2="52" stroke="#fbbf24" stroke-width="1.8"/>
-  <circle cx="26" cy="16" r="3.5" fill="#f59e0b"/>
-  <circle cx="46" cy="42" r="3.5" fill="#f59e0b"/>
+    # ---------------------------------------------------------
+    # Authentication & Password Cracking (Official Kali Doc Style)
+    # ---------------------------------------------------------
+    "hydra": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_hydra" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_hydra)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <path d="M50 74 V50" stroke="#38bdf8" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M50 50 V24 C50 18 56 14 59 14 C62 14 62 22 56 25" fill="none" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="60" cy="15" r="4.5" fill="#00e5ff"/>
+  <path d="M50 50 C38 46 26 36 24 22 C22 14 30 14 34 20" fill="none" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="24" cy="18" r="4.5" fill="#00e5ff"/>
+  <path d="M50 50 C62 46 74 36 76 22 C78 14 70 14 66 20" fill="none" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="76" cy="18" r="4.5" fill="#00e5ff"/>
+  <rect x="34" y="54" width="32" height="24" rx="5" fill="#0b1320" stroke="#38bdf8" stroke-width="3"/>
+  <circle cx="50" cy="66" r="4" fill="#00e5ff"/>
 </svg>""",
 
-    "sslscan": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <path d="M32 6 L52 14 V32 C52 46 32 58 32 58 C32 58 12 46 12 32 V14 Z" fill="#0f172a" stroke="#10b981" stroke-width="2.5"/>
-  <rect x="24" y="28" width="16" height="14" rx="2" fill="#10b981"/>
-  <path d="M27 28 V24 C27 21.2 29.2 19 32 19 C34.8 19 37 21.2 37 24 V28" fill="none" stroke="#34d399" stroke-width="2.5"/>
+    "john": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_john" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_john)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <rect x="22" y="38" width="56" height="44" rx="6" fill="#0b1320" stroke="#38bdf8" stroke-width="3.5"/>
+  <path d="M34 38 V26 C34 17 41 12 50 12 C59 12 66 17 66 26 V32" fill="none" stroke="#00e5ff" stroke-width="4" stroke-linecap="round"/>
+  <path d="M36 56 L46 62 L40 70 L56 72" fill="none" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="58" cy="52" r="4.5" fill="#00e5ff"/>
 </svg>""",
 
-    "sslyze": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <circle cx="32" cy="32" r="24" fill="#0f172a" stroke="#6366f1" stroke-width="2.5"/>
-  <path d="M32 14 V32 L42 42" stroke="#818cf8" stroke-width="3" stroke-linecap="round"/>
-  <circle cx="32" cy="32" r="4" fill="#818cf8"/>
-  <text x="18" y="50" font-family="monospace" font-size="8" fill="#a5b4fc" font-weight="bold">CIPHER</text>
+    "hashcat": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_hcat" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_hcat)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <rect x="20" y="24" width="60" height="52" rx="6" fill="#0b1320" stroke="#38bdf8" stroke-width="3.5"/>
+  <line x1="32" y1="16" x2="32" y2="24" stroke="#00e5ff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="50" y1="16" x2="50" y2="24" stroke="#00e5ff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="68" y1="16" x2="68" y2="24" stroke="#00e5ff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="32" y1="76" x2="32" y2="84" stroke="#00e5ff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="50" y1="76" x2="50" y2="84" stroke="#00e5ff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="68" y1="76" x2="68" y2="84" stroke="#00e5ff" stroke-width="3" stroke-linecap="round"/>
+  <path d="M50 32 C54 40 62 44 62 56 C62 64 56 68 50 68 C44 68 38 64 38 56 C38 48 44 44 50 32 Z" fill="#0284c7" stroke="#38bdf8" stroke-width="2.5"/>
+  <circle cx="50" cy="58" r="4" fill="#ffffff"/>
 </svg>""",
 
-    "tlssled": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <path d="M32 6 L52 14 V30 C52 44 32 56 32 56 C32 56 12 44 12 30 V14 Z" fill="#0f172a" stroke="#14b8a6" stroke-width="2.5"/>
-  <text x="18" y="36" font-family="monospace" font-size="11" fill="#2dd4bf" font-weight="bold">TLS</text>
+    "hashid": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_hid" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_hid)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <path d="M16 26 H56 L78 50 L56 74 H16 Z" fill="#0b1320" stroke="#38bdf8" stroke-width="3.5" stroke-linejoin="round"/>
+  <circle cx="34" cy="50" r="7" fill="#00e5ff"/>
+  <text x="44" y="57" font-family="monospace" font-size="16" fill="#bae6fd" font-weight="bold">#ID</text>
+</svg>""",
+
+    "ncrack": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_ncrack" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_ncrack)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <rect x="22" y="38" width="56" height="42" rx="7" fill="#0b1320" stroke="#38bdf8" stroke-width="3.5"/>
+  <path d="M34 38 V26 C34 18 41 12 50 12 C59 12 66 18 66 26 V38" fill="none" stroke="#00e5ff" stroke-width="3.5" stroke-linecap="round"/>
+  <polygon points="53,44 42,60 52,60 47,74 62,54 52,54" fill="#38bdf8" stroke="#00e5ff" stroke-width="1.5"/>
+</svg>""",
+
+    # ---------------------------------------------------------
+    # Network & Wireless Tools (Official Kali Doc Style)
+    # ---------------------------------------------------------
+    "netcat": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_nc" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_nc)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <rect x="16" y="20" width="68" height="60" rx="8" fill="#0b1320" stroke="#38bdf8" stroke-width="3.5"/>
+  <polyline points="26,38 38,50 26,62" fill="none" stroke="#00e5ff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="44" y1="62" x2="58" y2="62" stroke="#00e5ff" stroke-width="4.5" stroke-linecap="round"/>
+  <text x="56" y="48" font-family="monospace" font-size="16" fill="#38bdf8" font-weight="bold">nc</text>
+</svg>""",
+
+    "wireshark": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_ws" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_ws)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <path d="M16 66 C34 66 40 34 60 20 C54 36 68 42 84 40 C68 58 50 70 16 66 Z" fill="#0284c7" stroke="#38bdf8" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M12 76 C36 76 56 70 88 70" stroke="#00e5ff" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M20 84 C40 84 62 78 82 78" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="5,4"/>
+</svg>""",
+
+    "wifite": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_wifite" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_wifite)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <path d="M18 30 C36 14 64 14 82 30" fill="none" stroke="#38bdf8" stroke-width="5" stroke-linecap="round"/>
+  <path d="M28 44 C40 32 60 32 72 44" fill="none" stroke="#00e5ff" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M38 58 C44 50 56 50 62 58" fill="none" stroke="#bae6fd" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="50" cy="72" r="6" fill="#38bdf8"/>
+</svg>""",
+
+    "wash": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_wash" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_wash)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <line x1="50" y1="30" x2="50" y2="80" stroke="#38bdf8" stroke-width="4.5" stroke-linecap="round"/>
+  <circle cx="50" cy="24" r="6" fill="#00e5ff"/>
+  <path d="M30 38 C42 28 58 28 70 38" fill="none" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M20 28 C38 12 62 12 80 28" fill="none" stroke="#00e5ff" stroke-width="3.5" stroke-linecap="round"/>
+  <rect x="32" y="60" width="36" height="20" rx="4" fill="#0b1320" stroke="#38bdf8" stroke-width="2.5"/>
+  <text x="36" y="74" font-family="sans-serif" font-size="11" fill="#00e5ff" font-weight="bold">WPS</text>
+</svg>""",
+
+    "reaver": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_reav" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_reav)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <circle cx="50" cy="50" r="34" fill="#0b1320" stroke="#38bdf8" stroke-width="3.5"/>
+  <path d="M34 50 L44 60 L66 36" fill="none" stroke="#00e5ff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="30" y="68" width="40" height="16" rx="3" fill="#0284c7"/>
+  <text x="34" y="80" font-family="sans-serif" font-size="10" fill="#ffffff" font-weight="bold">PIN-KEY</text>
+</svg>""",
+
+    "sparrow": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_sparrow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_sparrow)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <path d="M14 68 C24 68 30 26 42 26 C54 26 60 62 72 62 C78 62 82 40 88 40" fill="none" stroke="#38bdf8" stroke-width="4.5" stroke-linecap="round"/>
+  <line x1="14" y1="76" x2="88" y2="76" stroke="#00e5ff" stroke-width="2.5"/>
+  <circle cx="42" cy="26" r="5" fill="#00e5ff"/>
+  <circle cx="72" cy="62" r="5" fill="#38bdf8"/>
+</svg>""",
+
+    "sslscan": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_ssl" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_ssl)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <path d="M50 18 L76 28 V50 C76 68 50 80 50 80 C50 80 24 68 24 50 V28 Z" fill="#0b1320" stroke="#38bdf8" stroke-width="3.5"/>
+  <rect x="38" y="44" width="24" height="20" rx="3" fill="#0284c7"/>
+  <path d="M42 44 V38 C42 33.5 45.5 30 50 30 C54.5 30 58 33.5 58 38 V44" fill="none" stroke="#00e5ff" stroke-width="3.5"/>
+</svg>""",
+
+    "sslyze": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_sslyze" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_sslyze)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <circle cx="50" cy="46" r="28" fill="#0b1320" stroke="#38bdf8" stroke-width="3.5"/>
+  <path d="M50 24 V46 L64 60" stroke="#00e5ff" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="50" cy="46" r="5" fill="#38bdf8"/>
+  <text x="30" y="76" font-family="monospace" font-size="11" fill="#00e5ff" font-weight="bold">CIPHER</text>
+</svg>""",
+
+    "tlssled": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg_tlssled" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#05070a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="84" height="84" rx="18" fill="url(#bg_tlssled)" stroke="#1e293b" stroke-width="2.5"/>
+  <line x1="24" y1="8" x2="24" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="40" y1="8" x2="40" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="60" y1="8" x2="60" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="76" y1="8" x2="76" y2="92" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="24" x2="92" y2="24" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="40" x2="92" y2="40" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="60" x2="92" y2="60" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <line x1="8" y1="76" x2="92" y2="76" stroke="#162438" stroke-width="1.2" stroke-opacity="0.6"/>
+  <rect x="68" y="18" width="14" height="3" rx="1.5" fill="#38bdf8" fill-opacity="0.9"/>
+  <rect x="68" y="24" width="14" height="3" rx="1.5" fill="#0284c7" fill-opacity="0.8"/>
+  <rect x="68" y="30" width="14" height="3" rx="1.5" fill="#0369a1" fill-opacity="0.7"/>
+  <path d="M50 18 L76 28 V48 C76 66 50 78 50 78 C50 78 24 66 24 48 V28 Z" fill="#0b1320" stroke="#38bdf8" stroke-width="3.5"/>
+  <text x="32" y="54" font-family="monospace" font-size="16" fill="#00e5ff" font-weight="bold">TLS</text>
 </svg>""",
 
     # ---------------------------------------------------------
