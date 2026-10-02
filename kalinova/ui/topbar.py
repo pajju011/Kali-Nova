@@ -86,6 +86,8 @@ class TopBar(QWidget):
         self.risk_label.setText(f"Risk: {risk}")
 
         self.risk_label.setProperty("riskLevel", risk.lower())
-        self.risk_label.style().unpolish(self.risk_label)
-        self.risk_label.style().polish(self.risk_label)
+        style = self.risk_label.style()
+        if style:
+            style.unpolish(self.risk_label)
+            style.polish(self.risk_label)
 
