@@ -7,7 +7,7 @@ set -e
 
 # Package details
 PKG_NAME="kalinova"
-PKG_VERSION="1.0.0"
+PKG_VERSION="1.3.0"
 PKG_ARCH="all"
 DEB_NAME="${PKG_NAME}_${PKG_VERSION}_${PKG_ARCH}.deb"
 
@@ -51,9 +51,9 @@ mkdir -p "${PKG_ROOT}/usr/share/applications"
 mkdir -p "${PKG_ROOT}/usr/share/icons/hicolor/scalable/apps"
 
 # 1. Create DEBIAN/control
-cat << 'EOF' > "${PKG_ROOT}/DEBIAN/control"
+cat << EOF > "${PKG_ROOT}/DEBIAN/control"
 Package: kalinova
-Version: 1.0.0
+Version: ${PKG_VERSION}
 Section: utils
 Priority: optional
 Architecture: all
