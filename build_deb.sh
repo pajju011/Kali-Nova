@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Kali-Nova: Debian (.deb) Package Builder for Kali Linux
+# Kali-Nova: Debian (.deb) Package Builder & Installer for Kali Linux
 # ==============================================================================
 
 set -e
@@ -15,8 +15,31 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_DIR="${SCRIPT_DIR}/build_pkg"
 PKG_ROOT="${BUILD_DIR}/${PKG_NAME}_${PKG_VERSION}_${PKG_ARCH}"
 
+DO_INSTALL=false
+
+# Parse command line options
+for arg in "$@"; do
+    case "$arg" in
+        --install|-i|install)
+            DO_INSTALL=true
+            ;;
+        --help|-h|help)
+            echo "Usage: ./build_deb.sh [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  --install, -i, install    Build and immediately install the package (registers 'kalinova' command)"
+            echo "  --help, -h, help          Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  ./build_deb.sh            Build the .deb package only"
+            echo "  ./build_deb.sh --install  Build and install Kali-Nova system-wide"
+            exit 0
+            ;;
+    esac
+done
+
 echo "======================================================"
-echo "   🛡️ Building Kali Linux Package (.deb) for Kali-Nova"
+echo "   🛡️ Kali-Nova: Debian Package (.deb) Builder       "
 echo "======================================================"
 
 # Clean up previous build
@@ -73,7 +96,8 @@ chmod 755 "${PKG_ROOT}/DEBIAN/postrm"
 # 4. Create executable launcher /usr/bin/kalinova
 cat << 'EOF' > "${PKG_ROOT}/usr/bin/kalinova"
 #!/bin/sh
-exec python3 /usr/share/kalinova/main.py "$@"
+cd /usr/share/kalinova
+exec python3 main.py "$@"
 EOF
 chmod 755 "${PKG_ROOT}/usr/bin/kalinova"
 
@@ -108,9 +132,27 @@ echo ""
 echo "======================================================"
 echo " ✅ Successfully created: ${DEB_NAME}"
 echo "======================================================"
-echo "To install on Kali Linux:"
-echo "   sudo apt install ./${DEB_NAME}"
-echo "Or using dpkg:"
-echo "   sudo dpkg -i ${DEB_NAME}"
-echo "   sudo apt-get install -f"
-echo "======================================================"
+
+# 9. Perform immediate installation if requested
+if [ "$DO_INSTALL" = true ]; then
+    echo ""
+    echo "[*] Installing ${DEB_NAME} system-wide..."
+    if [ "$EUID" -ne 0 ]; then
+        sudo apt install -y "${SCRIPT_DIR}/${DEB_NAME}"
+    else
+        apt install -y "${SCRIPT_DIR}/${DEB_NAME}"
+    fi
+
+    echo ""
+    echo "======================================================"
+    echo " 🚀 Kali-Nova is now installed!"
+    echo " You can now launch it anytime by running:"
+    echo "    kalinova"
+    echo "======================================================"
+else
+    echo "To install on Kali Linux:"
+    echo "   ./build_deb.sh --install"
+    echo "Or manually:"
+    echo "   sudo apt install ./${DEB_NAME}"
+    echo "======================================================"
+fi
