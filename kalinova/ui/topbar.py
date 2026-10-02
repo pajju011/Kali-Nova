@@ -1,7 +1,7 @@
 import os
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton, QLineEdit, QFrame
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton
 from PyQt6.QtCore import pyqtSignal, QTimer, QSize, Qt
-from PyQt6.QtGui import QIcon, QShortcut, QKeySequence, QPainter, QPixmap
+from PyQt6.QtGui import QIcon, QPainter, QPixmap
 from PyQt6.QtSvg import QSvgRenderer
 from core.app_state import app_state
 from ui.icon_manager import get_nav_icon_path, get_tool_icon_path
@@ -11,7 +11,6 @@ class TopBar(QWidget):
 
     mode_changed = pyqtSignal(str)
     toggle_output_signal = pyqtSignal()
-    search_submitted = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -76,70 +75,7 @@ class TopBar(QWidget):
         brand_layout.addWidget(self.logo_label)
         brand_layout.addLayout(brand_text_box)
         layout.addLayout(brand_layout)
-
-        # -------------------------------------------------------------
-        # Center: Sleek Cyber Search Bar with Ctrl+K keycap
-        # -------------------------------------------------------------
-        search_frame = QFrame()
-        search_frame.setObjectName("searchContainer")
-        search_frame.setStyleSheet("""
-            QFrame#searchContainer {
-                background-color: #08101e;
-                border: 1px solid #162844;
-                border-radius: 8px;
-                min-width: 420px;
-                max-width: 520px;
-            }
-            QFrame#searchContainer:hover {
-                border-color: #2563eb;
-            }
-        """)
-        search_layout = QHBoxLayout(search_frame)
-        search_layout.setContentsMargins(10, 2, 10, 2)
-        search_layout.setSpacing(6)
-
-        prompt_lbl = QLabel(">_")
-        prompt_lbl.setStyleSheet("color: #00f0ff; font-weight: 800; font-size: 12px; font-family: monospace;")
-
-        self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText("Search modules, tools, or type a command...")
-        self.search_input.setStyleSheet("""
-            QLineEdit {
-                background: transparent;
-                border: none;
-                color: #e2e8f0;
-                font-size: 11px;
-                padding: 4px;
-            }
-            QLineEdit:focus {
-                border: none;
-            }
-        """)
-        self.search_input.returnPressed.connect(lambda: self.search_submitted.emit(self.search_input.text()))
-
-        keycap_lbl = QLabel("Ctrl + K")
-        keycap_lbl.setStyleSheet("""
-            background-color: #0c182b;
-            color: #64748b;
-            font-size: 9.5px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border: 1px solid #1a2c4a;
-            border-radius: 4px;
-            font-family: 'Segoe UI', monospace;
-        """)
-
-        search_layout.addWidget(prompt_lbl)
-        search_layout.addWidget(self.search_input, 1)
-        search_layout.addWidget(keycap_lbl)
-
         layout.addStretch()
-        layout.addWidget(search_frame)
-        layout.addStretch()
-
-        # Shortcut Ctrl+K to focus search bar
-        shortcut = QShortcut(QKeySequence("Ctrl+K"), self)
-        shortcut.activated.connect(self.search_input.setFocus)
 
         # -------------------------------------------------------------
         # Right: Terminal Output, Mode Pill, Risk Badge
