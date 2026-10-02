@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (
 )
 # pyrefly: ignore [missing-import]
 from PyQt6.QtCore import Qt
-from config import load_config, save_config
+from config import load_config, save_config, resolve_api_key
 from core.ai_copilot import AIWorkerThread
 
 class SettingsPage(QWidget):
@@ -136,6 +136,17 @@ class SettingsPage(QWidget):
         self.mode_combo = QComboBox()
         self.mode_combo.addItems(["Professional", "Beginner"])
 
+        # 6. Privilege Escalation Mode
+        elevation_lbl = QLabel("Linux Root / Sudo Privilege Escalation:")
+        elevation_lbl.setProperty("class", "settingLabel")
+        self.elevation_combo = QComboBox()
+        self.elevation_combo.addItems([
+            "Auto-Elevate (PolicyKit / pkexec / sudo)",
+            "PolicyKit Prompt (pkexec)",
+            "Sudo Elevation (sudo)",
+            "Disabled (Direct Execution)"
+        ])
+
         # Assembly to Card
         card_layout.addWidget(provider_lbl)
         card_layout.addWidget(self.provider_combo)
@@ -151,6 +162,9 @@ class SettingsPage(QWidget):
 
         card_layout.addWidget(mode_lbl)
         card_layout.addWidget(self.mode_combo)
+
+        card_layout.addWidget(elevation_lbl)
+        card_layout.addWidget(self.elevation_combo)
 
         main_layout.addWidget(card)
 
@@ -195,11 +209,20 @@ class SettingsPage(QWidget):
         }
         self.provider_combo.setCurrentIndex(provider_map.get(provider, 0))
         self.apikey_input.setText(config.get("api_key", ""))
-        self.model_input.setText(config.get("model", "gemini-1.5-flash"))
+        self.model_input.setText(config.get("model", "gemini-2.0-flash"))
         self.ollama_input.setText(config.get("ollama_url", "http://localhost:11434"))
 
         mode = config.get("app_mode", "Professional")
         self.mode_combo.setCurrentIndex(0 if mode == "Professional" else 1)
+
+        elevation = config.get("elevation_method", "auto").lower()
+        elevation_map = {
+            "auto": 0,
+            "pkexec": 1,
+            "sudo": 2,
+            "none": 3
+        }
+        self.elevation_combo.setCurrentIndex(elevation_map.get(elevation, 0))
 
         self._on_provider_changed()
 
@@ -210,24 +233,35 @@ class SettingsPage(QWidget):
             self.apikey_input.setEnabled(True)
             self.model_input.setEnabled(True)
             self.ollama_input.setEnabled(False)
-            if not self.model_input.text() or self.model_input.text() in ["gpt-4o-mini", "llama3:8b"]:
-                self.model_input.setText("gemini-1.5-flash")
+            env_key = resolve_api_key("gemini")
+            if env_key and not self.apikey_input.text():
+                self.apikey_input.setPlaceholderText("Loaded from environment (GEMINI_API_KEY / GOOGLE_API_KEY)")
+            else:
+                self.apikey_input.setPlaceholderText("Enter your Gemini API key...")
+            if not self.model_input.text() or self.model_input.text() in ["gpt-4o-mini", "llama3:8b", "gemini-1.5-flash"]:
+                self.model_input.setText("gemini-2.0-flash")
         elif idx == 1:  # OpenAI
             self.apikey_input.setEnabled(True)
             self.model_input.setEnabled(True)
             self.ollama_input.setEnabled(False)
-            if not self.model_input.text() or self.model_input.text() in ["gemini-1.5-flash", "llama3:8b"]:
+            env_key = resolve_api_key("openai")
+            if env_key and not self.apikey_input.text():
+                self.apikey_input.setPlaceholderText("Loaded from environment (OPENAI_API_KEY)")
+            else:
+                self.apikey_input.setPlaceholderText("Enter your OpenAI API key...")
+            if not self.model_input.text() or self.model_input.text() in ["gemini-1.5-flash", "gemini-2.0-flash", "llama3:8b"]:
                 self.model_input.setText("gpt-4o-mini")
         elif idx == 2:  # Ollama
             self.apikey_input.setEnabled(False)
             self.model_input.setEnabled(True)
             self.ollama_input.setEnabled(True)
-            if not self.model_input.text() or self.model_input.text() in ["gemini-1.5-flash", "gpt-4o-mini"]:
+            if not self.model_input.text() or self.model_input.text() in ["gemini-1.5-flash", "gemini-2.0-flash", "gpt-4o-mini"]:
                 self.model_input.setText("llama3:8b")
         else:  # Heuristic
             self.apikey_input.setEnabled(False)
             self.model_input.setEnabled(False)
             self.ollama_input.setEnabled(False)
+
 
     def _toggle_key_visibility(self):
         if self.apikey_input.echoMode() == QLineEdit.EchoMode.Password:
@@ -242,12 +276,18 @@ class SettingsPage(QWidget):
         provider_keys = ["gemini", "openai", "ollama", "heuristic"]
         selected_provider = provider_keys[idx]
 
+        elev_idx = self.elevation_combo.currentIndex()
+        elev_keys = ["auto", "pkexec", "sudo", "none"]
+        selected_elevation = elev_keys[elev_idx]
+
         config = {
             "ai_provider": selected_provider,
             "api_key": self.apikey_input.text().strip(),
             "model": self.model_input.text().strip(),
             "ollama_url": self.ollama_input.text().strip(),
-            "app_mode": self.mode_combo.currentText()
+            "app_mode": self.mode_combo.currentText(),
+            "auto_elevate_root": selected_elevation != "none",
+            "elevation_method": selected_elevation
         }
 
         if save_config(config):

@@ -15,10 +15,12 @@ from PyQt6.QtWidgets import (
     QCheckBox,
 )
 
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QFont
+from PyQt6.QtCore import Qt, pyqtSignal, QSize
+from PyQt6.QtGui import QFont, QIcon, QPixmap
 
+from ui.icon_manager import get_tool_icon_path
 from ui.tool_icon_button import ToolIconButton
+from ui.ai_copilot_drawer import format_ai_markdown_html
 from core.app_state import app_state
 from core.ai_copilot import AICopilot, AIWorkerThread
 
@@ -137,7 +139,7 @@ class ToolCopilotWidget(QFrame):
         self.output_text.setReadOnly(True)
         self.output_text.setMinimumHeight(110)
         self.output_text.setMaximumHeight(180)
-        self.output_text.setText("💡 Enter your parameters above and click 'Analyze Active Setup & Suggest Next Steps' to get AI guidance.")
+        self.output_text.setHtml(format_ai_markdown_html("💡 Enter your parameters above and click **'Analyze Active Setup & Suggest Next Steps'** to get AI guidance."))
         layout.addWidget(self.output_text)
 
         # Quick action chips
@@ -184,7 +186,7 @@ class ToolCopilotWidget(QFrame):
         self.input_field.setPlaceholderText(f"Ask AI about {tool_name} (e.g. flags, parameters)...")
         self.status_label.setText("● STANDBY")
         self.status_label.setStyleSheet("color: #64748b; font-size: 10px; font-weight: bold;")
-        self.output_text.setText(f"💡 Click '🤖 Analyze Active Setup & Suggest Next Steps' to inspect {tool_name} parameters and receive recommendations.")
+        self.output_text.setHtml(format_ai_markdown_html(f"💡 Click **'🤖 Analyze Active Setup & Suggest Next Steps'** to inspect **{tool_name}** parameters and receive recommendations."))
 
     def _on_analyze_clicked(self):
         self.ask_question(f"Analyze my active setup for {self.active_tool_name} and suggest next steps.")
@@ -213,7 +215,7 @@ class ToolCopilotWidget(QFrame):
         self.status_label.setStyleSheet("color: #f59e0b; font-size: 10px; font-weight: bold;")
         self.ask_btn.setEnabled(False)
         self.btn_analyze.setEnabled(False)
-        self.output_text.setText(f"🧠 AI Copilot is inspecting {self.active_tool_name} parameters and crafting analysis...")
+        self.output_text.setHtml(format_ai_markdown_html(f"🧠 **AI Copilot is inspecting `{self.active_tool_name}` parameters and crafting analysis...**"))
 
         if self.ai_worker is not None and self.ai_worker.isRunning():
             self.ai_worker.quit()
@@ -239,14 +241,14 @@ class ToolCopilotWidget(QFrame):
         self.btn_analyze.setEnabled(True)
         self.status_label.setText("● READY")
         self.status_label.setStyleSheet("color: #10b981; font-size: 10px; font-weight: bold;")
-        self.output_text.setText(response)
+        self.output_text.setHtml(format_ai_markdown_html(response))
 
     def _on_ai_error(self, err_msg: str):
         self.ask_btn.setEnabled(True)
         self.btn_analyze.setEnabled(True)
         self.status_label.setText("● ERROR")
         self.status_label.setStyleSheet("color: #f43f5e; font-size: 10px; font-weight: bold;")
-        self.output_text.setText(f"❌ AI Error: {err_msg}")
+        self.output_text.setHtml(format_ai_markdown_html(f"❌ **AI Error:** {err_msg}"))
 
 
 
@@ -392,7 +394,7 @@ class ToolModulePage(QScrollArea):
 
     ai_assist_requested = pyqtSignal(dict)
 
-    def create_panel(self, title):
+    def create_panel(self, title, tool_id=None):
         panel = QGroupBox()
         panel.setProperty("class", "toolPanelGroup")
         panel_layout = QVBoxLayout(panel)
@@ -401,6 +403,16 @@ class ToolModulePage(QScrollArea):
 
         header_row = QHBoxLayout()
         header_row.setContentsMargins(0, 0, 0, 4)
+        header_row.setSpacing(8)
+
+        # Official Tool Logo in Panel Header
+        if tool_id:
+            icon_path = get_tool_icon_path(tool_id)
+            if icon_path and os.path.exists(icon_path):
+                icon_label = QLabel()
+                pixmap = QIcon(icon_path).pixmap(24, 24)
+                icon_label.setPixmap(pixmap)
+                header_row.addWidget(icon_label)
         
         title_label = QLabel(title)
         title_label.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
@@ -426,7 +438,6 @@ class ToolModulePage(QScrollArea):
         """)
         ai_assist_btn.clicked.connect(self._on_header_ai_assist_clicked)
 
-
         header_row.addWidget(title_label)
         header_row.addStretch()
         header_row.addWidget(ai_assist_btn)
@@ -440,10 +451,15 @@ class ToolModulePage(QScrollArea):
         self.ai_assist_requested.emit(ctx)
 
 
-    def create_primary_button(self, text):
-        button = QPushButton(text)
+    def create_primary_button(self, text, tool_id=None):
+        button = QPushButton(f"  {text}" if tool_id else text)
         button.setProperty("role", "primary")
         button.setMinimumHeight(42)
+        if tool_id:
+            icon_path = get_tool_icon_path(tool_id)
+            if icon_path and os.path.exists(icon_path):
+                button.setIcon(QIcon(icon_path))
+                button.setIconSize(QSize(20, 20))
         return button
 
     def create_secondary_button(self, text):
@@ -485,6 +501,15 @@ class ToolModulePage(QScrollArea):
         if focus_widget is not None:
             focus_widget.setFocus()
             if hasattr(focus_widget, "selectAll"):
+                focus_widget.selectAll()
+
+    def populate_tool_inputs(self, tool_id, target="", flags=""):
+        """Activates specified tool and pre-populates target input and parameters."""
+        self.activate_tool(tool_id)
+        if target:
+            focus_widget = self._tool_focus_widget.get(tool_id)
+            if focus_widget is not None and isinstance(focus_widget, QLineEdit):
+                focus_widget.setText(str(target))
                 focus_widget.selectAll()
 
     def emit_validation_error(self, message):

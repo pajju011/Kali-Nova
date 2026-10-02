@@ -3,16 +3,20 @@ import shlex
 import subprocess
 import shutil
 import random
+# pyrefly: ignore [missing-import]
 from PyQt6.QtCore import QThread, pyqtSignal
 from datetime import datetime
 import time
 
+from config import load_config
 from core.log_manager import LogManager
 from core.port_parser import PortParser
 from core.risk_engine import RiskEngine
 from core.suggestion_engine import SuggestionEngine
 from core.app_state import app_state
 from core.database import DatabaseManager
+from core.pipeline_manager import PipelineManager
+from core.system_utils import wrap_with_privilege_escalation, needs_root_privileges
 
 
 
@@ -39,9 +43,38 @@ class CommandThread(QThread):
             except Exception:
                 pass
 
+    def send_input(self, text: str):
+        """Sends interactive user input/keystrokes to the running subprocess stdin."""
+        if self._process is not None and self._process.poll() is None:
+            if self._process.stdin is not None:
+                try:
+                    self._process.stdin.write(f"{text}\n")
+                    self._process.stdin.flush()
+                    self.output_signal.emit(f"> [INPUT] {text}")
+                except Exception as e:
+                    self.output_signal.emit(f"[ERROR] Failed to send stdin input: {e}")
+            else:
+                self.output_signal.emit("[WARN] stdin stream is not open for this process.")
+        else:
+            self.output_signal.emit(f"> [INPUT] {text} (No active subprocess)")
+
     def run(self):
         try:
-            command_args = shlex.split(self.command, posix=os.name != "nt")
+            # Check privilege escalation configuration
+            config = load_config()
+            auto_elevate = config.get("auto_elevate_root", True)
+            elevation_method = config.get("elevation_method", "auto")
+
+            exec_cmd = self.command
+            if auto_elevate and elevation_method != "none":
+                elevated_cmd, was_elevated = wrap_with_privilege_escalation(
+                    self.command, method=elevation_method
+                )
+                if was_elevated:
+                    self.output_signal.emit(f"[PRIVILEGE] Executing with elevated permissions ({elevation_method})...\n")
+                    exec_cmd = elevated_cmd
+
+            command_args = shlex.split(exec_cmd, posix=os.name != "nt")
             if not command_args:
                 raise ValueError("No command provided.")
 
@@ -51,7 +84,9 @@ class CommandThread(QThread):
 
             # Extract tool name from command
             tool_binary = command_args[0].lower()
-            tool_name = command_args[0].upper()
+            if tool_binary in {"sudo", "pkexec"} and len(command_args) > 1:
+                tool_binary = command_args[1].lower()
+            tool_name = tool_binary.upper()
             self.status_signal.emit(f"Running {tool_name}...", "running")
             self.output_signal.emit(f"\n{'='*60}")
             self.output_signal.emit(f"Starting: {self.command}")
@@ -79,9 +114,11 @@ class CommandThread(QThread):
                 process = subprocess.Popen(
                     command_args,
                     shell=False,
+                    stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     text=True,
+                    bufsize=1,
                     startupinfo=startupinfo,
                     creationflags=creationflags,
                 )
@@ -113,13 +150,7 @@ class CommandThread(QThread):
                     return
                 self.output_signal.emit(f"{'='*60}\n")
 
-            # Calculate risk after execution
-            RiskEngine.calculate()
-
-            # Generate suggestions
-            SuggestionEngine.generate()
-
-            # Save scan to database
+            # Extract target from command args
             target = "unknown"
             if len(command_args) > 1:
                 # Find target by filtering out flags/options
@@ -127,7 +158,18 @@ class CommandThread(QThread):
                     if not arg.startswith("-"):
                         target = arg
                         break
-            
+
+            # Ingest output into pipeline manager for inter-tool data handoff
+            PipelineManager.ingest_output(base_binary, "\n".join(self.stdout_lines), target)
+            app_state.record_tool_execution(base_binary, target, self.command)
+
+            # Calculate risk after execution
+            RiskEngine.calculate()
+
+            # Generate suggestions & ML recommendations
+            SuggestionEngine.generate()
+
+            # Save scan to database
             parsed_ports_str = ",".join(map(str, app_state.open_ports))
             DatabaseManager.save_scan(
                 target=target,
@@ -206,6 +248,29 @@ class CommandThread(QThread):
         if "subdomain discovered" in lower_line or "subdomain found" in lower_line:
             app_state.add_event("SUBDOMAIN_ENUM")
             self.output_signal.emit("[INFO] Subdomain discovered during web crawl.")
+
+        # Metagoofil Document & Metadata Detection
+        if "metagoofil" in lower_line or "searching for pdf files" in lower_line or "files found" in lower_line:
+            app_state.add_event("METAGOOFIL_DOC_EXTRACT")
+            self.output_signal.emit("[INFO] Metagoofil document search & metadata extraction active.")
+
+        # Amass DNS Enumeration & Attack Surface Detection
+        if "amass" in lower_line or "owasp amass" in lower_line or "querying" in lower_line or "dns enumeration" in lower_line:
+            app_state.add_event("AMASS_ENUM_ACTIVE")
+            self.output_signal.emit("[INFO] OWASP Amass attack surface discovery active.")
+
+        # Hashcat Password Cracking Detection
+        if "hashcat" in lower_line or "hashmode:" in lower_line or "speed.#" in lower_line or "dictionary cache hit" in lower_line:
+            app_state.add_event("HASH_CRACKING_ACTIVE")
+            if "recovered" in lower_line or "cracked" in lower_line:
+                self.output_signal.emit("[ALERT] Hashcat hash plaintext recovered!")
+
+        # Ncrack Network Authentication & Credential Discovery Detection
+        if "ncrack" in lower_line or "discovered credentials on" in lower_line:
+            app_state.add_event("BRUTE_FORCE")
+            app_state.add_event("NCRACK_CREDENTIAL_FOUND")
+            if "discovered credentials on" in lower_line:
+                self.output_signal.emit("[ALERT] Ncrack discovered valid service credentials!")
 
     def run_simulation(self, tool_binary, command_args):
         simulated_lines = []
@@ -402,6 +467,45 @@ class CommandThread(QThread):
                 "1 password hash cracked, 0 left"
             ]
 
+        elif tool_binary == "ncrack":
+            user = "victim"
+            if "--user" in command_args:
+                try:
+                    user = command_args[command_args.index("--user") + 1]
+                except Exception:
+                    pass
+            elif "-U" in command_args:
+                try:
+                    user = os.path.basename(command_args[command_args.index("-U") + 1])
+                except Exception:
+                    pass
+
+            svc = "rdp"
+            if "-p" in command_args:
+                try:
+                    svc = command_args[command_args.index("-p") + 1]
+                except Exception:
+                    pass
+
+            target_host = target if target != "unknown" and target != "target-system.local" else "192.168.1.200"
+            if "-iL" in command_args:
+                try:
+                    target_host = f"list:{os.path.basename(command_args[command_args.index('-iL') + 1])}"
+                except Exception:
+                    pass
+
+            port_map = {"rdp": "3389", "ssh": "22", "ftp": "21", "smb": "445", "vnc": "5900", "http": "80", "telnet": "23"}
+            svc_port = port_map.get(svc.lower(), "3389")
+
+            simulated_lines = [
+                f"Starting Ncrack 0.7 ( http://ncrack.org ) at {datetime.now().strftime('%Y-%m-%d %H:%M EDT')}",
+                f"[*] Initiating network authentication audit against {target_host} ({svc} / port {svc_port})",
+                f"[*] Module {svc}: parallel connection limit set. Probing endpoint...",
+                f"{svc}://192.168.1.220:{svc_port} finished.",
+                f"Discovered credentials on {svc}://192.168.1.200:{svc_port} '{user}' 's3cr3t'",
+                f"Ncrack done: 1 service on 1 host completed in {random.uniform(3.2, 5.8):.2f} seconds."
+            ]
+
         elif tool_binary in ["nc", "netcat"]:
             port = "4444"
             if len(command_args) > 2:
@@ -534,7 +638,7 @@ class CommandThread(QThread):
                 "     / __ \\/ /_  ____  / /_____  ____",
                 "    / /_/ / __ \\/ __ \\/ __/ __ \\/ __ \\",
                 "   / ____/ / / / /_/ / /_/ /_/ / / / /",
-                "  /_/   /_/ /_/\____/\\__/\____/_/ /_/ v1.2.2",
+                "  /_/   /_/ /_/\\____/\\__/\\____/_/ /_/ v1.2.2",
                 "",
                 f"[+] Root target URL: {target}",
                 f"[+] Initializing crawler threads (level: {level}, threads: {threads})...",
@@ -577,6 +681,216 @@ class CommandThread(QThread):
                 simulated_lines.append("[+] Local website mirror cloned successfully.")
 
             simulated_lines.append("[+] Crawl finished. Extracted 42 URLs, 2 emails, 2 subdomains, 1 secret key.")
+
+        elif tool_binary == "metagoofil":
+            domain = target
+            if "-d" in command_args:
+                try:
+                    domain = command_args[command_args.index("-d") + 1]
+                except Exception:
+                    pass
+            filetypes = "pdf"
+            if "-t" in command_args:
+                try:
+                    filetypes = command_args[command_args.index("-t") + 1]
+                except Exception:
+                    pass
+            limit = "100"
+            if "-l" in command_args:
+                try:
+                    limit = command_args[command_args.index("-l") + 1]
+                except Exception:
+                    pass
+            download_limit = "25"
+            if "-n" in command_args:
+                try:
+                    download_limit = command_args[command_args.index("-n") + 1]
+                except Exception:
+                    pass
+            out_dir = "kalipdf"
+            if "-o" in command_args:
+                try:
+                    out_dir = command_args[command_args.index("-o") + 1]
+                except Exception:
+                    pass
+            save_file = "kalipdf.html"
+            if "-f" in command_args:
+                try:
+                    save_file = command_args[command_args.index("-f") + 1]
+                except Exception:
+                    pass
+
+            simulated_lines = [
+                "******************************************************",
+                "*     /\\/\\   ___| |_ __ _  __ _  ___   ___  / _(_) | *",
+                "*    /    \\ / _ \\ __/ _` |/ _` |/ _ \\ / _ \\| |_| | | *",
+                "*   / /\\/\\ \\  __/ || (_| | (_| | (_) | (_) |  _| | | *",
+                "*   \\/    \\/\\___|\\__\\__,_|\\__, |\\___/ \\___/|_| |_|_| *",
+                "*                         |___/                      *",
+                "* Metagoofil Ver 2.2                                 *",
+                "* Christian Martorella                               *",
+                "* Edge-Security.com                                  *",
+                "* cmartorella_at_edge-security.com                   *",
+                "******************************************************",
+                f"['{filetypes}']",
+                "",
+                "[-] Starting online search...",
+                f"[-] Searching for {filetypes} files, with a limit of {limit}",
+                f"        Searching {limit} results...",
+                "Results: 21 files found",
+                f"Starting to download {download_limit} of them:",
+                f"[-] [1/21] Downloading http://{domain}/docs/annual_report_2025.pdf",
+                f"[-] [2/21] Downloading http://{domain}/assets/network_topology_spec.pdf",
+                f"[-] [3/21] Downloading http://{domain}/downloads/employee_handbook.pdf",
+                f"[+] Saving document links output to '{save_file}'",
+                "[+] Extracting document metadata (Author, Software, Title, Creator)...",
+                "    Author found: admin_jsmith (Internal Account)",
+                "    Creator/Producer: Microsoft Office Word 2019 / Acrobat Distiller 11",
+                "    Internal Path: C:\\Users\\jsmith\\Documents\\Confidential\\",
+                f"[-] Saved downloaded files to directory '{out_dir}'.",
+                "[-] Metagoofil metadata extraction completed successfully."
+            ]
+
+        elif tool_binary == "amass":
+            domain = target
+            if "-d" in command_args:
+                try:
+                    domain = command_args[command_args.index("-d") + 1]
+                except Exception:
+                    pass
+            mode = "enum"
+            if "intel" in command_args:
+                mode = "intel"
+
+            simulated_lines = [
+                "                                       ",
+                "  .____.     .____.    .____.    .____.",
+                "  |    |     |    |    |    |    |    |",
+                "  | OWASP Amass v4.2.0 - Attack Surface Mapping Engine |",
+                "  |____________________________________________________|",
+                "",
+                f"[*] Target Domain: {domain}",
+                f"[*] Operation Mode: {mode.upper()}",
+                "[+] Querying passive OSINT sources (Censys, CertSpotter, Crtsh, HackerTarget, SecurityTrails, Shodan, VirusTotal)...",
+                f"[-] [Crtsh] Found subdomain: mail.{domain}",
+                f"[-] [SecurityTrails] Found subdomain: vpn.{domain}",
+                f"[-] [AlienVault] Found subdomain: api.{domain}",
+                f"[-] [Censys] Found subdomain: dev.{domain}",
+                f"[-] [HackerTarget] Found subdomain: portal.{domain}",
+            ]
+
+            if "-active" in command_args or "--active" in command_args:
+                simulated_lines.extend([
+                    "[+] Active reconnaissance mode enabled: Probing DNS zone transfers (AXFR) & SSL/TLS Certificates...",
+                    f"[-] [DNS AXFR] Discovered internal DNS record: ns1.internal.{domain}",
+                    f"[-] [Cert Pull] Discovered SSL SAN endpoint: staging-api.{domain}"
+                ])
+
+            if "-brute" in command_args or "--brute" in command_args:
+                simulated_lines.extend([
+                    "[+] Brute-force subdomain alterations & wordlist mutations active...",
+                    f"[-] [BruteForce] Found subdomain: admin.{domain}",
+                    f"[-] [BruteForce] Found subdomain: db.{domain}"
+                ])
+
+            if "-ip" in command_args or "--ip" in command_args or True:
+                simulated_lines.extend([
+                    "[+] Performing A/AAAA DNS records resolution to IPv4/IPv6 addresses:",
+                    f"    mail.{domain}        --> 192.168.1.10 [ASN: 15169 - GOOGLE]",
+                    f"    vpn.{domain}         --> 192.168.1.15 [ASN: 15169 - GOOGLE]",
+                    f"    api.{domain}         --> 192.168.1.25 [ASN: 15169 - GOOGLE]",
+                    f"    portal.{domain}      --> 192.168.1.30 [ASN: 15169 - GOOGLE]",
+                    f"    dev.{domain}         --> 192.168.1.45 [ASN: 15169 - GOOGLE]",
+                ])
+
+            if "-src" in command_args:
+                simulated_lines.append("[+] Data source attribution logging enabled.")
+
+            simulated_lines.append(f"[*] OWASP Amass discovery complete. 7 subdomains and 5 unique IP targets mapped.")
+
+        elif tool_binary == "hashcat":
+            if "-b" in command_args or "--benchmark" in command_args:
+                simulated_lines = [
+                    "hashcat (v7.1.2) starting in benchmark mode...",
+                    "",
+                    "Benchmarking uses hand-optimized kernel code by default.",
+                    "You can use it in your cracking session by setting the -O option.",
+                    "",
+                    "OpenCL Platform #1: Intel(R) Corporation",
+                    "========================================",
+                    "* Device #1: Intel(R) Core(TM) i7 CPU @ 3.40GHz, 4096/16384 MB allocatable",
+                    "",
+                    "Benchmark relevant options:",
+                    "===========================",
+                    "* --optimized-kernel-enable",
+                    "",
+                    "Hashmode: 0 - MD5",
+                    "Speed.#1.........:   134.9 MH/s (15.41ms) @ Accel:1024 Loops:1024 Thr:1 Vec:8",
+                    "",
+                    "Hashmode: 100 - SHA1",
+                    "Speed.#1.........: 98899.4 kH/s (21.04ms) @ Accel:1024 Loops:1024 Thr:1 Vec:8",
+                    "",
+                    "Hashmode: 500 - md5crypt, MD5 (Unix), Cisco-IOS $1$ (MD5)",
+                    "Speed.#1.........:   18400 H/s (24.10ms) @ Accel:512 Loops:256 Thr:1 Vec:8",
+                    "",
+                    "Hashmode: 1000 - NTLM",
+                    "Speed.#1.........:  425.2 MH/s (12.10ms) @ Accel:1024 Loops:1024 Thr:1 Vec:8",
+                    "",
+                    "Hashmode: 1400 - SHA2-256",
+                    "Speed.#1.........: 42768.3 kH/s (48.86ms) @ Accel:1024 Loops:1024 Thr:1 Vec:8",
+                    "",
+                    "Benchmark completed."
+                ]
+            else:
+                hash_target = "$1$uOM6WNc4$r3ZGeSB11q6UUSILqek3J1"
+                wordlist = "/usr/share/wordlists/rockyou.txt"
+                if len(command_args) > 1:
+                    for arg in command_args[1:]:
+                        if not arg.startswith("-"):
+                            if "hash" in arg or "$" in arg or "." in arg:
+                                hash_target = arg
+                            elif "word" in arg or "dict" in arg or "txt" in arg or "rock" in arg:
+                                wordlist = arg
+
+                hash_mode_str = "500 (md5crypt)"
+                if "-m" in command_args:
+                    try:
+                        m_val = command_args[command_args.index("-m") + 1]
+                        hash_mode_str = f"{m_val}"
+                    except Exception:
+                        pass
+
+                simulated_lines = [
+                    "hashcat (v7.1.2) starting...",
+                    "",
+                    "OpenCL Platform #1: Intel(R) Corporation",
+                    "========================================",
+                    "* Device #1: Intel(R) Core(TM) i7 CPU @ 3.40GHz, 4096/16384 MB allocatable",
+                    "",
+                    "Hashes: 1 digests; 1 unique digests, 1 unique salts",
+                    "Applicable optimizers:",
+                    "* Zero-Byte",
+                    "* Single-Hash",
+                    "* Single-Salt",
+                    "",
+                    f"Dictionary cache hit:",
+                    f"* Filename..: {wordlist}",
+                    "* Passwords.: 1406529",
+                    "* Bytes.....: 12790573",
+                    "* Keyspace..: 1406529",
+                    "",
+                    "Session..........: hashcat",
+                    "Status...........: Running",
+                    f"Hash.Type........: Hashmode {hash_mode_str}",
+                    f"Hash.Target......: {hash_target}",
+                    "Time.Started.....: Sat Nov 24 22:37:25 (26 secs)",
+                    "Speed.#1.........:     18400 H/s (9.09ms) @ Accel:256 Loops:125 Thr:1 Vec:8",
+                    "Recovered........: 1/1 (100.00%) Digests, 1/1 (100.00%) Salts",
+                    "Progress.........: 183808/1406529 (13.07%)",
+                    "",
+                    f"[+] KEY FOUND! Plaintext password recovered: [ admin123! ]",
+                    "Session completed successfully."
+                ]
 
         else:
             simulated_lines = [

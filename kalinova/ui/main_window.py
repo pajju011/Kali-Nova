@@ -12,6 +12,10 @@ from ui.workspace import Workspace
 from ui.console import Console
 from ui.ai_copilot_drawer import AICopilotDrawer
 from core.executor import CommandThread
+from core.app_state import app_state
+from ui.icon_manager import get_tool_icon_path
+from PyQt6.QtGui import QIcon
+import os
 
 
 class MainWindow(QMainWindow):
@@ -20,9 +24,14 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setObjectName("mainWindow")
-        self.setWindowTitle("Kalinova OS")
+        self.setWindowTitle("Kalinova")
         self.setGeometry(100, 100, 1300, 800)
         self.showMaximized()
+
+        app_icon_path = get_tool_icon_path("kalinova")
+        if app_icon_path and os.path.exists(app_icon_path):
+            self.setWindowIcon(QIcon(app_icon_path))
+
         self.thread = None
         self._threads = []
         self._thread_consoles = {}
@@ -96,7 +105,7 @@ class MainWindow(QMainWindow):
         # =========================
         # Navigation Connection
         # =========================
-        self.sidebar.navigate.connect(self.workspace.switch_page)
+        self.sidebar.navigate.connect(self._on_navigation_change)
 
         # =========================
         # Mode Change Connection
@@ -105,7 +114,10 @@ class MainWindow(QMainWindow):
             self.workspace.pages["Recon"].update_mode
         )
         self.topbar.toggle_output_signal.connect(self.toggle_output_panel)
-        self.topbar.toggle_ai_copilot_signal.connect(self.toggle_ai_copilot)
+        if hasattr(self.topbar, "toggle_ai_copilot_signal"):
+            self.topbar.toggle_ai_copilot_signal.connect(self.toggle_ai_copilot)
+        if hasattr(self.topbar, "search_submitted"):
+            self.topbar.search_submitted.connect(self._handle_global_search)
 
 
         # =========================
@@ -135,7 +147,16 @@ class MainWindow(QMainWindow):
             if hasattr(page, "ai_assist_requested"):
                 page.ai_assist_requested.connect(self._handle_in_tool_ai_assist)
 
+        # Connect bottom console input
+        self.console.input_submitted.connect(self._handle_main_console_input)
+
         self._apply_theme()
+
+    def _handle_main_console_input(self, text: str):
+        if self.thread is not None and self.thread.isRunning():
+            self.thread.send_input(text)
+        else:
+            self.execute(text)
 
 
     # =========================
@@ -158,6 +179,7 @@ class MainWindow(QMainWindow):
             )
         )
         thread.finished_signal.connect(lambda t=thread: self._on_thread_finished(t))
+        tab_console.input_submitted.connect(lambda text, t=thread: t.send_input(text))
 
         self.thread = thread
         self._threads.append(thread)
@@ -166,15 +188,51 @@ class MainWindow(QMainWindow):
         self._set_thread_tab_running(thread, True)
         thread.start()
 
-    def handle_suggested_tool(self, suggested_tool):
-        lower_tool = suggested_tool.lower()
+    def handle_suggested_tool(self, suggested_tool, target=None, flags=None):
+        if not suggested_tool:
+            return
+
+        # Handle tuple/list or delimiter-separated payloads
+        if isinstance(suggested_tool, (list, tuple)):
+            if len(suggested_tool) >= 3:
+                suggested_tool, target, flags = str(suggested_tool[0]), str(suggested_tool[1]), str(suggested_tool[2])
+            elif len(suggested_tool) == 2:
+                suggested_tool, target = str(suggested_tool[0]), str(suggested_tool[1])
+            elif len(suggested_tool) == 1:
+                suggested_tool = str(suggested_tool[0])
+
+        if isinstance(suggested_tool, str) and "|" in suggested_tool:
+            parts = suggested_tool.split("|")
+            suggested_tool = parts[0]
+            if len(parts) > 1 and parts[1]:
+                target = target or parts[1]
+            if len(parts) > 2 and parts[2]:
+                flags = flags or parts[2]
+
+        auto_target = getattr(app_state, "next_target", "") or ""
+        if not auto_target and getattr(app_state, "pipeline_artifacts", {}).get("targets"):
+            auto_target = app_state.pipeline_artifacts["targets"][0]
+        target = target or auto_target or ""
+        flags = flags or ""
+        lower_tool = str(suggested_tool).lower()
+
+        # 0. Handle AI Copilot Remediation
+        if "remediate" in lower_tool or "copilot" in lower_tool or "hardening" in lower_tool:
+            self.workspace.switch_page("Dashboard")
+            self.ai_drawer.inspect_and_open()
+            self._log_main("Suggestion: AI Defensive Remediation opened with recommended mitigations.")
+            self._set_main_status("AI Remediation Active", "info")
+            return
 
         if "hydra" in lower_tool:
             self._open_tool_panel(
                 page_name="Auth",
                 panel_method="show_hydra_panel",
                 tool_name="Hydra",
-                instruction="Configure the form and run it from the Auth page.",
+                instruction="Configure target host/service and run password audit.",
+                tool_id="hydra",
+                target=target,
+                flags=flags
             )
             return
 
@@ -183,34 +241,70 @@ class MainWindow(QMainWindow):
                 page_name="Auth",
                 panel_method="show_john_panel",
                 tool_name="John",
-                instruction="Choose the hash file and run it from the Auth page.",
+                instruction="Choose hash file and run offline recovery.",
+                tool_id="john",
+                target=target,
+                flags=flags
+            )
+            return
+
+        if "hashcat" in lower_tool:
+            self._open_tool_panel(
+                page_name="Auth",
+                panel_method="show_hashcat_panel",
+                tool_name="Hashcat",
+                instruction="Configure hash target and attack options, then run from Auth page.",
+                tool_id="hashcat",
+                target=target,
+                flags=flags
+            )
+            return
+
+        if "ncrack" in lower_tool:
+            self._open_tool_panel(
+                page_name="Auth",
+                panel_method="show_ncrack_panel",
+                tool_name="Ncrack",
+                instruction="Configure network auth target and run cracking scan.",
+                tool_id="ncrack",
+                target=target,
+                flags=flags
             )
             return
 
         if "sslscan" in lower_tool:
             self._open_tool_panel(
-                page_name="Auth",
+                page_name="Network",
                 panel_method="show_sslscan_panel",
                 tool_name="SSLScan",
-                instruction="Enter target host and run it from the Auth page.",
+                instruction="Enter target host and verify SSL/TLS ciphers.",
+                tool_id="sslscan",
+                target=target,
+                flags=flags
             )
             return
 
         if "sslyze" in lower_tool:
             self._open_tool_panel(
-                page_name="Auth",
+                page_name="Network",
                 panel_method="show_sslyze_panel",
                 tool_name="SSLyze",
-                instruction="Enter target host and run it from the Auth page.",
+                instruction="Enter target host and analyze SSL/TLS configuration.",
+                tool_id="sslyze",
+                target=target,
+                flags=flags
             )
             return
 
         if "tlssled" in lower_tool:
             self._open_tool_panel(
-                page_name="Auth",
+                page_name="Network",
                 panel_method="show_tlssled_panel",
                 tool_name="TLSSLed",
-                instruction="Enter host and port, then run it from the Auth page.",
+                instruction="Enter host and port, then run SSL security audit.",
+                tool_id="tlssled",
+                target=target,
+                flags=flags
             )
             return
 
@@ -219,7 +313,10 @@ class MainWindow(QMainWindow):
                 page_name="Web",
                 panel_method="show_nikto_panel",
                 tool_name="Nikto",
-                instruction="Configure the target URL and run it from the Web page.",
+                instruction="Target URL auto-populated. Run web server vulnerability scan.",
+                tool_id="nikto",
+                target=target,
+                flags=flags
             )
             return
 
@@ -228,7 +325,10 @@ class MainWindow(QMainWindow):
                 page_name="Web",
                 panel_method="show_sqlmap_panel",
                 tool_name="SQLmap",
-                instruction="Configure the target URL and run it from the Web page.",
+                instruction="Target URL auto-populated. Test parameter for SQL injection vulnerabilities.",
+                tool_id="sqlmap",
+                target=target,
+                flags=flags
             )
             return
 
@@ -237,7 +337,34 @@ class MainWindow(QMainWindow):
                 page_name="Web",
                 panel_method="show_gobuster_panel",
                 tool_name="Gobuster",
-                instruction="Set URL and wordlist, then run it from the Web page.",
+                instruction="Target URL auto-populated. Start directory and URI fuzzing.",
+                tool_id="gobuster",
+                target=target,
+                flags=flags
+            )
+            return
+
+        if "whatweb" in lower_tool:
+            self._open_tool_panel(
+                page_name="Web",
+                panel_method="show_whatweb_panel",
+                tool_name="WhatWeb",
+                instruction="Target URL auto-populated. Fingerprint web technologies.",
+                tool_id="whatweb",
+                target=target,
+                flags=flags
+            )
+            return
+
+        if "wfuzz" in lower_tool:
+            self._open_tool_panel(
+                page_name="Web",
+                panel_method="show_wfuzz_panel",
+                tool_name="Wfuzz",
+                instruction="Target URL auto-populated. Fuzz web endpoints.",
+                tool_id="wfuzz",
+                target=target,
+                flags=flags
             )
             return
 
@@ -246,7 +373,10 @@ class MainWindow(QMainWindow):
                 page_name="Recon",
                 panel_method="show_nmap_panel",
                 tool_name="Nmap",
-                instruction="Configure target details and run it from the Recon page.",
+                instruction="Target host auto-populated. Launch network discovery scan.",
+                tool_id="nmap",
+                target=target,
+                flags=flags
             )
             return
 
@@ -255,7 +385,10 @@ class MainWindow(QMainWindow):
                 page_name="Recon",
                 panel_method="show_whois_panel",
                 tool_name="Whois",
-                instruction="Configure the domain and run it from the Recon page.",
+                instruction="Target domain auto-populated. Query registrar information.",
+                tool_id="whois",
+                target=target,
+                flags=flags
             )
             return
 
@@ -264,7 +397,46 @@ class MainWindow(QMainWindow):
                 page_name="Recon",
                 panel_method="show_harvester_panel",
                 tool_name="Harvester",
-                instruction="Set domain/source and run it from the Recon page.",
+                instruction="Target domain auto-populated. Harvest emails and subdomains.",
+                tool_id="harvester",
+                target=target,
+                flags=flags
+            )
+            return
+
+        if "metagoofil" in lower_tool:
+            self._open_tool_panel(
+                page_name="Recon",
+                panel_method="show_metagoofil_panel",
+                tool_name="Metagoofil",
+                instruction="Target domain auto-populated. Extract document metadata.",
+                tool_id="metagoofil",
+                target=target,
+                flags=flags
+            )
+            return
+
+        if "amass" in lower_tool:
+            self._open_tool_panel(
+                page_name="Recon",
+                panel_method="show_amass_panel",
+                tool_name="Amass",
+                instruction="Target domain auto-populated. Map external network perimeter.",
+                tool_id="amass",
+                target=target,
+                flags=flags
+            )
+            return
+
+        if "photon" in lower_tool:
+            self._open_tool_panel(
+                page_name="Recon",
+                panel_method="show_photon_panel",
+                tool_name="Photon",
+                instruction="Target URL auto-populated. Crawl and scrape OSINT endpoints.",
+                tool_id="photon",
+                target=target,
+                flags=flags
             )
             return
 
@@ -273,7 +445,10 @@ class MainWindow(QMainWindow):
                 page_name="Recon",
                 panel_method="show_autopsy_panel",
                 tool_name="Autopsy",
-                instruction="Configure evidence locker and port, then launch from Recon page.",
+                instruction="Configure evidence locker and port, then launch digital forensics.",
+                tool_id="autopsy",
+                target=target,
+                flags=flags
             )
             return
 
@@ -282,7 +457,10 @@ class MainWindow(QMainWindow):
                 page_name="Network",
                 panel_method="show_netcat_panel",
                 tool_name="Netcat",
-                instruction="Set mode and port, then run from the Network page.",
+                instruction="Set mode and port, then run from Network page.",
+                tool_id="netcat",
+                target=target,
+                flags=flags
             )
             return
 
@@ -291,7 +469,10 @@ class MainWindow(QMainWindow):
                 page_name="Network",
                 panel_method="show_wireshark_panel",
                 tool_name="Wireshark",
-                instruction="Launch it from the Network page.",
+                instruction="Launch network packet sniffer from Network page.",
+                tool_id="wireshark",
+                target=target,
+                flags=flags
             )
             return
 
@@ -300,7 +481,46 @@ class MainWindow(QMainWindow):
                 page_name="Network",
                 panel_method="show_wifite_panel",
                 tool_name="Wifite",
-                instruction="Configure interface and wireless scan options, then run from Network page.",
+                instruction="Configure interface and wireless scan options.",
+                tool_id="wifite",
+                target=target,
+                flags=flags
+            )
+            return
+
+        if "wash" in lower_tool:
+            self._open_tool_panel(
+                page_name="Network",
+                panel_method="show_wash_panel",
+                tool_name="Wash",
+                instruction="Scan WPS-enabled access points.",
+                tool_id="wash",
+                target=target,
+                flags=flags
+            )
+            return
+
+        if "reaver" in lower_tool:
+            self._open_tool_panel(
+                page_name="Network",
+                panel_method="show_reaver_panel",
+                tool_name="Reaver",
+                instruction="Test WPS PIN resilience.",
+                tool_id="reaver",
+                target=target,
+                flags=flags
+            )
+            return
+
+        if "sparrow" in lower_tool:
+            self._open_tool_panel(
+                page_name="Network",
+                panel_method="show_sparrowwifi_panel",
+                tool_name="Sparrow-WiFi",
+                instruction="Launch Sparrow-WiFi spectrum analyzer.",
+                tool_id="sparrowwifi",
+                target=target,
+                flags=flags
             )
             return
 
@@ -314,6 +534,7 @@ class MainWindow(QMainWindow):
         self._set_main_status(f"⚠️  {message}", "error")
         import os
         if os.environ.get("QT_QPA_PLATFORM") != "offscreen":
+            # pyrefly: ignore [missing-import]
             from PyQt6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Configuration Required", message)
 
@@ -339,22 +560,83 @@ class MainWindow(QMainWindow):
     def _set_main_status(self, status, status_type="info"):
         self.console.set_status(status, status_type)
 
+    def _on_navigation_change(self, page_name):
+        self.workspace.switch_page(page_name)
+        if hasattr(self.sidebar, "set_active_page"):
+            self.sidebar.set_active_page(page_name)
+        if hasattr(self.workspace, "get_active_context"):
+            ctx = self.workspace.get_active_context()
+            self.ai_drawer.update_active_context_realtime(
+                page_name=ctx.get("page_name", page_name),
+                tool_name=ctx.get("tool_name", page_name),
+                inputs_dict=ctx.get("inputs", {})
+            )
+
+    def _handle_global_search(self, query: str):
+        q = query.strip()
+        if not q:
+            return
+        ql = q.lower()
+        if ql in ("dashboard", "home"):
+            self._on_navigation_change("Dashboard")
+        elif ql in ("recon", "nmap", "whois", "harvester", "metagoofil", "amass", "photon", "autopsy"):
+            self._on_navigation_change("Recon")
+        elif ql in ("web", "nikto", "sqlmap", "gobuster", "wfuzz", "whatweb"):
+            self._on_navigation_change("Web")
+        elif ql in ("auth", "hydra", "john", "hashcat", "ncrack", "hashid"):
+            self._on_navigation_change("Auth")
+        elif ql in ("network", "netcat", "wireshark", "wifite", "wash", "reaver", "sslscan", "sslyze"):
+            self._on_navigation_change("Network")
+        elif ql in ("reports", "report", "logs", "log"):
+            self._on_navigation_change("Reports")
+        elif ql in ("settings", "config"):
+            self._on_navigation_change("Settings")
+        elif " " in q:
+            self.execute(q)
+
     def _handle_thread_output(self, thread, message):
         self._log_main(message)
         tab_console = self._thread_consoles.get(thread)
         if tab_console is not None:
             tab_console.log(message)
 
+        # Real-time AI Copilot live stream listener
+        tool_name = self._extract_tool_name(getattr(thread, "command", ""))
+        clean_msg = message.strip()
+        if clean_msg.startswith("[ALERT]") or clean_msg.startswith("[INFO]"):
+            ev = "SIGNAL_DETECTED"
+            lower_msg = clean_msg.lower()
+            if "sql" in lower_msg:
+                ev = "SQL_INJECTION"
+            elif "secret" in lower_msg or "api_key" in lower_msg:
+                ev = "SECRET_LEAK"
+            elif "handshake" in lower_msg or "pmkid" in lower_msg:
+                ev = "WIRELESS_HANDSHAKE"
+            elif "brute" in lower_msg:
+                ev = "BRUTE_FORCE"
+            elif "email" in lower_msg:
+                ev = "EMAIL_ENUM"
+            elif "subdomain" in lower_msg:
+                ev = "SUBDOMAIN_ENUM"
+            elif "wps" in lower_msg:
+                ev = "WPS_WIFI_AUDIT"
+            elif "forensics" in lower_msg:
+                ev = "FORENSICS_ANALYSIS"
+            self.ai_drawer.handle_live_event(ev, detail=clean_msg, tool_name=tool_name)
+
     def _handle_thread_status(self, thread, status, status_type):
         self._set_main_status(status, status_type)
         tab_console = self._thread_consoles.get(thread)
         if tab_console is not None:
             tab_console.set_status(status, status_type)
+        self.ai_drawer.handle_live_status(status, status_type)
 
-    def _open_tool_panel(self, page_name, panel_method, tool_name, instruction):
+    def _open_tool_panel(self, page_name, panel_method, tool_name, instruction, tool_id=None, target="", flags=""):
         self.workspace.switch_page(page_name)
         page = self.workspace.pages[page_name]
         getattr(page, panel_method)()
+        if tool_id and hasattr(page, "populate_tool_inputs") and target:
+            page.populate_tool_inputs(tool_id, target=target, flags=flags)
         self._log_main(
             f"Suggestion: {tool_name} selected. {instruction}"
         )
@@ -370,7 +652,7 @@ class MainWindow(QMainWindow):
             self.ai_drawer.inspect_and_open()
 
     def _handle_in_tool_ai_assist(self, ctx_dict):
-        self.ai_drawer.inspect_and_open()
+        self.ai_drawer.inspect_and_open(custom_ctx=ctx_dict)
 
 
 
@@ -390,6 +672,9 @@ class MainWindow(QMainWindow):
 
     def _on_thread_finished(self, thread):
         self._set_thread_tab_running(thread, False)
+        tool_name = self._extract_tool_name(getattr(thread, "command", ""))
+        stdout_txt = "\n".join(getattr(thread, "stdout_lines", []))
+        self.ai_drawer.handle_scan_completed(tool_name, stdout_txt)
         if thread in self._threads:
             self._threads.remove(thread)
         if self.thread is thread:
@@ -473,94 +758,44 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(
             """
             QMainWindow#mainWindow {
-                background-color: #0b1220;
+                background-color: #060b13;
             }
 
             QWidget {
-                color: #d6e2ff;
-                font-family: 'Segoe UI';
+                color: #cbd5e1;
+                font-family: 'Segoe UI', 'Inter', sans-serif;
             }
 
             QWidget#workspace {
-                background-color: #0f172a;
-                border-left: 1px solid #25324c;
+                background-color: #060b13;
+                border: none;
             }
 
             QWidget#topBar {
-                background-color: #101828;
-                border-bottom: 1px solid #2a3958;
-            }
-
-            QLabel#topTitle {
-                font-size: 18px;
-                font-weight: 700;
-                color: #f3f7ff;
-            }
-
-            QComboBox#modeSelector {
-                min-width: 120px;
-                padding: 7px 10px;
-                border: 1px solid #3a4a6c;
-                border-radius: 8px;
-                background-color: #1a2438;
-                color: #e2ecff;
-            }
-
-            QLabel#riskLabel {
-                font-weight: 700;
-                padding: 6px 10px;
-                border-radius: 8px;
-                background-color: #182235;
-                color: #7ee787;
-            }
-
-            QLabel#riskLabel[riskLevel="medium"] {
-                color: #f3b23f;
-            }
-
-            QLabel#riskLabel[riskLevel="high"] {
-                color: #ff7a7a;
+                background-color: #060b13;
+                border-bottom: 1px solid #111e33;
             }
 
             QWidget#sideBar {
-                background-color: #101a2f;
-                border-right: 1px solid #2a3958;
-                min-width: 220px;
-                max-width: 240px;
-            }
-
-            QPushButton#navButton {
-                text-align: left;
-                padding: 10px 12px;
-                border: 1px solid #2d3f61;
-                border-radius: 8px;
-                background-color: #16233a;
-                color: #d7e5ff;
-                font-weight: 600;
-            }
-
-            QPushButton#navButton:hover {
-                background-color: #1f3150;
-                border-color: #3d78d8;
-            }
-
-            QPushButton#navButton:pressed {
-                background-color: #27406a;
+                background-color: #060b13;
+                border-right: 1px solid #111e33;
+                min-width: 210px;
+                max-width: 230px;
             }
 
             #toolModulePage {
-                background-color: transparent;
+                background-color: #060b13;
             }
 
             QFrame#toolModuleHeader {
-                border: 1px solid #2b3a57;
-                border-radius: 14px;
-                background-color: #121d31;
+                border: 1px solid #14243e;
+                border-radius: 8px;
+                background-color: #081220;
             }
 
             QLabel#toolModuleSubtitle {
-                color: #91a8cc;
-                font-size: 12px;
+                color: #64748b;
+                font-size: 11px;
             }
 
             QFrame#toolRow {
@@ -569,140 +804,150 @@ class MainWindow(QMainWindow):
             }
 
             QFrame#panelContainer {
-                border: 1px solid #2b3a57;
-                border-radius: 14px;
-                background-color: #10192a;
+                border: 1px solid #14243e;
+                border-radius: 8px;
+                background-color: #081220;
             }
 
             QGroupBox[class="toolPanelGroup"] {
-                border: 1px solid #324466;
-                border-radius: 12px;
+                border: 1px solid #14243e;
+                border-radius: 8px;
                 margin-top: 14px;
                 padding-top: 16px;
-                font-size: 14px;
-                font-weight: 600;
-                color: #d9e6ff;
+                font-size: 13px;
+                font-weight: 700;
+                color: #e2e8f0;
             }
 
             QGroupBox[class="toolPanelGroup"]::title {
                 subcontrol-origin: margin;
                 left: 14px;
                 padding: 0 5px;
-                color: #e8f0ff;
+                color: #00f0ff;
             }
 
             QLabel#emptyStateTitle {
-                color: #dce8ff;
+                color: #e2e8f0;
             }
 
             QLabel#emptyStateSubtitle {
-                color: #8ea2c5;
-                font-size: 12px;
+                color: #64748b;
+                font-size: 11px;
             }
 
             QLineEdit,
             QComboBox,
             QTextEdit,
             QListWidget {
-                padding: 9px;
-                border: 1px solid #3a4a6c;
-                border-radius: 8px;
-                background-color: #1a2438;
-                color: #e2ecff;
+                padding: 7px 10px;
+                border: 1px solid #162844;
+                border-radius: 6px;
+                background-color: #08101e;
+                color: #e2e8f0;
+                font-size: 11px;
             }
 
             QLineEdit:focus,
             QComboBox:focus,
             QTextEdit:focus {
-                border-color: #4d89ff;
+                border-color: #2563eb;
             }
 
             QPushButton {
-                padding: 9px 12px;
-                border-radius: 8px;
-                border: 1px solid #3a4a6c;
-                background-color: #22324f;
-                color: #d9e7ff;
+                padding: 7px 12px;
+                border-radius: 6px;
+                border: 1px solid #162844;
+                background-color: #0c182b;
+                color: #cbd5e1;
                 font-weight: 600;
+                font-size: 11px;
             }
 
             QPushButton:hover {
-                background-color: #2a3c5d;
+                background-color: #12243d;
+                border-color: #38bdf8;
+                color: #ffffff;
             }
 
             QPushButton[role="primary"] {
-                background-color: #2f5eb8;
-                border-color: #3567c7;
-                color: #f2f7ff;
+                background-color: #1d4ed8;
+                border-color: #2563eb;
+                color: #ffffff;
+                font-weight: 700;
             }
 
             QPushButton[role="primary"]:hover {
-                background-color: #3a6cca;
+                background-color: #2563eb;
+                border-color: #38bdf8;
             }
 
             QPushButton[role="secondary"] {
-                background-color: #26344f;
+                background-color: #0c182b;
+                border: 1px solid #162844;
+                color: #94a3b8;
+            }
+            QPushButton[role="secondary"]:hover {
+                background-color: #142540;
+                color: #ffffff;
             }
 
             QWidget#consolePanel {
-                border-top: 1px solid #2a3958;
-                background-color: #0e1728;
+                border-top: 1px solid #111e33;
+                background-color: #050c18;
             }
 
             QWidget#sideConsolePanel {
-                border-left: 1px solid #2a3958;
-                background-color: #0e1728;
-                border-radius: 10px;
+                border-left: 1px solid #111e33;
+                background-color: #050c18;
+                border-radius: 8px;
             }
 
             QLabel#consoleTitle,
             QLabel#sideConsoleTitle {
-                font-size: 14px;
-                font-weight: 700;
-                color: #bcd0f5;
+                font-size: 12px;
+                font-weight: 800;
+                color: #cbd5e1;
                 padding: 2px 4px;
+                letter-spacing: 0.5px;
             }
 
             QPushButton#slideExpandBtn {
                 padding: 4px 10px;
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 700;
-                background-color: #1a273e;
-                border: 1px solid #354a70;
+                background-color: #0c182b;
+                border: 1px solid #162844;
                 border-radius: 6px;
                 color: #38bdf8;
             }
             QPushButton#slideExpandBtn:hover {
-                background-color: #24385a;
+                background-color: #162844;
                 border-color: #38bdf8;
                 color: #ffffff;
             }
 
             QSplitter#mainSplitter::handle:horizontal {
-                background-color: #16233b;
-                border-left: 1px solid #2b3e63;
-                border-right: 1px solid #2b3e63;
-                width: 10px;
+                background-color: #060b13;
+                border-left: 1px solid #111e33;
+                border-right: 1px solid #111e33;
+                width: 6px;
             }
             QSplitter#mainSplitter::handle:horizontal:hover {
-                background-color: #3b82f6;
-            }
-            QSplitter#mainSplitter::handle:horizontal:pressed {
-                background-color: #60a5fa;
+                background-color: #1d4ed8;
             }
 
             QTabWidget#sideOutputTabs::pane {
-                border: 1px solid #2b3a57;
-                border-radius: 8px;
-                background-color: #0e1728;
+                border: 1px solid #14243e;
+                border-radius: 6px;
+                background-color: #050c18;
             }
 
             QTabWidget#sideOutputTabs QTabBar::tab {
-                background-color: #192741;
-                color: #cfe0ff;
-                border: 1px solid #2f4568;
-                padding: 6px 12px;
-                font-size: 12px;
+                background-color: #081220;
+                color: #94a3b8;
+                border: 1px solid #14243e;
+                padding: 5px 12px;
+                font-size: 11px;
                 font-weight: 600;
                 margin-right: 2px;
                 border-top-left-radius: 6px;
@@ -710,19 +955,37 @@ class MainWindow(QMainWindow):
             }
 
             QTabWidget#sideOutputTabs QTabBar::tab:selected {
-                background-color: #24406e;
-                border-color: #3d78d8;
-                color: #f4f8ff;
+                background-color: #1d4ed8;
+                border-color: #2563eb;
+                color: #ffffff;
             }
 
             QTextEdit#consoleOutput {
-                border: 1px solid #284f35;
-                background-color: #08100f;
-                color: #6cff9a;
+                border: 1px solid #111e33;
+                background-color: #050c18;
+                color: #10b981;
                 font-family: 'Consolas', 'Cascadia Code', 'Courier New', monospace;
-                font-size: 13px;
-                line-height: 1.5;
+                font-size: 12px;
+                line-height: 1.4;
                 padding: 8px;
+            }
+
+            QScrollBar:vertical {
+                border: none;
+                background: #060b13;
+                width: 6px;
+                margin: 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: #14243e;
+                min-height: 20px;
+                border-radius: 3px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background: #2563eb;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                height: 0px;
             }
             """
         )

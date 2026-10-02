@@ -1,6 +1,8 @@
+import os
 from PyQt6.QtWidgets import QPushButton, QVBoxLayout, QWidget, QLabel
-from PyQt6.QtCore import Qt, pyqtSignal, QEvent
-from PyQt6.QtGui import QFont, QColor
+from PyQt6.QtCore import Qt, pyqtSignal, QEvent, QSize
+from PyQt6.QtGui import QFont, QColor, QIcon
+from ui.icon_manager import get_tool_icon_path
 
 
 class ToolIconButton(QWidget):
@@ -23,12 +25,25 @@ class ToolIconButton(QWidget):
         layout.setSpacing(6)
         layout.setContentsMargins(10, 10, 10, 10)
 
-        self.icon_btn = QPushButton(icon)
+        self.icon_btn = QPushButton()
         self.icon_btn.setObjectName("toolIconButton")
         self.icon_btn.setFixedSize(96, 96)
-        self.icon_btn.setFont(QFont("Segoe UI Emoji", 34))
         self.icon_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.icon_btn.clicked.connect(self.clicked.emit)
+
+        # Check if icon is an SVG path or valid file
+        if isinstance(icon, str) and (icon.endswith(".svg") or icon.endswith(".png") or os.path.exists(icon)):
+            self.icon_btn.setIcon(QIcon(icon))
+            self.icon_btn.setIconSize(QSize(54, 54))
+        else:
+            # Fallback to icon_manager lookup by tool_name or raw string
+            svg_path = get_tool_icon_path(tool_name.lower())
+            if svg_path and os.path.exists(svg_path):
+                self.icon_btn.setIcon(QIcon(svg_path))
+                self.icon_btn.setIconSize(QSize(54, 54))
+            else:
+                self.icon_btn.setText(str(icon))
+                self.icon_btn.setFont(QFont("Segoe UI", 28, QFont.Weight.Bold))
 
         self.name_label = QLabel(tool_name)
         self.name_label.setObjectName("toolNameLabel")
@@ -68,41 +83,43 @@ class ToolIconButton(QWidget):
         accent_soft = self._alpha_color(accent, 48)
 
         if self._is_active:
-            icon_bg = accent
-            border_color = accent
-            name_color = "#f8fbff"
-            desc_color = "#dbeafe"
-            card_bg = accent_soft
+            icon_bg = "#1d4ed8"
+            border_color = "#2563eb"
+            name_color = "#ffffff"
+            desc_color = "#93c5fd"
+            card_bg = "#0e2244"
         else:
-            icon_bg = "#1c273d"
-            border_color = "#3a4a67"
-            name_color = "#d7e2f4"
-            desc_color = "#91a4c4"
-            card_bg = "#111a2e"
+            icon_bg = "#08101e"
+            border_color = "#14243e"
+            name_color = "#cbd5e1"
+            desc_color = "#64748b"
+            card_bg = "#081220"
 
         self.setStyleSheet(
             f"""
             QWidget#toolCard {{
                 border: 1px solid {border_color};
-                border-radius: 12px;
+                border-radius: 8px;
                 background-color: {card_bg};
             }}
             QWidget#toolCard:hover {{
-                border-color: {accent};
+                border-color: #38bdf8;
+                background-color: #0c182b;
             }}
             QPushButton#toolIconButton {{
                 background-color: {icon_bg};
-                border: 2px solid {border_color};
-                border-radius: 10px;
+                border: 1px solid {border_color};
+                border-radius: 8px;
                 color: white;
             }}
             QPushButton#toolIconButton:hover {{
-                border-color: {accent};
+                border-color: #38bdf8;
             }}
             QLabel#toolNameLabel {{
                 color: {name_color};
                 border: none;
                 background: transparent;
+                font-weight: 700;
             }}
             QLabel#toolDescLabel {{
                 color: {desc_color};
@@ -117,8 +134,10 @@ class ToolIconButton(QWidget):
         self._apply_style()
 
     def eventFilter(self, watched, event):
+        icon_btn = getattr(self, "icon_btn", None)
         if (
-            watched is not self.icon_btn
+            icon_btn is not None
+            and watched is not icon_btn
             and event.type() == QEvent.Type.MouseButtonRelease
             and event.button() == Qt.MouseButton.LeftButton
         ):

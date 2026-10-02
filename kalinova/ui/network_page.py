@@ -5,7 +5,26 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, pyqtSignal
 
+from core.system_utils import get_wireless_interfaces
 from ui.tool_template import ToolModulePage
+from ui.icon_manager import get_tool_icon_path
+
+
+class InterfaceComboBox(QComboBox):
+    """Editable interface combobox with dynamic discovery and backward-compatible setText/text API."""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setEditable(True)
+        self.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
+        if self.lineEdit():
+            self.lineEdit().setPlaceholderText("e.g. wlan0mon")
+        self.setEditText("")
+
+    def setText(self, text: str):
+        self.setEditText(text)
+
+    def text(self) -> str:
+        return self.currentText().strip()
 
 
 class NetworkPage(ToolModulePage):
@@ -19,18 +38,24 @@ class NetworkPage(ToolModulePage):
             subtitle="Select a network tool to configure commands before execution.",
         )
 
+        self._interface_combos = []
+
         self.netcat_panel = self._create_netcat_panel()
         self.wireshark_panel = self._create_wireshark_panel()
         self.wifite_panel = self._create_wifite_panel()
         self.wash_panel = self._create_wash_panel()
         self.reaver_panel = self._create_reaver_panel()
+        self.sparrowwifi_panel = self._create_sparrowwifi_panel()
         self.sslscan_panel = self._create_sslscan_panel()
         self.sslyze_panel = self._create_sslyze_panel()
         self.tlssled_panel = self._create_tlssled_panel()
 
+        # Initial interface discovery
+        self.refresh_interfaces()
+
         self.add_tool(
             tool_id="netcat",
-            icon="🔗",
+            icon=get_tool_icon_path("netcat"),
             name="Netcat",
             description="Network Utility",
             panel=self.netcat_panel,
@@ -38,14 +63,14 @@ class NetworkPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="wireshark",
-            icon="🔎",
+            icon=get_tool_icon_path("wireshark"),
             name="Wireshark",
             description="Packet Analysis",
             panel=self.wireshark_panel,
         )
         self.add_tool(
             tool_id="wifite",
-            icon="📡",
+            icon=get_tool_icon_path("wifite"),
             name="Wifite",
             description="Wireless Auditor",
             panel=self.wifite_panel,
@@ -53,7 +78,7 @@ class NetworkPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="wash",
-            icon="📶",
+            icon=get_tool_icon_path("wash"),
             name="Wash",
             description="WPS Scanner",
             panel=self.wash_panel,
@@ -61,15 +86,22 @@ class NetworkPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="reaver",
-            icon="🔨",
+            icon=get_tool_icon_path("reaver"),
             name="Reaver",
             description="WPS PIN Cracker",
             panel=self.reaver_panel,
             focus_widget=self.reaver_interface_input,
         )
         self.add_tool(
+            tool_id="sparrowwifi",
+            icon=get_tool_icon_path("sparrow"),
+            name="Sparrow-WiFi",
+            description="Wi-Fi & Spectrum Analyzer",
+            panel=self.sparrowwifi_panel,
+        )
+        self.add_tool(
             tool_id="sslscan",
-            icon="🔒",
+            icon=get_tool_icon_path("sslscan"),
             name="SSLScan",
             description="SSL/TLS Scanner",
             panel=self.sslscan_panel,
@@ -77,7 +109,7 @@ class NetworkPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="sslyze",
-            icon="🔐",
+            icon=get_tool_icon_path("sslyze"),
             name="SSLyze",
             description="Full-Featured SSL Scanner",
             panel=self.sslyze_panel,
@@ -85,7 +117,7 @@ class NetworkPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="tlssled",
-            icon="🛡️",
+            icon=get_tool_icon_path("tlssled"),
             name="TLSSLed",
             description="SSL/TLS Evaluator",
             panel=self.tlssled_panel,
@@ -93,7 +125,7 @@ class NetworkPage(ToolModulePage):
         )
 
     def _create_netcat_panel(self):
-        panel, layout = self.create_panel("🔗 Netcat Utility")
+        panel, layout = self.create_panel("Netcat Networking Utility", "netcat")
 
         self.netcat_target_input = QLineEdit()
         self.netcat_target_input.setPlaceholderText("Target IP")
@@ -107,7 +139,7 @@ class NetworkPage(ToolModulePage):
             "Listen Mode",
         ])
 
-        self.netcat_btn = self.create_primary_button("Run Netcat")
+        self.netcat_btn = self.create_primary_button("Run Netcat", "netcat")
         self.netcat_btn.clicked.connect(self.build_netcat)
 
         layout.addWidget(QLabel("Target IP"))
@@ -122,14 +154,14 @@ class NetworkPage(ToolModulePage):
         return panel
 
     def _create_wireshark_panel(self):
-        panel, layout = self.create_panel("🔎 Wireshark Packet Analyzer")
+        panel, layout = self.create_panel("Wireshark Packet Analyzer", "wireshark")
 
         info_label = QLabel(
             "Launch Wireshark to start live packet capture and analysis."
         )
         info_label.setWordWrap(True)
 
-        self.wireshark_btn = self.create_primary_button("Launch Wireshark")
+        self.wireshark_btn = self.create_primary_button("Launch Wireshark", "wireshark")
         self.wireshark_btn.clicked.connect(self.launch_wireshark)
 
         layout.addWidget(info_label)
@@ -138,8 +170,45 @@ class NetworkPage(ToolModulePage):
 
         return panel
 
+    def refresh_interfaces(self):
+        """Discovers and updates wireless interfaces across all wireless tool panels."""
+        interfaces = get_wireless_interfaces()
+        for combo in getattr(self, "_interface_combos", []):
+            curr = combo.text()
+            combo.blockSignals(True)
+            combo.clear()
+            combo.addItem("")
+            combo.addItems(interfaces)
+            combo.setText(curr)
+            combo.blockSignals(False)
+
+    def _create_interface_row(self, combo: InterfaceComboBox) -> QHBoxLayout:
+        row = QHBoxLayout()
+        row.addWidget(combo, 1)
+        refresh_btn = QPushButton("🔄")
+        refresh_btn.setToolTip("Scan and refresh active network/wireless interfaces")
+        refresh_btn.setFixedWidth(32)
+        refresh_btn.setStyleSheet("""
+            QPushButton {
+                padding: 4px 6px;
+                font-size: 12px;
+                background-color: #1a2438;
+                border: 1px solid #3a4a6c;
+                border-radius: 6px;
+                color: #8ea2c5;
+            }
+            QPushButton:hover {
+                background-color: #24324f;
+                color: #00f0ff;
+                border-color: #00f0ff;
+            }
+        """)
+        refresh_btn.clicked.connect(self.refresh_interfaces)
+        row.addWidget(refresh_btn, 0)
+        return row
+
     def _create_wifite_panel(self):
-        panel, layout = self.create_panel("📡 Wifite 2 Wireless Auditor")
+        panel, layout = self.create_panel("Wifite 2 Wireless Auditor", "wifite")
 
         # Mode Selection
         layout.addWidget(QLabel("Operation Mode"))
@@ -164,9 +233,9 @@ class NetworkPage(ToolModulePage):
         row_iface = QHBoxLayout()
         v_iface = QVBoxLayout()
         v_iface.addWidget(QLabel("Wireless Interface (-i)"))
-        self.wifite_interface_input = QLineEdit()
-        self.wifite_interface_input.setPlaceholderText("e.g. wlan0mon")
-        v_iface.addWidget(self.wifite_interface_input)
+        self.wifite_interface_input = InterfaceComboBox()
+        self._interface_combos.append(self.wifite_interface_input)
+        v_iface.addLayout(self._create_interface_row(self.wifite_interface_input))
 
         v_chan = QVBoxLayout()
         v_chan.addWidget(QLabel("Channel (-c)"))
@@ -236,7 +305,7 @@ class NetworkPage(ToolModulePage):
         attack_group.setLayout(attack_layout)
         layout.addWidget(attack_group)
 
-        self.wifite_btn = self.create_primary_button("Run Wifite")
+        self.wifite_btn = self.create_primary_button("Run Wifite", "wifite")
         self.wifite_btn.clicked.connect(self.build_wifite)
         layout.addWidget(self.wifite_btn)
         layout.addStretch()
@@ -244,10 +313,10 @@ class NetworkPage(ToolModulePage):
         return panel
 
     def _create_sslscan_panel(self):
-        panel, layout = self.create_panel("🔒 SSLScan")
+        panel, layout = self.create_panel("SSLScan SSL/TLS Scanner", "sslscan")
         self.sslscan_target_input = QLineEdit()
         self.sslscan_target_input.setPlaceholderText("Enter host:port or host")
-        self.sslscan_btn = self.create_primary_button("Run SSLScan")
+        self.sslscan_btn = self.create_primary_button("Run SSLScan", "sslscan")
         self.sslscan_btn.clicked.connect(self.build_sslscan)
 
         layout.addWidget(QLabel("Target"))
@@ -257,10 +326,10 @@ class NetworkPage(ToolModulePage):
         return panel
 
     def _create_sslyze_panel(self):
-        panel, layout = self.create_panel("🔐 SSLyze")
+        panel, layout = self.create_panel("SSLyze Deep SSL Scanner", "sslyze")
         self.sslyze_target_input = QLineEdit()
         self.sslyze_target_input.setPlaceholderText("Enter host (or host:port)")
-        self.sslyze_btn = self.create_primary_button("Run SSLyze")
+        self.sslyze_btn = self.create_primary_button("Run SSLyze", "sslyze")
         self.sslyze_btn.clicked.connect(self.build_sslyze)
 
         layout.addWidget(QLabel("Target"))
@@ -270,12 +339,12 @@ class NetworkPage(ToolModulePage):
         return panel
 
     def _create_tlssled_panel(self):
-        panel, layout = self.create_panel("🛡️ TLSSLed")
+        panel, layout = self.create_panel("TLSSLed Evaluator", "tlssled")
         self.tlssled_host_input = QLineEdit()
         self.tlssled_host_input.setPlaceholderText("Enter host")
         self.tlssled_port_input = QLineEdit()
         self.tlssled_port_input.setPlaceholderText("Enter port")
-        self.tlssled_btn = self.create_primary_button("Run TLSSLed")
+        self.tlssled_btn = self.create_primary_button("Run TLSSLed", "tlssled")
         self.tlssled_btn.clicked.connect(self.build_tlssled)
 
         layout.addWidget(QLabel("Host"))
@@ -334,6 +403,12 @@ root@kali:~# tlssled 192.168.1.1 443
 
     def show_tlssled_panel(self):
         self.activate_tool("tlssled")
+
+    def show_wash_panel(self):
+        self.activate_tool("wash")
+
+    def show_reaver_panel(self):
+        self.activate_tool("reaver")
 
     def build_netcat(self):
         target = self.netcat_target_input.text().strip()
@@ -425,10 +500,10 @@ root@kali:~# tlssled 192.168.1.1 443
         self.run_command.emit(" ".join(cmd))
 
     def _create_wash_panel(self):
-        panel, layout = self.create_panel("📶 Wash - WPS WiFi Scanner")
+        panel, layout = self.create_panel("Wash WPS WiFi Scanner", "wash")
 
-        self.wash_interface_input = QLineEdit()
-        self.wash_interface_input.setPlaceholderText("Monitor Interface (e.g. wlan0mon)")
+        self.wash_interface_input = InterfaceComboBox()
+        self._interface_combos.append(self.wash_interface_input)
 
         self.wash_channel_input = QLineEdit()
         self.wash_channel_input.setPlaceholderText("Channel (e.g. 6) [Optional]")
@@ -444,11 +519,11 @@ root@kali:~# tlssled 192.168.1.1 443
         self.chk_wash_json = QCheckBox("JSON output (-j)")
         self.chk_wash_progress = QCheckBox("Show crack progress (-p)")
 
-        self.wash_btn = self.create_primary_button("Run Wash Scan")
+        self.wash_btn = self.create_primary_button("Run Wash Scan", "wash")
         self.wash_btn.clicked.connect(self.build_wash)
 
         layout.addWidget(QLabel("Interface"))
-        layout.addWidget(self.wash_interface_input)
+        layout.addLayout(self._create_interface_row(self.wash_interface_input))
         layout.addWidget(QLabel("Channel"))
         layout.addWidget(self.wash_channel_input)
         layout.addWidget(QLabel("Output Pcap"))
@@ -465,10 +540,10 @@ root@kali:~# tlssled 192.168.1.1 443
         return panel
 
     def _create_reaver_panel(self):
-        panel, layout = self.create_panel("🔨 Reaver - WPS Attack & PIN Cracker")
+        panel, layout = self.create_panel("Reaver WPS Attack & PIN Cracker", "reaver")
 
-        self.reaver_interface_input = QLineEdit()
-        self.reaver_interface_input.setPlaceholderText("Monitor Interface (e.g. wlan0mon)")
+        self.reaver_interface_input = InterfaceComboBox()
+        self._interface_combos.append(self.reaver_interface_input)
 
         self.reaver_bssid_input = QLineEdit()
         self.reaver_bssid_input.setPlaceholderText("Target BSSID (MAC e.g. E0:3F:49:6A:57:78)")
@@ -502,11 +577,11 @@ root@kali:~# tlssled 192.168.1.1 443
         self.chk_reaver_fixed = QCheckBox("Fixed channel / no hopping (-f)")
         self.chk_reaver_no_assoc = QCheckBox("Do not associate (-A)")
 
-        self.reaver_btn = self.create_primary_button("Run Reaver Attack")
+        self.reaver_btn = self.create_primary_button("Run Reaver Attack", "reaver")
         self.reaver_btn.clicked.connect(self.build_reaver)
 
         layout.addWidget(QLabel("Interface"))
-        layout.addWidget(self.reaver_interface_input)
+        layout.addLayout(self._create_interface_row(self.reaver_interface_input))
         layout.addWidget(QLabel("Target BSSID"))
         layout.addWidget(self.reaver_bssid_input)
         layout.addWidget(QLabel("Target ESSID"))
@@ -634,4 +709,172 @@ root@kali:~# tlssled 192.168.1.1 443
             self.emit_validation_error("Host and port are required before running.")
             return
         self.run_command.emit(f"tlssled {host} {port}")
+
+    def _create_sparrowwifi_panel(self):
+        panel, layout = self.create_panel("Sparrow-WiFi Analyzer & Agent", "sparrow")
+
+        layout.addWidget(QLabel("Execution Target / Launcher Mode"))
+        self.sparrow_mode_combo = QComboBox()
+        self.sparrow_mode_combo.addItems([
+            "Launch Graphical Wi-Fi Analyzer (sparrow-wifi)",
+            "Run Sparrow-WiFi Agent (sparrowwifiagent)"
+        ])
+        self.sparrow_mode_combo.currentIndexChanged.connect(self._on_sparrow_mode_changed)
+        layout.addWidget(self.sparrow_mode_combo)
+
+        # Agent Configuration Group
+        self.sparrow_agent_group = QGroupBox("Sparrow-WiFi Agent Settings (sparrowwifiagent)")
+        agent_layout = QVBoxLayout()
+
+        # Port & Delay Start
+        row_port_delay = QHBoxLayout()
+        v_port = QVBoxLayout()
+        v_port.addWidget(QLabel("HTTP Server Port (--port)"))
+        self.sparrow_port_spin = QSpinBox()
+        self.sparrow_port_spin.setRange(1, 65535)
+        self.sparrow_port_spin.setValue(8020)
+        v_port.addWidget(self.sparrow_port_spin)
+
+        v_delay = QVBoxLayout()
+        v_delay.addWidget(QLabel("Delay Start (sec) (--delaystart)"))
+        self.sparrow_delay_spin = QSpinBox()
+        self.sparrow_delay_spin.setRange(0, 300)
+        self.sparrow_delay_spin.setValue(0)
+        v_delay.addWidget(self.sparrow_delay_spin)
+
+        row_port_delay.addLayout(v_port)
+        row_port_delay.addLayout(v_delay)
+        agent_layout.addLayout(row_port_delay)
+
+        # Allowed IPs
+        agent_layout.addWidget(QLabel("Allowed IPs (--allowedips) [Comma separated]"))
+        self.sparrow_allowed_ips_input = QLineEdit()
+        self.sparrow_allowed_ips_input.setPlaceholderText("e.g. 127.0.0.1,192.168.1.50 (Default: any)")
+        agent_layout.addWidget(self.sparrow_allowed_ips_input)
+
+        # Static Coord & Mavlink GPS
+        row_gps = QHBoxLayout()
+        v_coord = QVBoxLayout()
+        v_coord.addWidget(QLabel("Static Coords (--staticcoord)"))
+        self.sparrow_static_coord_input = QLineEdit()
+        self.sparrow_static_coord_input.setPlaceholderText("lat,long,alt(m) e.g. 40.1,-75.3,150")
+        v_coord.addWidget(self.sparrow_static_coord_input)
+
+        v_mavlink = QVBoxLayout()
+        v_mavlink.addWidget(QLabel("Mavlink GPS (--mavlinkgps)"))
+        self.sparrow_mavlink_input = QLineEdit()
+        self.sparrow_mavlink_input.setPlaceholderText("3dr, sitl, or udp:10.1.1.10:14550")
+        v_mavlink.addWidget(self.sparrow_mavlink_input)
+
+        row_gps.addLayout(v_coord)
+        row_gps.addLayout(v_mavlink)
+        agent_layout.addLayout(row_gps)
+
+        # Recording Interface & Config file
+        row_cfg = QHBoxLayout()
+        v_rec = QVBoxLayout()
+        v_rec.addWidget(QLabel("Recording Interface (--recordinterface)"))
+        self.sparrow_record_iface_input = InterfaceComboBox()
+        self._interface_combos.append(self.sparrow_record_iface_input)
+        v_rec.addLayout(self._create_interface_row(self.sparrow_record_iface_input))
+
+        v_cfgfile = QVBoxLayout()
+        v_cfgfile.addWidget(QLabel("Config File (--cfgfile)"))
+        self.sparrow_cfgfile_input = QLineEdit()
+        self.sparrow_cfgfile_input.setPlaceholderText("e.g. custom_sparrow.cfg")
+        v_cfgfile.addWidget(self.sparrow_cfgfile_input)
+
+        row_cfg.addLayout(v_rec)
+        row_cfg.addLayout(v_cfgfile)
+        agent_layout.addLayout(row_cfg)
+
+        # Options Checkboxes
+        row_chk1 = QHBoxLayout()
+        self.chk_sparrow_announce = QCheckBox("Send Announcement Broadcast (--sendannounce)")
+        self.chk_sparrow_leds = QCheckBox("Use RPi LEDs (--userpileds)")
+        self.chk_sparrow_ignorecfg = QCheckBox("Ignore Config Files (--ignorecfg)")
+        row_chk1.addWidget(self.chk_sparrow_announce)
+        row_chk1.addWidget(self.chk_sparrow_leds)
+        row_chk1.addWidget(self.chk_sparrow_ignorecfg)
+        agent_layout.addLayout(row_chk1)
+
+        row_chk2 = QHBoxLayout()
+        self.chk_sparrow_cors = QCheckBox("Allow CORS (--allowcors)")
+        self.chk_sparrow_debughttp = QCheckBox("Debug HTTP (--debughttp)")
+        row_chk2.addWidget(self.chk_sparrow_cors)
+        row_chk2.addWidget(self.chk_sparrow_debughttp)
+        row_chk2.addStretch()
+        agent_layout.addLayout(row_chk2)
+
+        self.sparrow_agent_group.setLayout(agent_layout)
+        self.sparrow_agent_group.hide()
+        layout.addWidget(self.sparrow_agent_group)
+
+        self.sparrow_btn = self.create_primary_button("Launch Sparrow-WiFi", "sparrow")
+        self.sparrow_btn.clicked.connect(self.build_sparrowwifi)
+        layout.addWidget(self.sparrow_btn)
+        layout.addStretch()
+
+        return panel
+
+    def _on_sparrow_mode_changed(self, index):
+        if index == 1:
+            self.sparrow_agent_group.show()
+            self.sparrow_btn.setText("Run Sparrow-WiFi Agent")
+        else:
+            self.sparrow_agent_group.hide()
+            self.sparrow_btn.setText("Launch Sparrow-WiFi")
+
+    def show_sparrowwifi_panel(self):
+        self.activate_tool("sparrowwifi")
+
+    def build_sparrowwifi(self):
+        mode = self.sparrow_mode_combo.currentIndex()
+        if mode == 0:
+            self.run_command.emit("sparrow-wifi")
+            return
+
+        cmd = ["sparrowwifiagent"]
+
+        port = self.sparrow_port_spin.value()
+        if port != 8020:
+            cmd.extend(["--port", str(port)])
+
+        ips = self.sparrow_allowed_ips_input.text().strip()
+        if ips:
+            cmd.extend(["--allowedips", ips])
+
+        coords = self.sparrow_static_coord_input.text().strip()
+        if coords:
+            cmd.extend(["--staticcoord", coords])
+
+        mavlink = self.sparrow_mavlink_input.text().strip()
+        if mavlink:
+            cmd.extend(["--mavlinkgps", mavlink])
+
+        rec_iface = self.sparrow_record_iface_input.text().strip()
+        if rec_iface:
+            cmd.extend(["--recordinterface", rec_iface])
+
+        cfgfile = self.sparrow_cfgfile_input.text().strip()
+        if cfgfile:
+            cmd.extend(["--cfgfile", cfgfile])
+
+        delay = self.sparrow_delay_spin.value()
+        if delay > 0:
+            cmd.extend(["--delaystart", str(delay)])
+
+        if self.chk_sparrow_announce.isChecked():
+            cmd.append("--sendannounce")
+        if self.chk_sparrow_leds.isChecked():
+            cmd.append("--userpileds")
+        if self.chk_sparrow_ignorecfg.isChecked():
+            cmd.append("--ignorecfg")
+        if self.chk_sparrow_cors.isChecked():
+            cmd.append("--allowcors")
+        if self.chk_sparrow_debughttp.isChecked():
+            cmd.append("--debughttp")
+
+        self.run_command.emit(" ".join(cmd))
+
 

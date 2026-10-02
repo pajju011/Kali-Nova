@@ -7,6 +7,8 @@ from PyQt6.QtCore import pyqtSignal
 
 from core.app_state import app_state
 from ui.tool_template import ToolModulePage
+from ui.components.port_advisor_widget import PortAdvisorWidget
+from ui.icon_manager import get_tool_icon_path
 
 
 class ReconPage(ToolModulePage):
@@ -23,12 +25,14 @@ class ReconPage(ToolModulePage):
         self.nmap_panel = self._create_nmap_panel()
         self.whois_panel = self._create_whois_panel()          
         self.harvester_panel = self._create_harvester_panel()
+        self.metagoofil_panel = self._create_metagoofil_panel()
+        self.amass_panel = self._create_amass_panel()
         self.photon_panel = self._create_photon_panel()
         self.autopsy_panel = self._create_autopsy_panel()
 
         self.add_tool(
             tool_id="nmap",
-            icon="🎯",
+            icon=get_tool_icon_path("nmap"),
             name="Nmap",
             description="Port Scanning",
             panel=self.nmap_panel,
@@ -36,7 +40,7 @@ class ReconPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="whois",
-            icon="🌐",
+            icon=get_tool_icon_path("whois"),
             name="Whois",
             description="Domain Lookup",
             panel=self.whois_panel,
@@ -44,15 +48,31 @@ class ReconPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="harvester",
-            icon="🕵️",
+            icon=get_tool_icon_path("harvester"),
             name="Harvester",
             description="OSINT",
             panel=self.harvester_panel,
             focus_widget=self.harvester_domain,
         )
         self.add_tool(
+            tool_id="metagoofil",
+            icon=get_tool_icon_path("metagoofil"),
+            name="Metagoofil",
+            description="Metadata Extractor",
+            panel=self.metagoofil_panel,
+            focus_widget=self.metagoofil_domain,
+        )
+        self.add_tool(
+            tool_id="amass",
+            icon=get_tool_icon_path("amass"),
+            name="Amass",
+            description="Network Mapping",
+            panel=self.amass_panel,
+            focus_widget=self.amass_domain,
+        )
+        self.add_tool(
             tool_id="photon",
-            icon="⚡",
+            icon=get_tool_icon_path("photon"),
             name="Photon",
             description="OSINT Crawler",
             panel=self.photon_panel,
@@ -60,7 +80,7 @@ class ReconPage(ToolModulePage):
         )
         self.add_tool(
             tool_id="autopsy",
-            icon="🔬",
+            icon=get_tool_icon_path("autopsy"),
             name="Autopsy",
             description="Digital Forensics",
             panel=self.autopsy_panel,
@@ -70,10 +90,13 @@ class ReconPage(ToolModulePage):
         self.update_mode(app_state.mode)
 
     def _create_nmap_panel(self):
-        panel, layout = self.create_panel("🎯 Nmap Configuration")
+        panel, layout = self.create_panel("Nmap Port Scanner & Service Detection", "nmap")
 
         self.nmap_target = QLineEdit()
         self.nmap_target.setPlaceholderText("Enter target IP or domain")
+
+        self.port_advisor = PortAdvisorWidget()
+        self.port_advisor.port_profile_selected.connect(lambda p: self.port_input.setText(p))
 
         self.scan_type = QComboBox()
         self.scan_type.addItems([
@@ -83,16 +106,17 @@ class ReconPage(ToolModulePage):
         ])
 
         self.port_input = QLineEdit()
-        self.port_input.setPlaceholderText("Custom Port (optional)")
+        self.port_input.setPlaceholderText("Custom Port (e.g. 80,443,8080)")
 
-        self.nmap_btn = self.create_primary_button("Run Nmap")
+        self.nmap_btn = self.create_primary_button("Run Nmap", "nmap")
         self.nmap_btn.clicked.connect(self.build_nmap)
 
         layout.addWidget(QLabel("Target IP / Domain"))
         layout.addWidget(self.nmap_target)
+        layout.addWidget(self.port_advisor)
         layout.addWidget(QLabel("Scan Type"))
         layout.addWidget(self.scan_type)
-        layout.addWidget(QLabel("Custom Port"))
+        layout.addWidget(QLabel("Target Ports"))
         layout.addWidget(self.port_input)
         layout.addWidget(self.nmap_btn)
         layout.addStretch()
@@ -100,12 +124,12 @@ class ReconPage(ToolModulePage):
         return panel
 
     def _create_whois_panel(self):
-        panel, layout = self.create_panel("🌐 Whois Lookup")
+        panel, layout = self.create_panel("Whois Domain & IP Lookup", "whois")
 
         self.whois_target = QLineEdit()
         self.whois_target.setPlaceholderText("Enter domain (example.com)")
 
-        self.whois_btn = self.create_primary_button("Run Whois")
+        self.whois_btn = self.create_primary_button("Run Whois", "whois")
         self.whois_btn.clicked.connect(self.build_whois)
 
         layout.addWidget(QLabel("Domain"))
@@ -116,10 +140,10 @@ class ReconPage(ToolModulePage):
         return panel
 
     def _create_harvester_panel(self):
-        panel, layout = self.create_panel("🕵️ theHarvester OSINT")
+        panel, layout = self.create_panel("theHarvester OSINT Gathering", "harvester")
 
         self.harvester_domain = QLineEdit()
-        self.harvester_domain.setPlaceholderText("Enter domain")
+        self.harvester_domain.setPlaceholderText("Enter domain (e.g. target.com)")
 
         self.harvester_source = QComboBox()
         self.harvester_source.addItems([
@@ -129,7 +153,7 @@ class ReconPage(ToolModulePage):
             "duckduckgo",
         ])
 
-        self.harvester_btn = self.create_primary_button("Run Harvester")
+        self.harvester_btn = self.create_primary_button("Run Harvester", "harvester")
         self.harvester_btn.clicked.connect(self.build_harvester)
 
         layout.addWidget(QLabel("Domain"))
@@ -141,8 +165,139 @@ class ReconPage(ToolModulePage):
 
         return panel
 
+    def _create_metagoofil_panel(self):
+        panel, layout = self.create_panel("Metagoofil Metadata Extractor", "metagoofil")
+
+        self.metagoofil_domain = QLineEdit()
+        self.metagoofil_domain.setPlaceholderText("Target Domain (-d) (e.g. kali.org or target.com)")
+
+        self.metagoofil_filetypes = QLineEdit()
+        self.metagoofil_filetypes.setText("pdf")
+        self.metagoofil_filetypes.setPlaceholderText("File types (-t) (e.g. pdf,doc,xls,ppt,docx,xlsx,ALL)")
+
+        self.metagoofil_search_max = QSpinBox()
+        self.metagoofil_search_max.setRange(1, 10000)
+        self.metagoofil_search_max.setValue(100)
+        self.metagoofil_search_max.setSuffix(" max search results (-l)")
+
+        self.metagoofil_download_limit = QSpinBox()
+        self.metagoofil_download_limit.setRange(1, 10000)
+        self.metagoofil_download_limit.setValue(25)
+        self.metagoofil_download_limit.setSuffix(" max files to download (-n)")
+
+        self.metagoofil_delay = QSpinBox()
+        self.metagoofil_delay.setRange(0, 300)
+        self.metagoofil_delay.setValue(30)
+        self.metagoofil_delay.setSuffix(" s delay between searches (-e)")
+
+        self.metagoofil_threads = QSpinBox()
+        self.metagoofil_threads.setRange(1, 64)
+        self.metagoofil_threads.setValue(8)
+        self.metagoofil_threads.setSuffix(" downloader threads (-r)")
+
+        self.metagoofil_url_timeout = QSpinBox()
+        self.metagoofil_url_timeout.setRange(1, 120)
+        self.metagoofil_url_timeout.setValue(15)
+        self.metagoofil_url_timeout.setSuffix(" s URL timeout (-i)")
+
+        out_layout = QHBoxLayout()
+        self.metagoofil_output_dir = QLineEdit()
+        self.metagoofil_output_dir.setPlaceholderText("Save directory (-o) (e.g. kalipdf)")
+        self.metagoofil_output_btn = QPushButton("Browse...")
+        self.metagoofil_output_btn.clicked.connect(self._browse_metagoofil_output)
+        out_layout.addWidget(self.metagoofil_output_dir)
+        out_layout.addWidget(self.metagoofil_output_btn)
+
+        self.metagoofil_save_file = QLineEdit()
+        self.metagoofil_save_file.setPlaceholderText("Save HTML links file (-f) (e.g. kalipdf.html)")
+
+        self.metagoofil_user_agent = QLineEdit()
+        self.metagoofil_user_agent.setPlaceholderText("Custom User-Agent header (-u) (optional)")
+
+        self.chk_metagoofil_download = QCheckBox("Download files locally (-w)")
+        self.chk_metagoofil_download.setChecked(True)
+
+        self.metagoofil_btn = self.create_primary_button("Run Metagoofil", "metagoofil")
+        self.metagoofil_btn.clicked.connect(self.build_metagoofil)
+
+        layout.addWidget(QLabel("Target Domain (-d)"))
+        layout.addWidget(self.metagoofil_domain)
+        layout.addWidget(QLabel("File Types (-t)"))
+        layout.addWidget(self.metagoofil_filetypes)
+        layout.addWidget(QLabel("Search & Download Limits"))
+        layout.addWidget(self.metagoofil_search_max)
+        layout.addWidget(self.metagoofil_download_limit)
+        layout.addWidget(QLabel("Output Directory (-o)"))
+        layout.addLayout(out_layout)
+        layout.addWidget(QLabel("Save HTML Links Output (-f)"))
+        layout.addWidget(self.metagoofil_save_file)
+        layout.addWidget(QLabel("Performance & Timeout Options"))
+        layout.addWidget(self.metagoofil_delay)
+        layout.addWidget(self.metagoofil_threads)
+        layout.addWidget(self.metagoofil_url_timeout)
+        layout.addWidget(QLabel("User Agent (-u)"))
+        layout.addWidget(self.metagoofil_user_agent)
+        layout.addWidget(self.chk_metagoofil_download)
+        layout.addWidget(self.metagoofil_btn)
+        layout.addStretch()
+
+        return panel
+
+    def _create_amass_panel(self):
+        panel, layout = self.create_panel("OWASP Amass Attack Surface & Network Mapper", "amass")
+
+        self.amass_subcommand = QComboBox()
+        self.amass_subcommand.addItems([
+            "enum (DNS Enumeration & Network Mapping)",
+            "intel (Intelligence & WHOIS/ASN Discovery)"
+        ])
+
+        self.amass_domain = QLineEdit()
+        self.amass_domain.setPlaceholderText("Target Domain (-d) (e.g. example.com or kali.org)")
+
+        self.chk_amass_passive = QCheckBox("Passive OSINT Mode (-passive)")
+        self.chk_amass_active = QCheckBox("Active Recon & Cert Pulling (-active)")
+        self.chk_amass_active.setChecked(True)
+        self.chk_amass_brute = QCheckBox("Subdomain Brute Forcing (-brute)")
+        self.chk_amass_ip = QCheckBox("Display Resolved IP Addresses (-ip)")
+        self.chk_amass_ip.setChecked(True)
+        self.chk_amass_src = QCheckBox("Show Data Source Attribution (-src)")
+
+        wlist_layout = QHBoxLayout()
+        self.amass_wordlist_input = QLineEdit()
+        self.amass_wordlist_input.setPlaceholderText("Custom wordlist path (-w) (optional)")
+        self.amass_wordlist_btn = QPushButton("Browse...")
+        self.amass_wordlist_btn.clicked.connect(self._browse_amass_wordlist)
+        wlist_layout.addWidget(self.amass_wordlist_input)
+        wlist_layout.addWidget(self.amass_wordlist_btn)
+
+        self.amass_output_file = QLineEdit()
+        self.amass_output_file.setPlaceholderText("Save output results to file (-o) (optional)")
+
+        self.amass_btn = self.create_primary_button("Run Amass", "amass")
+        self.amass_btn.clicked.connect(self.build_amass)
+
+        layout.addWidget(QLabel("Operation Mode"))
+        layout.addWidget(self.amass_subcommand)
+        layout.addWidget(QLabel("Target Domain (-d)"))
+        layout.addWidget(self.amass_domain)
+        layout.addWidget(QLabel("Reconnaissance & Scan Options"))
+        layout.addWidget(self.chk_amass_passive)
+        layout.addWidget(self.chk_amass_active)
+        layout.addWidget(self.chk_amass_brute)
+        layout.addWidget(self.chk_amass_ip)
+        layout.addWidget(self.chk_amass_src)
+        layout.addWidget(QLabel("Subdomain Brute Force Wordlist (-w)"))
+        layout.addLayout(wlist_layout)
+        layout.addWidget(QLabel("Output Results File (-o)"))
+        layout.addWidget(self.amass_output_file)
+        layout.addWidget(self.amass_btn)
+        layout.addStretch()
+
+        return panel
+
     def _create_photon_panel(self):
-        panel, layout = self.create_panel("⚡ Photon - OSINT Web Crawler")
+        panel, layout = self.create_panel("Photon OSINT Web Crawler", "photon")
 
         self.photon_url_input = QLineEdit()
         self.photon_url_input.setPlaceholderText("Root URL (e.g. http://example.com)")
@@ -190,7 +345,7 @@ class ReconPage(ToolModulePage):
         self.chk_photon_ninja = QCheckBox("Ninja / Stealth mode (--ninja)")
         self.chk_photon_verbose = QCheckBox("Verbose output (-v)")
 
-        self.photon_btn = self.create_primary_button("Run Photon Crawler")
+        self.photon_btn = self.create_primary_button("Run Photon Crawler", "photon")
         self.photon_btn.clicked.connect(self.build_photon)
 
         layout.addWidget(QLabel("Target URL"))
@@ -224,7 +379,7 @@ class ReconPage(ToolModulePage):
         return panel
 
     def _create_autopsy_panel(self):
-        panel, layout = self.create_panel("🔬 Autopsy Forensic Browser")
+        panel, layout = self.create_panel("Autopsy Forensic Browser", "autopsy")
 
         # Evidence Locker Directory (-d)
         locker_layout = QHBoxLayout()
@@ -299,7 +454,7 @@ class ReconPage(ToolModulePage):
         live_group.setLayout(live_layout)
         layout.addWidget(live_group)
 
-        self.autopsy_btn = self.create_primary_button("Launch Autopsy Forensic Server")
+        self.autopsy_btn = self.create_primary_button("Launch Autopsy Forensic Server", "autopsy")
         self.autopsy_btn.clicked.connect(self.build_autopsy)
         layout.addWidget(self.autopsy_btn)
         layout.addStretch()
@@ -326,8 +481,17 @@ class ReconPage(ToolModulePage):
     def show_harvester_panel(self):
         self.activate_tool("harvester")
 
+    def show_metagoofil_panel(self):
+        self.activate_tool("metagoofil")
+
+    def show_amass_panel(self):
+        self.activate_tool("amass")
+
     def show_autopsy_panel(self):
         self.activate_tool("autopsy")
+
+    def show_photon_panel(self):
+        self.activate_tool("photon")
 
     def update_mode(self, mode):
         index = self.scan_type.findText("Aggressive Scan")
@@ -479,6 +643,102 @@ class ReconPage(ToolModulePage):
             cmd.append("--ninja")
         if self.chk_photon_verbose.isChecked():
             cmd.append("-v")
+
+        self.run_command.emit(" ".join(cmd))
+
+    def _browse_metagoofil_output(self):
+        folder = QFileDialog.getExistingDirectory(self, "Select Save Directory")
+        if folder:
+            self.metagoofil_output_dir.setText(folder)
+
+    def build_metagoofil(self):
+        domain = self.metagoofil_domain.text().strip()
+        if not domain:
+            self.emit_validation_error("Target domain (-d) is required before running Metagoofil.")
+            return
+
+        cmd = ["metagoofil", "-d", domain]
+
+        filetypes = self.metagoofil_filetypes.text().strip()
+        if filetypes:
+            cmd.extend(["-t", filetypes])
+        else:
+            cmd.extend(["-t", "pdf"])
+
+        search_max = self.metagoofil_search_max.value()
+        if search_max != 100:
+            cmd.extend(["-l", str(search_max)])
+
+        download_limit = self.metagoofil_download_limit.value()
+        if download_limit != 100:
+            cmd.extend(["-n", str(download_limit)])
+
+        out_dir = self.metagoofil_output_dir.text().strip()
+        if out_dir:
+            cmd.extend(["-o", out_dir])
+
+        save_file = self.metagoofil_save_file.text().strip()
+        if save_file:
+            cmd.extend(["-f", save_file])
+
+        delay = self.metagoofil_delay.value()
+        if delay != 30:
+            cmd.extend(["-e", str(delay)])
+
+        threads = self.metagoofil_threads.value()
+        if threads != 8:
+            cmd.extend(["-r", str(threads)])
+
+        url_timeout = self.metagoofil_url_timeout.value()
+        if url_timeout != 15:
+            cmd.extend(["-i", str(url_timeout)])
+
+        ua = self.metagoofil_user_agent.text().strip()
+        if ua:
+            cmd.extend(["-u", ua])
+
+        if self.chk_metagoofil_download.isChecked():
+            cmd.append("-w")
+
+        self.run_command.emit(" ".join(cmd))
+
+    def _browse_amass_wordlist(self):
+        filename, _ = QFileDialog.getOpenFileName(self, "Select Brute-Force Wordlist")
+        if filename:
+            self.amass_wordlist_input.setText(filename)
+
+    def build_amass(self):
+        domain = self.amass_domain.text().strip()
+        if not domain:
+            self.emit_validation_error("Target domain (-d) is required before running Amass.")
+            return
+
+        subcmd_text = self.amass_subcommand.currentText()
+        subcmd = "intel" if "intel" in subcmd_text else "enum"
+
+        cmd = ["amass", subcmd, "-d", domain]
+
+        if self.chk_amass_passive.isChecked():
+            cmd.append("-passive")
+        elif self.chk_amass_active.isChecked():
+            cmd.append("-active")
+
+        if self.chk_amass_brute.isChecked():
+            cmd.append("-brute")
+
+        if self.chk_amass_ip.isChecked():
+            cmd.append("-ip")
+
+        if self.chk_amass_src.isChecked():
+            cmd.append("-src")
+
+        wlist = self.amass_wordlist_input.text().strip()
+        if wlist:
+            cmd.extend(["-w", wlist])
+
+        outfile = self.amass_output_file.text().strip()
+        if outfile:
+            cmd.extend(["-o", outfile])
 
         self.run_command.emit(" ".join(cmd))
 

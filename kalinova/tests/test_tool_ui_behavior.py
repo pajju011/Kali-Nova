@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import QApplication
 
 from ui.recon_page import ReconPage
 from ui.network_page import NetworkPage
+from ui.web_page import WebPage
 
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -145,6 +146,81 @@ class ReconPageUiBehaviorTests(unittest.TestCase):
 
         self.assertEqual(len(errors), 1)
         self.assertIn("Target URL is required", errors[0])
+
+    def test_metagoofil_tool_panel_activation(self):
+        page = ReconPage()
+        page.show()
+
+        button = page._tool_buttons["metagoofil"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "metagoofil")
+
+    def test_metagoofil_command_generation(self):
+        page = ReconPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.metagoofil_domain.setText("kali.org")
+        page.metagoofil_filetypes.setText("pdf")
+        page.metagoofil_search_max.setValue(100)
+        page.metagoofil_download_limit.setValue(25)
+        page.metagoofil_output_dir.setText("kalipdf")
+        page.metagoofil_save_file.setText("kalipdf.html")
+
+        page.build_metagoofil()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "metagoofil -d kali.org -t pdf -n 25 -o kalipdf -f kalipdf.html -w")
+
+    def test_metagoofil_validation_error_when_domain_missing(self):
+        page = ReconPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.build_metagoofil()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Target domain (-d) is required", errors[0])
+
+    def test_amass_tool_panel_activation(self):
+        page = ReconPage()
+        page.show()
+
+        button = page._tool_buttons["amass"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "amass")
+
+    def test_amass_command_generation(self):
+        page = ReconPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.amass_domain.setText("example.com")
+        page.chk_amass_active.setChecked(True)
+        page.chk_amass_ip.setChecked(True)
+
+        page.build_amass()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "amass enum -d example.com -active -ip")
+
+    def test_amass_validation_error_when_domain_missing(self):
+        page = ReconPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.build_amass()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Target domain (-d) is required", errors[0])
 
     def test_photon_complex_command_generation(self):
         page = ReconPage()
@@ -299,7 +375,260 @@ class NetworkPageWashAndReaverBehaviorTests(unittest.TestCase):
         self.assertIn("Target BSSID is required", errors[0])
 
 
+class NetworkPageSparrowWifiBehaviorTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_sparrowwifi_tool_panel_activation(self):
+        page = NetworkPage()
+        page.show()
+
+        button = page._tool_buttons["sparrowwifi"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "sparrowwifi")
+
+    def test_sparrowwifi_gui_command_generation(self):
+        page = NetworkPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.build_sparrowwifi()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "sparrow-wifi")
+
+    def test_sparrowwifi_agent_command_generation(self):
+        page = NetworkPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.sparrow_mode_combo.setCurrentIndex(1)  # Agent Mode
+        page.sparrow_port_spin.setValue(9090)
+        page.sparrow_allowed_ips_input.setText("192.168.1.10")
+        page.sparrow_static_coord_input.setText("40.1,-75.3,150")
+        page.sparrow_mavlink_input.setText("sitl")
+        page.chk_sparrow_announce.setChecked(True)
+        page.chk_sparrow_cors.setChecked(True)
+
+        page.build_sparrowwifi()
+
+        self.assertEqual(len(commands), 1)
+        expected_cmd = "sparrowwifiagent --port 9090 --allowedips 192.168.1.10 --staticcoord 40.1,-75.3,150 --mavlinkgps sitl --sendannounce --allowcors"
+        self.assertEqual(commands[0], expected_cmd)
+
+
+class WebPageWhatWebBehaviorTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_whatweb_tool_panel_activation(self):
+        page = WebPage()
+        page.show()
+
+        button = page._tool_buttons["whatweb"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "whatweb")
+
+    def test_whatweb_command_generation_stealthy(self):
+        page = WebPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.whatweb_url.setText("192.168.0.102")
+        page.build_whatweb()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], "whatweb -a 1 -v 192.168.0.102")
+
+    def test_whatweb_command_generation_aggressive(self):
+        page = WebPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.whatweb_url.setText("http://example.com")
+        page.whatweb_aggression.setCurrentIndex(1)  # Aggressive (Level 3)
+        page.whatweb_user_agent.setText("CustomAgent/1.0")
+        page.whatweb_header.setText("Foo:Bar")
+        page.whatweb_cookie.setText("session=123")
+        page.chk_whatweb_no_errors.setChecked(True)
+
+        page.build_whatweb()
+
+        self.assertEqual(len(commands), 1)
+        expected_cmd = 'whatweb -a 3 -U "CustomAgent/1.0" -H "Foo:Bar" -c "session=123" -v --no-errors http://example.com'
+        self.assertEqual(commands[0], expected_cmd)
+
+    def test_whatweb_validation_error(self):
+        page = WebPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.build_whatweb()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("WhatWeb target URL", errors[0])
+
+
+class AuthPageHashcatBehaviorTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_hashcat_tool_panel_activation(self):
+        from ui.auth_page import AuthPage
+        page = AuthPage()
+        page.show()
+
+        button = page._tool_buttons["hashcat"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "hashcat")
+
+    def test_hashcat_command_generation_standard(self):
+        from ui.auth_page import AuthPage
+        page = AuthPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.hashcat_file_input.setText("example500.hash")
+        page.hashcat_wordlist_input.setText("/usr/share/wordlists/sqlmap.txt")
+        page.hashcat_mode_combo.setCurrentIndex(2)  # 500 - md5crypt
+
+        page.build_hashcat()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], 'hashcat -m 500 -a 0 "example500.hash" "/usr/share/wordlists/sqlmap.txt" -O')
+
+    def test_hashcat_benchmark_command_generation(self):
+        from ui.auth_page import AuthPage
+        page = AuthPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.chk_hashcat_benchmark.setChecked(True)
+        page.build_hashcat()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0], 'hashcat -b')
+
+    def test_hashcat_validation_error_when_hash_missing(self):
+        from ui.auth_page import AuthPage
+        page = AuthPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        page.build_hashcat()
+
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Hash file or target hash is required", errors[0])
+
+
+class AuthPageNcrackBehaviorTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_ncrack_tool_panel_activation(self):
+        from ui.auth_page import AuthPage
+        page = AuthPage()
+        page.show()
+
+        button = page._tool_buttons["ncrack"]
+        QTest.mouseClick(button.icon_btn, Qt.MouseButton.LeftButton)
+        self.assertEqual(page._selected_tool, "ncrack")
+
+    def test_ncrack_command_generation_example_workflow(self):
+        from ui.auth_page import AuthPage
+        page = AuthPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.ncrack_target_file_input.setText("win.txt")
+        page.ncrack_user_input.setText("victim")
+        page.ncrack_pass_file_input.setText("passes.txt")
+        page.ncrack_service_combo.setCurrentText("rdp")
+        page.ncrack_cl_input.setText("CL=1")
+        page.chk_ncrack_verbose.setChecked(True)
+
+        page.build_ncrack()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(
+            commands[0],
+            "ncrack -v -iL win.txt --user victim -P passes.txt -p rdp CL=1"
+        )
+
+    def test_ncrack_command_generation_single_host(self):
+        from ui.auth_page import AuthPage
+        page = AuthPage()
+        page.show()
+
+        commands = []
+        page.run_command.connect(lambda cmd: commands.append(cmd))
+
+        page.ncrack_target_input.setText("192.168.1.50")
+        page.ncrack_user_file_input.setText("/usr/share/wordlists/users.txt")
+        page.ncrack_pass_input.setText("SecretPass123")
+        page.ncrack_service_combo.setCurrentText("ssh")
+        page.ncrack_custom_port_input.setText("2222")
+        page.ncrack_timing_combo.setCurrentIndex(5)  # -T4 - Aggressive
+        page.chk_ncrack_stealthy.setChecked(True)
+
+        page.build_ncrack()
+
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(
+            commands[0],
+            "ncrack -v -U /usr/share/wordlists/users.txt --pass SecretPass123 -p ssh:2222 -T4 --stealthy-linear 192.168.1.50"
+        )
+
+    def test_ncrack_validation_errors(self):
+        from ui.auth_page import AuthPage
+        page = AuthPage()
+        page.show()
+
+        errors = []
+        page.validation_error.connect(lambda err: errors.append(err))
+
+        # Missing target
+        page.build_ncrack()
+        self.assertTrue(any("Target IP/Host" in e for e in errors))
+
+        # Add target, missing user
+        errors.clear()
+        page.ncrack_target_input.setText("10.0.0.1")
+        page.build_ncrack()
+        self.assertTrue(any("Username" in e for e in errors))
+
+        # Add user, missing password
+        errors.clear()
+        page.ncrack_user_input.setText("admin")
+        page.build_ncrack()
+        self.assertTrue(any("Password" in e for e in errors))
+
+
 if __name__ == "__main__":
     unittest.main()
+
+
 
 

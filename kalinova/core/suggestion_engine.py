@@ -1,67 +1,84 @@
+"""
+Automated Next-Action & Scenario Suggestion Engine for Kali-Nova.
+Combines ML forward-pass inference with heuristic rules to generate actionable security recommendations.
+"""
+
+from typing import List
 from core.app_state import app_state
+from core.ml.ml_advisor import MLAdvisor
+from core.port_advisor import PortAdvisor
 
 
 class SuggestionEngine:
+    """
+    Evaluates current scan state, port exposure, and security events
+    to generate structured next actions and diagnostic suggestions.
+    """
 
     @staticmethod
-    def generate():
+    def generate() -> str:
+        """
+        Executes ML scenario analysis, updates AppState with the prescribed action,
+        and constructs formatted suggestions text.
+        """
+        suggestions: List[str] = []
 
-        suggestions = []
+        try:
+            # 1. Query ML Guidance
+            guidance = MLAdvisor.get_guidance()
+            tool_name = guidance.get("tool_name", "Security Tool")
+            confidence = guidance.get("confidence", 85.0)
+            action_title = guidance.get("action_title", "Recommended Action")
+            rationale = guidance.get("rationale", "")
+            expected = guidance.get("expected_outcome", "")
 
-        # ========================
-        # Port Based Suggestions + Workflow Hook
-        # ========================
+            # Format primary ML recommendation
+            ml_header = f"🤖 [ML Recommender - {confidence}% Confidence]"
+            ml_body = f"• Next Step: {action_title} ({tool_name})\n• Rationale: {rationale}\n• Expected Outcome: {expected}"
+            suggestions.append(f"{ml_header}\n{ml_body}")
 
-        for port in app_state.open_ports:
+        except Exception as e:
+            # Fallback to rule-based suggestion if ML module encounters error
+            suggestions.append(f"⚠️ [ML Engine Fallback]: Rule-based mode active ({str(e)})")
 
-            if port == 22:
-                suggestions.append("SSH detected → Consider Hydra brute-force test.")
-                app_state.set_next_action("Hydra")
+        # 2. Port-Based Strategic Findings
+        if app_state.open_ports:
+            port_findings = PortAdvisor.analyze_ports(app_state.open_ports)
+            port_lines = []
+            for item in port_findings[:3]:
+                port_lines.append(f"• Port {item['port']} ({item['service']}) [{item['risk']} Risk]: {item['vulnerability']} → Use {item['recommended_tool']}")
+            if port_lines:
+                suggestions.append("🔍 [Port Intelligence]:\n" + "\n".join(port_lines))
 
-            if port in [80, 443]:
-                suggestions.append("Web service detected → Run Nikto or SQLmap.")
-                app_state.set_next_action("Nikto")
-
-        # ========================
-        # Event Based Suggestions
-        # ========================
-
+        # 3. Security Event Alerts
+        event_lines = []
         for event in app_state.events:
-
             if event == "SQL_INJECTION":
-                suggestions.append("SQL Injection found → Extract database with SQLmap.")
-
+                event_lines.append("• 💉 SQL Injection detected → Run SQLmap database enumeration.")
             elif event == "BRUTE_FORCE":
-                suggestions.append("Brute force activity detected → Strengthen password policy.")
-
+                event_lines.append("• 🔑 Brute force activity detected → Strengthen lockout policy & test with Hydra.")
             elif event == "DIR_ENUM":
-                suggestions.append("Hidden directories found → Check for sensitive files.")
-
+                event_lines.append("• 📁 Hidden directories discovered → Perform deep fuzzing with Gobuster/Wfuzz.")
             elif event == "EMAIL_ENUM":
-                suggestions.append("Email addresses discovered → Possible phishing vector.")
-
+                event_lines.append("• 📧 Email addresses leaked → Potential phishing entry vector.")
             elif event == "SECRET_LEAK":
-                suggestions.append("Secret API keys/tokens exposed in web assets → Revoke keys and sanitize source files.")
-
+                event_lines.append("• 🚨 API keys/secrets leaked in source assets → Revoke tokens immediately.")
             elif event == "SUBDOMAIN_ENUM":
-                suggestions.append("Subdomains discovered → Audit DNS records & perform port scanning on subdomains.")
+                event_lines.append("• 🌐 Subdomains identified → Scan external perimeter with Nmap.")
 
-        # ========================
-        # Risk Based Suggestions
-        # ========================
+        if event_lines:
+            suggestions.append("⚡ [Event Alerts]:\n" + "\n".join(event_lines))
 
+        # 4. Overall Risk Summary
         if app_state.risk_score >= 9:
-            suggestions.append("⚠ HIGH RISK → Immediate security review required.")
-
+            suggestions.append("🚨 [Risk Rating: HIGH] Immediate remediation and patch deployment required.")
         elif app_state.risk_score >= 4:
-            suggestions.append("⚠ MEDIUM RISK → Further investigation recommended.")
+            suggestions.append("⚠️ [Risk Rating: MEDIUM] Further targeted exploitation and service auditing advised.")
 
-        # ========================
-        # Default Case
-        # ========================
-
+        # Default fallback
         if not suggestions:
-            suggestions.append("No major issues detected. System appears stable.")
+            suggestions.append("No active vulnerabilities detected. System appears stable. Launch Recon or Nmap to begin.")
 
-        # Store final suggestion text
-        app_state.suggestion = "\n".join(suggestions)
+        final_text = "\n\n".join(suggestions)
+        app_state.suggestion = final_text
+        return final_text
