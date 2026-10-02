@@ -43,14 +43,14 @@ if [ "$ID" != "kali" ]; then
     exit 1
 fi
 
-echo -e "${GREEN}[+] Kali Linux detected.${NC}"
+echo -e "${GREEN}[+] Kali Linux detected.${NC}"                
 
 # ------------------------------------------------------
 # 3. Install required packages
 # ------------------------------------------------------
 
 echo
-echo -e "${CYAN}[1/5] Installing dependencies...${NC}"
+echo -e "${CYAN}[1/5] Installing dependencies...${NC}"               
 # ------------------------------------------------------
 $SUDO apt install -y \
     git \

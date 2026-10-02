@@ -81,9 +81,9 @@ class Console(QWidget):
 
         # Zoom controls
         self.zoom_out_btn = QPushButton("A-")
-        self.zoom_out_btn.setToolTip("Decrease Font Size")
+        self.zoom_out_btn.setToolTip("Decrease Font Size")                  
         self.zoom_out_btn.setFixedWidth(28)
-        self.zoom_out_btn.clicked.connect(self.zoom_out)
+        self.zoom_out_btn.clicked.connect(self.zoom_out)                 
         
         self.zoom_in_btn = QPushButton("A+")
         self.zoom_in_btn.setToolTip("Increase Font Size")
