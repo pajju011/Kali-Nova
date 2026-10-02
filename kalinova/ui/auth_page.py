@@ -19,10 +19,10 @@ class AuthPage(ToolModulePage):
         )
 
         self.hydra_panel = self._create_hydra_panel()
-        self.ncrack_panel = self._create_ncrack_panel()
+        self.ncrack_panel = self._create_ncrack_panel()                                 
         self.john_panel = self._create_john_panel()
         self.hashcat_panel = self._create_hashcat_panel()
-        self.hash_identifier_panel = self._create_hash_identifier_panel()
+        self.hash_identifier_panel = self._create_hash_identifier_panel()                                        
         self.hashid_panel = self._create_hashid_panel()
 
         self.add_tool(
