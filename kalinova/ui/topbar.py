@@ -151,7 +151,7 @@ class TopBar(QWidget):
         """)
 
         # Risk indicator pill badge
-        self.risk_label = QLabel("il|  Risk: LOW")
+        self.risk_label = QLabel("Risk: LOW")
         self.risk_label.setObjectName("riskLabel")
         self.risk_label.setStyleSheet("""
             QLabel#riskLabel {
@@ -183,7 +183,7 @@ class TopBar(QWidget):
     def update_risk_display(self):
         risk = app_state.global_risk.upper()
         if risk == "HIGH":
-            self.risk_label.setText(f"il|  Risk: {risk}")
+            self.risk_label.setText(f"Risk: {risk}")
             self.risk_label.setStyleSheet("""
                 QLabel#riskLabel {
                     font-size: 11px;
@@ -196,7 +196,7 @@ class TopBar(QWidget):
                 }
             """)
         elif risk == "MEDIUM":
-            self.risk_label.setText(f"il|  Risk: {risk}")
+            self.risk_label.setText(f"Risk: {risk}")
             self.risk_label.setStyleSheet("""
                 QLabel#riskLabel {
                     font-size: 11px;
@@ -209,7 +209,7 @@ class TopBar(QWidget):
                 }
             """)
         else:
-            self.risk_label.setText(f"il|  Risk: {risk}")
+            self.risk_label.setText(f"Risk: {risk}")
             self.risk_label.setStyleSheet("""
                 QLabel#riskLabel {
                     font-size: 11px;
