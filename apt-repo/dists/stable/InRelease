@@ -1,0 +1,43 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Architectures: amd64 all
+Codename: stable
+Components: main
+Date: Fri, 02 Oct 2026 07:53:53 +0000
+Description: Kali-Nova APT Repository
+Label: Kali-Nova
+Origin: Kali-Nova
+Suite: stable
+MD5Sum:
+ e8e26670f3d4c600dc9b91a751414732              184 Release
+ 90e9621fcdf953b40a6aea91a7950502             2706 main/binary-all/Packages
+ 7e264c54681f2935c332b25e729da6be             1006 main/binary-all/Packages.gz
+SHA1:
+ 917516a89c30a03f3ea0ea7375d91d7390b70e9b              184 Release
+ 21fae9133c91044e52e9be8199016ada5cb323b2             2706 main/binary-all/Packages
+ 248004c65abdc69196a6f71ab676b8815819702c             1006 main/binary-all/Packages.gz
+SHA256:
+ 5bfd0f39e50ab730aeeb5a953d843ed4ad2d120eabdfdd74373ed3c1481799eb              184 Release
+ c5ff60481d834470965745c4410a89d0a802b9133e48141f6f4d5f866634eab1             2706 main/binary-all/Packages
+ 55ca4898bb572d1553dad40ba35ec4a06f222434e1589fb0cc3b44e722f87957             1006 main/binary-all/Packages.gz
+SHA512:
+ c5502ec0b060132f340e0d11a85b35ac0d190a4e5956f91372fa1c925ac656e4096630460a9b4b6dc3c56b19eac481707c3e18e103749d7718adf21725d08b69              184 Release
+ a40abdb6a6c95da3b53f502058ce8676baf905344eab59cb0a1bc5c8fde0eb27a1d18be2418fc05258d4a8e70e8bb3363992bba7ab88aa277fcfcbc34162db8e             2706 main/binary-all/Packages
+ f8295b5a8339e84224e51d4d2604aa8b17bc0bb20da1777d757baa45c9753962b3e194bc9adffddb5c86f2ec9c7717641c656ba11a13cc78f885ba637332c4e8             1006 main/binary-all/Packages.gz
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEESlQOrozGsPqBL3eLD+AVkN8nOpAFAmq/YxQACgkQD+AVkN8n
+OpD+aBAApMWyn0/nleusCnmahmiaXYRAFxAtIceaAHL0NHHzX70xgl4CIXJ4q616
+c5JLEPc1s27SI3h0hqnQtyC2qYPUTdS3RP6k04yElK05HCMxuCy42nyUENwmcOwK
+w/UHsCxf9DyokN5ZmCwbJlehAYomOtMkaZ8SK/iCXjnfAYOzLWG0g16tb0C/kMtj
+qu+lVmipeH64nGvctlJEQ+v7KZqncf5ItJ74rHSwIvatTqTqFg3zvJF8d0ifRRkv
+5hNmjZYQmAz83UY6X11ZKAKnOUd6c8lbS3xnYv4C8kRwzNWes/R5PECuyRtEOyOu
+rE/8YkZInPfyq7C6sHconXYg9DG8y8C37YlbEIPKM1fsVDmppCqIRQ5vJsemu1tX
+ccf2PX0KdZZmp6E0tvujzQxJ1lMVYPTOAL83ENb0ji4STUSnyxITXGuGIofjUDhp
+Mdhso2dMaDoq5fa9jtUT8s1buGKx4K4V7F1XHi6XVeR/+6RLtXH9PAbDDCkE0LH3
+vMaRUvXThWgmEGPLm0apwRSaUSUhaw97ETY95KOse5DQx1wcAdIlgbaOIUsKLyRk
+VdFSGPrkSZmfTS3BehE+PwRtyZJ/Xl1SzB7/G1+PSPKqth7fl/fSs2q9PpQupd/r
+ttk9WwqW3WRD1CCCs8zLcHABtkBRZDVmKkHEvrH9X867lXgYIf4=
+=8Aiq
+-----END PGP SIGNATURE-----

@@ -1,0 +1,54 @@
+Package: kalinova
+Architecture: all
+Version: 1.0.0
+Priority: optional
+Section: utils
+Maintainer: Prajwal R Poojary <prajwal.r.poojary11@gmail.com>
+Depends: python3, python3-pyqt6, python3-pyqt6.qtsvg, python3-reportlab, python3-pil, python3-pygments
+Recommends: nmap, sqlmap, nikto, hydra, gobuster, wifite, john, hashcat, wireshark
+Filename: pool/main/k/kalinova/kalinova_1.0.0_all.deb
+Size: 468408
+MD5sum: b3ae5ac9ca5b8df412127e6080f824a0
+SHA1: ec58f7405eaf34031268ca21f3341fd979899c15
+SHA256: 6ed34597e82ee9464b224153231bde92b1e8a8108e424208ba0f3e627fe36133
+SHA512: 0e8b8f4ca586ebff5ecd96e8cf33d0598be55e168a65657dfe89063b9d7fd6c1513e11b199c852848eefbcfea65bd6075f6bd9985936489ba758283efb5c15d6
+Description: Kali-Nova Security Control Center
+ Modern PyQt6 desktop control center for ethical security workflows,
+ reconnaissance, automated testing, and AI-assisted penetration testing on Kali Linux.
+
+Package: kalinova
+Architecture: all
+Version: 1.1.0
+Priority: optional
+Section: utils
+Maintainer: Prajwal R Poojary <prajwal.r.poojary11@gmail.com>
+Depends: python3, python3-pyqt6, python3-pyqt6.qtsvg, python3-reportlab, python3-pil, python3-pygments
+Recommends: nmap, sqlmap, nikto, hydra, gobuster, wifite, john, hashcat, wireshark
+Filename: pool/main/k/kalinova/kalinova_1.1.0_all.deb
+Size: 468388
+MD5sum: 00fa2a23e8f0b84584b10910edefc028
+SHA1: 74f01401d4473a300692edaa6cdc1a706b1eb5c0
+SHA256: eeed1ef267048b061528177be4c6eca4c330da4bbc432ef6e596459759b55d5c
+SHA512: c2d63dde8004d334fcefdfa6df5f54f808cd98e013c66df03a72b78292f3e50205e0478c7d3d89630286cf3dfb0244e51085dbb2aa3d5f7dbf553dcf4f62630e
+Description: Kali-Nova Security Control Center
+ Modern PyQt6 desktop control center for ethical security workflows,
+ reconnaissance, automated testing, and AI-assisted penetration testing on Kali Linux.
+
+Package: kalinova
+Architecture: all
+Version: 1.3.0
+Priority: optional
+Section: utils
+Maintainer: Prajwal R Poojary <prajwal.r.poojary11@gmail.com>
+Depends: python3, python3-pyqt6, python3-pyqt6.qtsvg, python3-reportlab, python3-pil, python3-pygments
+Recommends: nmap, sqlmap, nikto, hydra, gobuster, wifite, john, hashcat, wireshark
+Filename: pool/main/k/kalinova/kalinova_1.3.0_all.deb
+Size: 468408
+MD5sum: 834b714b0a52b5730039e5f240826930
+SHA1: c20aa6ecb157a4a124faa85a098af2f77791fdb3
+SHA256: d63fadc36b61a020a274f01a475d49cf8f2a3433c9accf3b474183ef8a4b8273
+SHA512: 0aa6c321bbc95c6721470dd368ebfd5a65f98f8d57d214d0cc057593a48fcc0895d2bc8be1358fa9e570956958a372b570d97f337cfb549c167a8c5d7ceefe67
+Description: Kali-Nova Security Control Center
+ Modern PyQt6 desktop control center for ethical security workflows,
+ reconnaissance, automated testing, and AI-assisted penetration testing on Kali Linux.
+

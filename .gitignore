@@ -19,3 +19,4 @@ kalinova/reports/
 # Database files
 *.db
 kalinova.db
+/kalinova_*.deb
