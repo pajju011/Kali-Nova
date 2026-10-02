@@ -38,27 +38,33 @@ else
     echo -e "${GREEN}[+] Wordlists already verified.${NC}"
 fi
 
-# 4. Create /usr/local/bin/kalinova launcher
+# 4. Install application files to /usr/share/kalinova and create /usr/bin/kalinova launcher
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-echo -e "\n${CYAN}[3/4] Creating system executable launcher in /usr/local/bin/kalinova...${NC}"
+echo -e "\n${CYAN}[3/4] Installing application files and launcher...${NC}"
 
-cat << 'EOF' | $SUDO tee /usr/local/bin/kalinova > /dev/null
+$SUDO mkdir -p /usr/share/kalinova
+$SUDO cp -r "$APP_DIR/kalinova/"* /usr/share/kalinova/
+
+cat << 'EOF' | $SUDO tee /usr/bin/kalinova > /dev/null
 #!/usr/bin/env bash
-APP_DIR="__APP_DIR__"
-cd "$APP_DIR/kalinova"
+cd /usr/share/kalinova
 exec python3 main.py "$@"
 EOF
 
-$SUDO sed -i "s|__APP_DIR__|$APP_DIR|g" /usr/local/bin/kalinova
-$SUDO chmod +x /usr/local/bin/kalinova
+$SUDO chmod +x /usr/bin/kalinova
 
-# 5. Install Desktop Entry for Kali Applications Menu
+# 5. Install Desktop Entry and Icons for Kali Applications Menu
 echo -e "\n${CYAN}[4/4] Registering Desktop Application in Kali Linux menu...${NC}"
 if [ -f "$APP_DIR/kalinova.desktop" ]; then
     $SUDO cp "$APP_DIR/kalinova.desktop" /usr/share/applications/kalinova.desktop
-    $SUDO update-desktop-database /usr/share/applications/ 2>/dev/null || true
-    echo -e "${GREEN}[+] Registered in Kali Linux Applications Menu.${NC}"
 fi
+if [ -f "$APP_DIR/kalinova/resources/icons/kalinova.svg" ]; then
+    $SUDO mkdir -p /usr/share/icons/hicolor/scalable/apps
+    $SUDO cp "$APP_DIR/kalinova/resources/icons/kalinova.svg" /usr/share/icons/hicolor/scalable/apps/kalinova.svg
+fi
+$SUDO update-desktop-database /usr/share/applications/ 2>/dev/null || true
+$SUDO gtk-update-icon-cache -f -t /usr/share/icons/hicolor 2>/dev/null || true
+echo -e "${GREEN}[+] Registered in Kali Linux Applications Menu.${NC}"
 
 echo -e "\n${GREEN}======================================================${NC}"
 echo -e "${GREEN} ✅  Kali-Nova setup complete!                         ${NC}"

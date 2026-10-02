@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+export DH_VERBOSE = 1
+
+%:
+	dh $@ --with python3
+
+override_dh_auto_build:
+	# No compilation required for pure Python
+
+override_dh_auto_install:
+	mkdir -p debian/kalinova/usr/share/kalinova
+	mkdir -p debian/kalinova/usr/bin
+	mkdir -p debian/kalinova/usr/share/applications
+	mkdir -p debian/kalinova/usr/share/icons/hicolor/scalable/apps
+	cp -r kalinova/* debian/kalinova/usr/share/kalinova/
+	cp kalinova.desktop debian/kalinova/usr/share/applications/
+	if [ -f kalinova/resources/icons/kalinova.svg ]; then \
+		cp kalinova/resources/icons/kalinova.svg debian/kalinova/usr/share/icons/hicolor/scalable/apps/; \
+	fi
+	printf '#!/bin/sh\ncd /usr/share/kalinova\nexec python3 main.py "$$@"\n' > debian/kalinova/usr/bin/kalinova
+	chmod 755 debian/kalinova/usr/bin/kalinova
