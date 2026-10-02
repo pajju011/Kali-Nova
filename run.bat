@@ -10,14 +10,11 @@ if exist "%APP_DIR%\venv\Scripts\python.exe" (
     echo [Kalinova] Launching using virtual environment...
     start "" "venv\Scripts\python.exe" main.py
 ) else if exist "%ROOT_DIR%venv\Scripts\python.exe" (
-    cd /d "%ROOT_DIR%"
+    cd /d "%APP_DIR%"
     echo [Kalinova] Launching using virtual environment...
-    start "" "venv\Scripts\python.exe" main.py
-) else if exist "%APP_DIR%\main.py" (
+    start "" "%ROOT_DIR%venv\Scripts\python.exe" main.py
+) else (
     cd /d "%APP_DIR%"
     echo [Kalinova] Virtual environment not found. Attempting to launch with system Python...
-    start "" python main.py
-) else (
-    echo [Kalinova] Attempting to launch with system Python...
     start "" python main.py
 )
