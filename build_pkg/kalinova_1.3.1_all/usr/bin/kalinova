@@ -1,0 +1,4 @@
+#!/bin/sh
+export PYTHONPATH="/usr/share/kalinova:${PYTHONPATH}"
+cd /usr/share/kalinova
+exec python3 main.py "$@"

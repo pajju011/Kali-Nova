@@ -1,0 +1,147 @@
+import os
+from PyQt6.QtWidgets import QPushButton, QVBoxLayout, QWidget, QLabel
+from PyQt6.QtCore import Qt, pyqtSignal, QEvent, QSize
+from PyQt6.QtGui import QFont, QColor, QIcon
+from ui.icon_manager import get_tool_icon_path
+
+
+class ToolIconButton(QWidget):
+    """
+    Professional tool card with active/inactive states.
+    Emits `clicked` when card content is selected.
+    """
+
+    clicked = pyqtSignal()
+
+    def __init__(self, icon, tool_name, description="", accent_color="#3b82f6"):
+        super().__init__()
+
+        self.accent_color = accent_color
+        self._is_active = False
+
+        self.setObjectName("toolCard")
+
+        layout = QVBoxLayout(self)
+        layout.setSpacing(6)
+        layout.setContentsMargins(10, 10, 10, 10)
+
+        self.icon_btn = QPushButton()
+        self.icon_btn.setObjectName("toolIconButton")
+        self.icon_btn.setFixedSize(96, 96)
+        self.icon_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.icon_btn.clicked.connect(self.clicked.emit)
+
+        # Check if icon is an SVG path or valid file
+        if isinstance(icon, str) and (icon.endswith(".svg") or icon.endswith(".png") or os.path.exists(icon)):
+            self.icon_btn.setIcon(QIcon(icon))
+            self.icon_btn.setIconSize(QSize(54, 54))
+        else:
+            # Fallback to icon_manager lookup by tool_name or raw string
+            svg_path = get_tool_icon_path(tool_name.lower())
+            if svg_path and os.path.exists(svg_path):
+                self.icon_btn.setIcon(QIcon(svg_path))
+                self.icon_btn.setIconSize(QSize(54, 54))
+            else:
+                self.icon_btn.setText(str(icon))
+                self.icon_btn.setFont(QFont("Segoe UI", 28, QFont.Weight.Bold))
+
+        self.name_label = QLabel(tool_name)
+        self.name_label.setObjectName("toolNameLabel")
+        self.name_label.setFont(QFont("Segoe UI", 10, QFont.Weight.DemiBold))
+        self.name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.desc_label = None
+        if description:
+            self.desc_label = QLabel(description)
+            self.desc_label.setObjectName("toolDescLabel")
+            self.desc_label.setFont(QFont("Segoe UI", 8))
+            self.desc_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.desc_label.setWordWrap(True)
+            layout.addWidget(self.desc_label)
+
+        layout.addWidget(self.icon_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.name_label, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        self.setMaximumWidth(150)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+        clickable_widgets = [self, self.icon_btn, self.name_label]
+        if self.desc_label is not None:
+            clickable_widgets.append(self.desc_label)
+
+        for widget in clickable_widgets:
+            widget.installEventFilter(self)
+
+        self._apply_style()
+
+    def _alpha_color(self, color_hex, alpha):
+        color = QColor(color_hex)
+        return f"rgba({color.red()}, {color.green()}, {color.blue()}, {alpha})"
+
+    def _apply_style(self):
+        accent = self.accent_color
+        accent_soft = self._alpha_color(accent, 48)
+
+        if self._is_active:
+            icon_bg = "#1d4ed8"
+            border_color = "#2563eb"
+            name_color = "#ffffff"
+            desc_color = "#93c5fd"
+            card_bg = "#0e2244"
+        else:
+            icon_bg = "#08101e"
+            border_color = "#14243e"
+            name_color = "#cbd5e1"
+            desc_color = "#64748b"
+            card_bg = "#081220"
+
+        self.setStyleSheet(
+            f"""
+            QWidget#toolCard {{
+                border: 1px solid {border_color};
+                border-radius: 8px;
+                background-color: {card_bg};
+            }}
+            QWidget#toolCard:hover {{
+                border-color: #38bdf8;
+                background-color: #0c182b;
+            }}
+            QPushButton#toolIconButton {{
+                background-color: {icon_bg};
+                border: 1px solid {border_color};
+                border-radius: 8px;
+                color: white;
+            }}
+            QPushButton#toolIconButton:hover {{
+                border-color: #38bdf8;
+            }}
+            QLabel#toolNameLabel {{
+                color: {name_color};
+                border: none;
+                background: transparent;
+                font-weight: 700;
+            }}
+            QLabel#toolDescLabel {{
+                color: {desc_color};
+                border: none;
+                background: transparent;
+            }}
+            """
+        )
+
+    def set_active(self, is_active):
+        self._is_active = is_active
+        self._apply_style()
+
+    def eventFilter(self, watched, event):
+        icon_btn = getattr(self, "icon_btn", None)
+        if (
+            icon_btn is not None
+            and watched is not icon_btn
+            and event.type() == QEvent.Type.MouseButtonRelease
+            and event.button() == Qt.MouseButton.LeftButton
+        ):
+            self.clicked.emit()
+            return True
+
+        return super().eventFilter(watched, event)

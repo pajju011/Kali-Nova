@@ -108,6 +108,11 @@ $SUDO mkdir -p "$INSTALL_DIR"
 
 $SUDO cp -r "$TEMP_DIR/kalinova/"* "$INSTALL_DIR/"
 
+# Remove local runtime artifacts and ensure global read permissions
+$SUDO rm -rf "$INSTALL_DIR/logs" "$INSTALL_DIR/reports" "$INSTALL_DIR/kalinova.db" "$INSTALL_DIR/venv" "$INSTALL_DIR/__pycache__" "$INSTALL_DIR/.pytest_cache"
+$SUDO find "$INSTALL_DIR" -name "*.pyc" -delete 2>/dev/null || true
+$SUDO chmod -R a+rX "$INSTALL_DIR"
+
 # ------------------------------------------------------
 # 7. Create global command
 # ------------------------------------------------------
@@ -115,6 +120,7 @@ $SUDO cp -r "$TEMP_DIR/kalinova/"* "$INSTALL_DIR/"
 $SUDO tee /usr/bin/kalinova > /dev/null <<'EOF'
 #!/usr/bin/env bash
 
+export PYTHONPATH="/usr/share/kalinova:${PYTHONPATH}"
 cd /usr/share/kalinova
 exec python3 main.py "$@"
 EOF

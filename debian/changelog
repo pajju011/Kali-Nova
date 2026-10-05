@@ -1,5 +1,13 @@
+kalinova (1.3.1-1) unstable; urgency=medium
+
+  * Fix PermissionError by moving session logs and reports to user-isolated directory.
+  * Ensure proper execution permissions and PYTHONPATH in launcher.
+
+ -- Prajwal R Poojary <prajwal.r.poojary11@gmail.com>  Mon, 05 Oct 2026 14:00:00 +0530
+
 kalinova (1.0.0-1) unstable; urgency=medium
 
   * Initial release for Kali Linux distribution.
 
  -- Prajwal R Poojary <prajwal.r.poojary11@gmail.com>  Fri, 02 Oct 2026 10:30:00 +0530
+

@@ -7,7 +7,7 @@ set -e
 
 # Package details
 PKG_NAME="kalinova"
-PKG_VERSION="1.3.0"
+PKG_VERSION="1.3.1"
 PKG_ARCH="all"
 DEB_NAME="${PKG_NAME}_${PKG_VERSION}_${PKG_ARCH}.deb"
 
@@ -96,6 +96,7 @@ chmod 755 "${PKG_ROOT}/DEBIAN/postrm"
 # 4. Create executable launcher /usr/bin/kalinova
 cat << 'EOF' > "${PKG_ROOT}/usr/bin/kalinova"
 #!/bin/sh
+export PYTHONPATH="/usr/share/kalinova:${PYTHONPATH}"
 cd /usr/share/kalinova
 exec python3 main.py "$@"
 EOF
@@ -119,7 +120,11 @@ cp -r "${SCRIPT_DIR}/kalinova/"* "${PKG_ROOT}/usr/share/kalinova/"
 find "${PKG_ROOT}/usr/share/kalinova" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 find "${PKG_ROOT}/usr/share/kalinova" -type d -name "venv" -exec rm -rf {} + 2>/dev/null || true
 find "${PKG_ROOT}/usr/share/kalinova" -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null || true
+find "${PKG_ROOT}/usr/share/kalinova" -type d -name "logs" -exec rm -rf {} + 2>/dev/null || true
+find "${PKG_ROOT}/usr/share/kalinova" -type d -name "reports" -exec rm -rf {} + 2>/dev/null || true
+rm -f "${PKG_ROOT}/usr/share/kalinova/kalinova.db" 2>/dev/null || true
 find "${PKG_ROOT}/usr/share/kalinova" -name "*.pyc" -delete 2>/dev/null || true
+chmod -R a+rX "${PKG_ROOT}/usr/share/kalinova"
 
 # 8. Build Debian package
 echo "[*] Building Debian package..."
