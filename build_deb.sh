@@ -12,7 +12,7 @@ PKG_ARCH="all"
 DEB_NAME="${PKG_NAME}_${PKG_VERSION}_${PKG_ARCH}.deb"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BUILD_DIR="${SCRIPT_DIR}/build_pkg"
+BUILD_DIR="/tmp/kalinova_build_pkg"
 PKG_ROOT="${BUILD_DIR}/${PKG_NAME}_${PKG_VERSION}_${PKG_ARCH}"
 
 DO_INSTALL=false
@@ -77,7 +77,6 @@ if [ -x /usr/bin/gtk-update-icon-cache ]; then
 fi
 exit 0
 EOF
-chmod 755 "${PKG_ROOT}/DEBIAN/postinst"
 
 # 3. Create DEBIAN/postrm
 cat << 'EOF' > "${PKG_ROOT}/DEBIAN/postrm"
@@ -91,6 +90,11 @@ if [ -x /usr/bin/gtk-update-icon-cache ]; then
 fi
 exit 0
 EOF
+
+# Ensure DEBIAN directory and control files have proper permissions
+chmod 755 "${PKG_ROOT}/DEBIAN"
+chmod 644 "${PKG_ROOT}/DEBIAN/control"
+chmod 755 "${PKG_ROOT}/DEBIAN/postinst"
 chmod 755 "${PKG_ROOT}/DEBIAN/postrm"
 
 # 4. Create executable launcher /usr/bin/kalinova
@@ -112,19 +116,19 @@ if [ -f "${SCRIPT_DIR}/kalinova/resources/icons/kalinova.svg" ]; then
     cp "${SCRIPT_DIR}/kalinova/resources/icons/kalinova.svg" "${PKG_ROOT}/usr/share/icons/hicolor/scalable/apps/kalinova.svg"
 fi
 
-# 7. Copy application source files
+# 7. Copy application source files (excluding virtualenvs and runtime caches)
 echo "[*] Copying Kali-Nova source files..."
-cp -r "${SCRIPT_DIR}/kalinova/"* "${PKG_ROOT}/usr/share/kalinova/"
+tar -C "${SCRIPT_DIR}/kalinova" \
+    --exclude='venv' \
+    --exclude='__pycache__' \
+    --exclude='.pytest_cache' \
+    --exclude='kalinova.db' \
+    --exclude='logs' \
+    --exclude='reports' \
+    --exclude='*.pyc' \
+    -cf - . | tar -C "${PKG_ROOT}/usr/share/kalinova" -xf -
 
-# Clean up pycache, venv, and temporary build files from payload
-find "${PKG_ROOT}/usr/share/kalinova" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-find "${PKG_ROOT}/usr/share/kalinova" -type d -name "venv" -exec rm -rf {} + 2>/dev/null || true
-find "${PKG_ROOT}/usr/share/kalinova" -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null || true
-find "${PKG_ROOT}/usr/share/kalinova" -type d -name "logs" -exec rm -rf {} + 2>/dev/null || true
-find "${PKG_ROOT}/usr/share/kalinova" -type d -name "reports" -exec rm -rf {} + 2>/dev/null || true
-rm -f "${PKG_ROOT}/usr/share/kalinova/kalinova.db" 2>/dev/null || true
-find "${PKG_ROOT}/usr/share/kalinova" -name "*.pyc" -delete 2>/dev/null || true
-chmod -R a+rX "${PKG_ROOT}/usr/share/kalinova"
+chmod -R a+rX "${PKG_ROOT}/usr"
 
 # 8. Build Debian package
 echo "[*] Building Debian package..."
