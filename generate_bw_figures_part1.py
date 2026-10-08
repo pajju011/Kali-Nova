@@ -31,9 +31,9 @@ FILL_GRAY1 = "#F3F4F6"
 FILL_GRAY2 = "#E5E7EB"
 FILL_GRAY3 = "#D1D5DB"
 
-def draw_box(ax, x, y, w, h, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.5, ls='-', hatch=None):
+def draw_box(ax, x, y, w, h, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.5, ls='-', hatch=None, zorder=2):
     box = patches.FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.012,rounding_size=0.02",
-                                 facecolor=bg, edgecolor=border, linewidth=lw, linestyle=ls, hatch=hatch, zorder=2)
+                                 facecolor=bg, edgecolor=border, linewidth=lw, linestyle=ls, hatch=hatch, zorder=zorder)
     ax.add_patch(box)
     return box
 
@@ -53,7 +53,7 @@ def gen_fig3_1():
     # Tier 1
     draw_box(ax, 0.03, 0.65, 0.94, 0.25, bg=FILL_LIGHT, lw=2)
     ax.text(0.05, 0.875, "1. PRESENTATION LAYER (PyQt6 Cyber HUD)", color=TEXT_BLACK, fontsize=11, fontweight='bold')
-    ax.text(0.50, 0.875, "Reactive User Interface with Non-Blocking Event Loops", color=TEXT_MUTED, fontsize=9.5, style='italic')
+    ax.text(0.95, 0.875, "Reactive User Interface with Non-Blocking Event Loops", color=TEXT_MUTED, fontsize=9.5, style='italic', ha='right')
     p_mods = [
         ("Navigation Sidebar", "Recon, Web, Auth,\nNetwork, Reports", 0.05),
         ("Master Bento Dashboard", "Threat Radar, Risk Gauge,\nPort Matrix, Scan History", 0.235),
@@ -69,8 +69,8 @@ def gen_fig3_1():
 
     # Tier 2
     draw_box(ax, 0.03, 0.35, 0.94, 0.25, bg=FILL_LIGHT, lw=2)
-    ax.text(0.05, 0.575, "2. CONCURRENCY & ORCHESTRATION LAYER (Qt Signals & Asynchronous Workers)", color=TEXT_BLACK, fontsize=11, fontweight='bold')
-    ax.text(0.60, 0.575, "Process Concurrency & Reactive Event Bus", color=TEXT_MUTED, fontsize=9.5, style='italic')
+    ax.text(0.05, 0.575, "2. CONCURRENCY & ORCHESTRATION LAYER (Qt Signals & Workers)", color=TEXT_BLACK, fontsize=11, fontweight='bold')
+    ax.text(0.95, 0.575, "Process Concurrency & Reactive Event Bus", color=TEXT_MUTED, fontsize=9.5, style='italic', ha='right')
     c_mods = [
         ("AppState Singleton", "State Tuple S_t = <T, P, E, A, H, R_t>\nCentralized Reactive Observer Pattern", 0.07),
         ("InteractiveExecutor", "QThread Worker Pools & POSIX/Win PTY\nNon-Blocking Asynchronous Subprocess Lifecycle", 0.37),
@@ -84,8 +84,8 @@ def gen_fig3_1():
 
     # Tier 3
     draw_box(ax, 0.03, 0.05, 0.94, 0.25, bg=FILL_LIGHT, lw=2)
-    ax.text(0.05, 0.275, "3. INTELLIGENCE & PERSISTENCE LAYER (ML, AI, & Database Engines)", color=TEXT_BLACK, fontsize=11, fontweight='bold')
-    ax.text(0.55, 0.275, "Autonomous Threat Inference & Storage", color=TEXT_MUTED, fontsize=9.5, style='italic')
+    ax.text(0.05, 0.275, "3. INTELLIGENCE & PERSISTENCE LAYER (ML, AI, & Database)", color=TEXT_BLACK, fontsize=11, fontweight='bold')
+    ax.text(0.95, 0.275, "Autonomous Threat Inference & Storage", color=TEXT_MUTED, fontsize=9.5, style='italic', ha='right')
     i_mods = [
         ("ML Scenario Advisor", "Feature Vector x_t -> Softmax\nTop-1 & Top-3 Action Predictions", 0.05),
         ("Dynamic Risk Engine", "Multi-factor CVSS v3.1 Model\nNormalized R_t Formulation (0-100)", 0.235),
@@ -177,7 +177,8 @@ def gen_fig3_2():
     for nx, ny, lbl in nodes:
         ax.scatter([nx], [ny], color=BORDER_BLACK, s=100, zorder=5)
         ax.plot([rcx, nx], [rcy, ny], color=BORDER_BLACK, lw=1, ls=":", zorder=4)
-        ax.text(nx, ny - 0.038, lbl, color=TEXT_BLACK, fontsize=7.5, ha='center', zorder=6)
+        ax.text(nx, ny - 0.038, lbl, color=TEXT_BLACK, fontsize=7.5, ha='center', zorder=6,
+                bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.9))
 
     # Bottom-Left: Port Matrix
     draw_box(ax, 0.20, 0.04, 0.38, 0.44, bg=FILL_WHITE, lw=1.5)
@@ -187,8 +188,8 @@ def gen_fig3_2():
     # Table Header Row strictly separated
     ax.text(0.22, 0.405, "PORT", color=TEXT_BLACK, fontsize=8, fontweight='bold')
     ax.text(0.31, 0.405, "SERVICE BANNER", color=TEXT_BLACK, fontsize=8, fontweight='bold')
-    ax.text(0.47, 0.405, "STATE", color=TEXT_BLACK, fontsize=8, fontweight='bold')
-    ax.text(0.53, 0.405, "RISK LEVEL", color=TEXT_BLACK, fontsize=8, fontweight='bold')
+    ax.text(0.46, 0.405, "STATE", color=TEXT_BLACK, fontsize=8, fontweight='bold')
+    ax.text(0.52, 0.405, "RISK LEVEL", color=TEXT_BLACK, fontsize=8, fontweight='bold')
     ax.plot([0.21, 0.57], [0.395, 0.395], color=BORDER_BLACK, lw=1)
 
     ports_data = [
@@ -203,8 +204,8 @@ def gen_fig3_2():
         draw_box(ax, 0.21, py, 0.36, 0.055, bg=FILL_GRAY1 if idx%2==0 else FILL_WHITE, border=BORDER_BLACK, lw=0.8)
         ax.text(0.22, py + 0.027, p, color=TEXT_BLACK, fontsize=8, fontweight='bold', va='center')
         ax.text(0.31, py + 0.027, s, color=TEXT_MUTED, fontsize=8, va='center')
-        ax.text(0.47, py + 0.027, st, color=TEXT_BLACK, fontsize=7.5, fontweight='bold', va='center')
-        ax.text(0.53, py + 0.027, rk, color=TEXT_BLACK, fontsize=7.5, fontweight='bold', va='center')
+        ax.text(0.46, py + 0.027, st, color=TEXT_BLACK, fontsize=7.5, fontweight='bold', va='center')
+        ax.text(0.52, py + 0.027, rk, color=TEXT_BLACK, fontsize=7.5, fontweight='bold', va='center')
 
     # Bottom-Right: AI Copilot & Console
     draw_box(ax, 0.60, 0.04, 0.38, 0.44, bg=FILL_WHITE, lw=1.5)
@@ -246,23 +247,24 @@ def gen_fig3_3():
     ax.text(0.5, 0.91, "End-to-End Execution Pipeline from UI Parameterization to PTY Streaming", color=TEXT_MUTED, fontsize=11, style='italic', ha='center')
 
     steps = [
-        ("1. Tool Selection", "Analyst chooses module\n(Nmap, Nikto, Hydra,\nSQLMap, SSLyze)", 0.04),
-        ("2. Form Generation", "Dynamic GUI generation\nTarget, Port Scope,\nTiming Templates", 0.195),
-        ("3. Scope Validation", "Boundary CIDR check\nPrevents out-of-scope\nunauthorized scans", 0.35),
-        ("4. Command Synthesis", "Constructs sanitized CLI\nstring with parameters\n& pipeline artifacts", 0.505),
-        ("5. Async Dispatch", "Spawns worker thread\nQThread & allocates\nPOSIX/Win PTY channel", 0.66),
-        ("6. Stream & State", "Non-blocking stdout\nRegex event parsing\nUpdates AppState & UI", 0.815)
+        ("1. Tool Selection", "Analyst chooses module\n(Nmap, Nikto, Hydra,\nSQLMap, SSLyze)"),
+        ("2. Form Generation", "Dynamic GUI generation\nTarget, Port Scope,\nTiming Templates"),
+        ("3. Scope Validation", "Boundary CIDR check\nPrevents out-of-scope\nunauthorized scans"),
+        ("4. Command Synthesis", "Constructs sanitized CLI\nstring with parameters\n& pipeline artifacts"),
+        ("5. Async Dispatch", "Spawns worker thread\nQThread & allocates\nPOSIX/Win PTY channel"),
+        ("6. Stream & State", "Non-blocking stdout\nRegex event parsing\nUpdates AppState & UI")
     ]
 
-    for title, desc, sx in steps:
-        draw_box(ax, sx, 0.40, 0.145, 0.34, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
-        ax.text(sx + 0.0725, 0.70, title, color=TEXT_BLACK, fontsize=10, fontweight='bold', ha='center')
-        ax.plot([sx + 0.02, sx + 0.125], [0.67, 0.67], color=BORDER_BLACK, lw=0.8)
-        ax.text(sx + 0.0725, 0.55, desc, color=TEXT_MUTED, fontsize=8.5, ha='center', va='center')
+    for i, (title, desc) in enumerate(steps):
+        sx = 0.04 + i * 0.155
+        draw_box(ax, sx, 0.40, 0.12, 0.34, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
+        ax.text(sx + 0.06, 0.70, title, color=TEXT_BLACK, fontsize=9.5, fontweight='bold', ha='center')
+        ax.plot([sx + 0.015, sx + 0.105], [0.67, 0.67], color=BORDER_BLACK, lw=0.8)
+        ax.text(sx + 0.06, 0.54, desc, color=TEXT_MUTED, fontsize=8, ha='center', va='center')
 
     for i in range(len(steps) - 1):
-        x1 = steps[i][2] + 0.145
-        x2 = steps[i+1][2]
+        x1 = 0.04 + i * 0.155 + 0.12
+        x2 = 0.04 + (i + 1) * 0.155
         ax.annotate("", xy=(x2, 0.57), xytext=(x1, 0.57),
                     arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2))
 
@@ -513,9 +515,9 @@ def gen_fig3_7():
     ax.annotate("", xy=(0.50, 0.44), xytext=(0.50, 0.53), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
     ax.text(0.52, 0.485, "Yes", color=TEXT_BLACK, fontsize=9, fontweight='bold')
 
-    ax.plot([0.34, 0.25, 0.25], [0.60, 0.60, 0.06], color=BORDER_BLACK, lw=1.5, ls="--")
-    ax.annotate("", xy=(0.42, 0.06), xytext=(0.25, 0.06), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.5))
-    ax.text(0.28, 0.61, "No", color=TEXT_BLACK, fontsize=8.5, fontweight='bold')
+    ax.plot([0.34, 0.02, 0.02], [0.60, 0.60, 0.06], color=BORDER_BLACK, lw=1.5, ls="--")
+    ax.annotate("", xy=(0.42, 0.06), xytext=(0.02, 0.06), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.5))
+    ax.text(0.31, 0.615, "No", color=TEXT_BLACK, fontsize=8.5, fontweight='bold')
 
     ax.annotate("", xy=(0.28, 0.37), xytext=(0.34, 0.37), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
     ax.text(0.30, 0.39, "Yes", color=TEXT_BLACK, fontsize=8.5, fontweight='bold')
@@ -560,22 +562,22 @@ def gen_fig3_8():
         ax.text(ix + 0.12, 0.54, idesc, color=TEXT_MUTED, fontsize=8.5, ha='center', va='center')
         ax.annotate("", xy=(ix + 0.12, 0.78), xytext=(ix + 0.12, 0.70), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
 
-    # Tiers at bottom
+    # Tiers at bottom - ZERO HATCHING, 100% CLEAR TEXT
     draw_box(ax, 0.05, 0.08, 0.90, 0.30, bg=FILL_LIGHT, lw=1.5)
     ax.text(0.07, 0.345, "Composite Threat Index Tier Mapping (R_t in [0, 100])", color=TEXT_BLACK, fontsize=10.5, fontweight='bold')
     ax.plot([0.07, 0.45], [0.33, 0.33], color=BORDER_BLACK, lw=0.8)
 
     tiers = [
-        ("LOW (0.0 - 24.9)", "Standard perimeter services,\nno verified CVEs.", 0.07, FILL_WHITE, None),
-        ("MODERATE (25.0 - 49.9)", "Informational disclosures,\nnon-critical ports open.", 0.295, FILL_GRAY1, "//"),
-        ("HIGH (50.0 - 74.9)", "Vulnerable software versions,\nunencrypted auth protocols.", 0.52, FILL_GRAY2, "\\\\"),
-        ("CRITICAL (75.0 - 100)", "Verified RCE, SQLi, root exposure,\nimmediate patching required.", 0.745, FILL_GRAY3, "xx")
+        ("LOW (0.0 - 24.9)", "Standard perimeter services,\nno verified CVEs.", 0.07, FILL_WHITE),
+        ("MODERATE (25.0 - 49.9)", "Informational disclosures,\nnon-critical ports open.", 0.295, FILL_LIGHT),
+        ("HIGH (50.0 - 74.9)", "Vulnerable software versions,\nunencrypted auth protocols.", 0.52, FILL_GRAY1),
+        ("CRITICAL (75.0 - 100)", "Verified RCE, SQLi, root exposure,\nimmediate patching required.", 0.745, FILL_GRAY2)
     ]
-    for tt, td, tx, tbg, th in tiers:
-        draw_box(ax, tx, 0.11, 0.20, 0.20, bg=tbg, border=BORDER_BLACK, lw=1.5, hatch=th)
+    for tt, td, tx, tbg in tiers:
+        draw_box(ax, tx, 0.11, 0.20, 0.20, bg=tbg, border=BORDER_BLACK, lw=1.5)
         ax.text(tx + 0.10, 0.265, tt, color=TEXT_BLACK, fontsize=9.5, fontweight='bold', ha='center')
         ax.plot([tx + 0.02, tx + 0.18], [0.245, 0.245], color=BORDER_BLACK, lw=0.8)
-        ax.text(tx + 0.10, 0.17, td, color=TEXT_MUTED, fontsize=8, ha='center', va='center')
+        ax.text(tx + 0.10, 0.17, td, color=TEXT_BLACK, fontsize=8.5, ha='center', va='center')
 
     save_fig(fig, "risk_engine.png")
 

@@ -31,9 +31,9 @@ FILL_GRAY1 = "#F3F4F6"
 FILL_GRAY2 = "#E5E7EB"
 FILL_GRAY3 = "#D1D5DB"
 
-def draw_box(ax, x, y, w, h, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.5, ls='-', hatch=None):
+def draw_box(ax, x, y, w, h, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.5, ls='-', hatch=None, zorder=2):
     box = patches.FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.012,rounding_size=0.02",
-                                 facecolor=bg, edgecolor=border, linewidth=lw, linestyle=ls, hatch=hatch, zorder=2)
+                                 facecolor=bg, edgecolor=border, linewidth=lw, linestyle=ls, hatch=hatch, zorder=zorder)
     ax.add_patch(box)
     return box
 
@@ -51,30 +51,35 @@ def gen_fig3_17():
     ax.text(0.5, 0.93, "End-to-End Penetration Testing Lifecycle: Reconnaissance to Report Generation", color=TEXT_MUTED, fontsize=11, style='italic', ha='center')
 
     phases = [
-        ("Phase 1: Target Definition", "Scope validation, CIDR check,\nprofile selection (Professional)", 0.05, 0.58),
-        ("Phase 2: Perimeter Recon", "OSINT discovery via Whois &\ntheHarvester for domains", 0.28, 0.58),
-        ("Phase 3: Port Enumeration", "Nmap SYN sweeps, service\nbanner grabbing (P_crit)", 0.51, 0.58),
-        ("Phase 4: Web Fuzzing", "Nikto vulnerability scans &\nGobuster directory enumeration", 0.74, 0.58),
+        ("Phase 1: Target Definition", "Scope validation, CIDR check,\nprofile selection (Professional)", 0.06, 0.58),
+        ("Phase 2: Perimeter Recon", "OSINT discovery via Whois &\ntheHarvester for domains", 0.29, 0.58),
+        ("Phase 3: Port Enumeration", "Nmap SYN sweeps, service\nbanner grabbing (P_crit)", 0.52, 0.58),
+        ("Phase 4: Web Fuzzing", "Nikto vulnerability scans &\nGobuster directory enumeration", 0.75, 0.58),
 
-        ("Phase 8: Report Export", "Executive PDF & HTML report\ngeneration via ReportLab", 0.05, 0.12),
-        ("Phase 7: Persistent Store", "Scan history, events & hashes\ncommitted to kalinova.db", 0.28, 0.12),
-        ("Phase 6: AI Remediation", "CVSS scoring & parameterized\ncode patches (Py/Node/Bash)", 0.51, 0.12),
-        ("Phase 5: Exploit Auditing", "SQLMap injection verification &\nHydra authentication testing", 0.74, 0.12)
+        ("Phase 8: Report Export", "Executive PDF & HTML report\ngeneration via ReportLab", 0.06, 0.12),
+        ("Phase 7: Persistent Store", "Scan history, events & hashes\ncommitted to kalinova.db", 0.29, 0.12),
+        ("Phase 6: AI Remediation", "CVSS scoring & parameterized\ncode patches (Py/Node/Bash)", 0.52, 0.12),
+        ("Phase 5: Exploit Auditing", "SQLMap injection verification &\nHydra authentication testing", 0.75, 0.12)
     ]
 
     for ptitle, pdesc, px, py in phases:
-        draw_box(ax, px, py, 0.21, 0.25, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
-        ax.text(px + 0.105, py + 0.205, ptitle, color=TEXT_BLACK, fontsize=10, fontweight='bold', ha='center')
-        ax.plot([px + 0.02, px + 0.19], [py + 0.18, ny := py + 0.18], color=BORDER_BLACK, lw=0.8)
-        ax.text(px + 0.105, py + 0.09, pdesc, color=TEXT_MUTED, fontsize=8.5, ha='center', va='center')
+        draw_box(ax, px, py, 0.18, 0.25, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
+        ax.text(px + 0.09, py + 0.205, ptitle, color=TEXT_BLACK, fontsize=9.5, fontweight='bold', ha='center')
+        ax.plot([px + 0.02, px + 0.16], [py + 0.18, py + 0.18], color=BORDER_BLACK, lw=0.8)
+        ax.text(px + 0.09, py + 0.09, pdesc, color=TEXT_MUTED, fontsize=8.5, ha='center', va='center')
 
-    ax.annotate("", xy=(0.28, 0.705), xytext=(0.26, 0.705), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
-    ax.annotate("", xy=(0.51, 0.705), xytext=(0.49, 0.705), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
-    ax.annotate("", xy=(0.74, 0.705), xytext=(0.72, 0.705), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
-    ax.annotate("", xy=(0.845, 0.37), xytext=(0.845, 0.58), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
-    ax.annotate("", xy=(0.72, 0.245), xytext=(0.74, 0.245), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
-    ax.annotate("", xy=(0.49, 0.245), xytext=(0.51, 0.245), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
-    ax.annotate("", xy=(0.26, 0.245), xytext=(0.28, 0.245), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
+    # Top row forward arrows (clear 0.05 gap between boxes)
+    ax.annotate("", xy=(0.285, 0.705), xytext=(0.245, 0.705), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
+    ax.annotate("", xy=(0.515, 0.705), xytext=(0.475, 0.705), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
+    ax.annotate("", xy=(0.745, 0.705), xytext=(0.705, 0.705), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
+
+    # Turn down
+    ax.annotate("", xy=(0.84, 0.375), xytext=(0.84, 0.575), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
+
+    # Bottom row reverse arrows
+    ax.annotate("", xy=(0.705, 0.245), xytext=(0.745, 0.245), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
+    ax.annotate("", xy=(0.475, 0.245), xytext=(0.515, 0.245), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
+    ax.annotate("", xy=(0.245, 0.245), xytext=(0.285, 0.245), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
 
     save_fig(fig, "complete_workflow.png")
 
@@ -128,19 +133,23 @@ def gen_fig3_18():
     ax.text(0.76, 0.835, "Probes", color=TEXT_MUTED, fontsize=7.5, ha='center', bbox=dict(boxstyle="square,pad=0.2", fc="white", ec="none"))
 
     ax.annotate("", xy=(0.63, 0.57), xytext=(0.63, 0.75), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
-    ax.text(0.66, 0.66, "Raw stdout", color=TEXT_MUTED, fontsize=7.5)
+    ax.text(0.66, 0.66, "Raw stdout", color=TEXT_MUTED, fontsize=7.5, bbox=dict(boxstyle="square,pad=0.2", fc="white", ec="none"))
 
     ax.annotate("", xy=(0.46, 0.505), xytext=(0.54, 0.505), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
     ax.text(0.50, 0.53, "Extracted Ports", color=TEXT_MUTED, fontsize=7.5, ha='center', bbox=dict(boxstyle="square,pad=0.2", fc="white", ec="none"))
 
     ax.annotate("", xy=(0.63, 0.23), xytext=(0.63, 0.44), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
-    ax.text(0.66, 0.33, "Threat Event", color=TEXT_MUTED, fontsize=7.5)
+    ax.text(0.66, 0.33, "Threat Event", color=TEXT_MUTED, fontsize=7.5, bbox=dict(boxstyle="square,pad=0.2", fc="white", ec="none"))
 
     ax.annotate("", xy=(0.80, 0.165), xytext=(0.72, 0.165), arrowprops=dict(arrowstyle="<->", color=BORDER_BLACK, lw=1.8))
     ax.text(0.76, 0.19, "Prompt/Resp", color=TEXT_MUTED, fontsize=7.5, ha='center', bbox=dict(boxstyle="square,pad=0.2", fc="white", ec="none"))
 
     ax.annotate("", xy=(0.13, 0.23), xytext=(0.28, 0.44), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
     ax.text(0.19, 0.35, "Findings", color=TEXT_MUTED, fontsize=7.5, bbox=dict(boxstyle="square,pad=0.2", fc="white", ec="none"))
+
+    # Connect processes to data stores
+    ax.annotate("", xy=(0.37, 0.33), xytext=(0.37, 0.44), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.5))
+    ax.annotate("", xy=(0.37, 0.09), xytext=(0.37, 0.28), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.5))
 
     save_fig(fig, "data_flow_diagram.png")
 
@@ -231,19 +240,19 @@ def gen_fig3_20():
     ax.text(0.5, 0.93, "Automated Aggregation of Assessment Telemetry into Executive PDF and HTML Reports", color=TEXT_MUTED, fontsize=11, style='italic', ha='center')
 
     stages = [
-        ("1. Telemetry Ingestion", "Queries kalinova.db for\nports, CVEs, logs & risk metrics", 0.04),
+        ("1. Telemetry Ingestion", "Queries kalinova.db for\nports, CVEs, logs & risk metrics", 0.05),
         ("2. Metric Normalization", "Computes composite score R_t,\nCVSS vector distribution", 0.285),
-        ("3. Remediation Compilation", "Incorporates AI Copilot code\npatches (Py/Node/Bash)", 0.53),
-        ("4. ReportLab Engine", "Compiles formatted PDF with\ntables, headers & risk charts", 0.775)
+        ("3. Remediation Compilation", "Incorporates AI Copilot code\npatches (Py/Node/Bash)", 0.52),
+        ("4. ReportLab Engine", "Compiles formatted PDF with\ntables, headers & risk charts", 0.755)
     ]
     for stitle, sdesc, sx in stages:
-        draw_box(ax, sx, 0.55, 0.185, 0.34, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
-        ax.text(sx + 0.0925, 0.835, stitle, color=TEXT_BLACK, fontsize=10, fontweight='bold', ha='center')
-        ax.plot([sx + 0.02, sx + 0.165], [0.805, 0.805], color=BORDER_BLACK, lw=0.8)
-        ax.text(sx + 0.0925, 0.68, sdesc, color=TEXT_MUTED, fontsize=8.5, ha='center', va='center')
+        draw_box(ax, sx, 0.55, 0.18, 0.34, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
+        ax.text(sx + 0.09, 0.835, stitle, color=TEXT_BLACK, fontsize=10, fontweight='bold', ha='center')
+        ax.plot([sx + 0.02, sx + 0.16], [0.805, 0.805], color=BORDER_BLACK, lw=0.8)
+        ax.text(sx + 0.09, 0.68, sdesc, color=TEXT_MUTED, fontsize=8.5, ha='center', va='center')
 
     for i in range(len(stages) - 1):
-        x1 = stages[i][2] + 0.185
+        x1 = stages[i][2] + 0.18
         x2 = stages[i+1][2]
         ax.annotate("", xy=(x2, 0.72), xytext=(x1, 0.72), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2))
 
@@ -356,23 +365,29 @@ def gen_fig3_22():
     ax.text(0.5, 0.965, "Testing Methodology & Verification Hierarchy", color=TEXT_BLACK, fontsize=18, fontweight='bold', ha='center')
     ax.text(0.5, 0.93, "Multi-Tiered Quality Assurance across Unit, Concurrency, UI, and Cyber-Range Testbeds", color=TEXT_MUTED, fontsize=11, style='italic', ha='center')
 
+    # Solid grayscale shades, ZERO HATCHING, 100% visible text
     tiers = [
-        ("Tier 1: Unit Testing (PyTest)", "Test regex parsers, CVSS scoring math,\nAppState mutations, and input validation.", 0.72, "98.2% Code Coverage", None),
-        ("Tier 2: Concurrency & PTY Testing", "Stress test CommandThread lifecycle,\nbuffer overflow prevention, and process cleanup.", 0.52, "Zero Process Leaks", "//"),
-        ("Tier 3: GUI & Signal Integration", "PyQt6 headless test harness validating\nsignal emissions, state updates & UI responsiveness.", 0.32, "60 FPS Responsive HUD", "\\\\"),
-        ("Tier 4: Cyber-Range Validation", "End-to-end operational testing against 15 vulnerable VMs\n(OWASP Juice Shop, Metasploitable 2/3, DVWA).", 0.12, "84.3% Recon Latency Drop", "xx")
+        ("Tier 1: Unit Testing (PyTest)", "Test regex parsers, CVSS scoring math,\nAppState mutations, and input validation.", 0.72, "98.2% Code Coverage", FILL_WHITE),
+        ("Tier 2: Concurrency & PTY Testing", "Stress test CommandThread lifecycle,\nbuffer overflow prevention, and process cleanup.", 0.52, "Zero Process Leaks", FILL_LIGHT),
+        ("Tier 3: GUI & Signal Integration", "PyQt6 headless test harness validating\nsignal emissions, state updates & UI responsiveness.", 0.32, "60 FPS Responsive HUD", FILL_GRAY1),
+        ("Tier 4: Cyber-Range Validation", "End-to-end operational testing against 15 vulnerable VMs\n(OWASP Juice Shop, Metasploitable 2/3, DVWA).", 0.12, "84.3% Recon Latency Drop", FILL_GRAY2)
     ]
 
-    for ttitle, tdesc, ty, tstat, th in tiers:
-        w = 0.52 + (0.75 - ty) * 0.42
+    for ttitle, tdesc, ty, tstat, tbg in tiers:
+        w = 0.54 + (0.75 - ty) * 0.40
         x = 0.50 - w / 2
-        draw_box(ax, x, ty, w, 0.16, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5, hatch=th)
-        ax.text(x + 0.03, ty + 0.11, ttitle, color=TEXT_BLACK, fontsize=11, fontweight='bold', zorder=5)
-        ax.plot([x + 0.03, x + 0.35], [ty + 0.09, ty + 0.09], color=BORDER_BLACK, lw=0.6, zorder=5)
+
+        # Main Tier Box
+        draw_box(ax, x, ty, w, 0.16, bg=tbg, border=BORDER_BLACK, lw=1.5, zorder=3)
+        ax.text(x + 0.03, ty + 0.115, ttitle, color=TEXT_BLACK, fontsize=10.5, fontweight='bold', zorder=5)
+
+        # Divider line strictly limited so it NEVER touches the right badge box
+        ax.plot([x + 0.03, x + 0.28], [ty + 0.09, ty + 0.09], color=BORDER_BLACK, lw=0.8, zorder=5)
         ax.text(x + 0.03, ty + 0.045, tdesc, color=TEXT_MUTED, fontsize=8.5, zorder=5)
 
-        draw_box(ax, x + w - 0.23, ty + 0.045, 0.21, 0.07, bg=FILL_WHITE, border=BORDER_BLACK, lw=1)
-        ax.text(x + w - 0.125, ty + 0.08, tstat, color=TEXT_BLACK, fontsize=8, fontweight='bold', ha='center', va='center', zorder=5)
+        # Right Stat Badge Box - cleanly separated
+        draw_box(ax, x + w - 0.22, ty + 0.045, 0.20, 0.07, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.2, zorder=5)
+        ax.text(x + w - 0.12, ty + 0.08, tstat, color=TEXT_BLACK, fontsize=8.5, fontweight='bold', ha='center', va='center', zorder=6)
 
     save_fig(fig, "testing_workflow.png")
 
@@ -392,11 +407,11 @@ def gen_fig4_11():
     ax_bar = fig.add_axes([0.08, 0.16, 0.44, 0.68], facecolor=BG_WHITE)
     vulns = ['SQL Injection\n(CWE-89)', 'vsftpd Backdoor\n(CVE-2011-2523)', 'Weak SSH Auth\n(Hydra Crack)', 'Deprecated TLS 1.0\n(SSLyze)', 'Directory Traversal\n(CWE-22)', 'Info Banner Leak\n(Apache)']
     scores = [9.8, 9.8, 8.1, 6.5, 5.3, 2.1]
-    hatches = ['//', '\\\\', 'xx', '..', '++', '**']
+    grays = [FILL_GRAY3, FILL_GRAY3, FILL_GRAY2, FILL_GRAY1, FILL_LIGHT, FILL_WHITE]
 
     y_pos = np.arange(len(vulns))
     for i in range(len(vulns)):
-        ax_bar.barh(y_pos[i], scores[i], height=0.50, facecolor=FILL_GRAY2, edgecolor=BORDER_BLACK, lw=1.5, hatch=hatches[i])
+        ax_bar.barh(y_pos[i], scores[i], height=0.50, facecolor=grays[i], edgecolor=BORDER_BLACK, lw=1.5)
         ax_bar.text(scores[i] + 0.30, y_pos[i], f"{scores[i]}", color=TEXT_BLACK, va='center', fontweight='bold', fontsize=9.5)
 
     ax_bar.set_yticks(y_pos)
@@ -446,30 +461,35 @@ def gen_fig4_15():
     ax.text(0.5, 0.93, "Automated Verification of Kali-Nova Toolchains, Subprocesses, and Debian Packages", color=TEXT_MUTED, fontsize=11, style='italic', ha='center')
 
     ci_stages = [
-        ("1. Code Push / PR", "Developer commits to GitHub;\nTriggers CI/CD Actions", 0.05, 0.58),
-        ("2. Static Code Linting", "Flake8, Pyright, Black syntax\nand typing enforcement", 0.28, 0.58),
-        ("3. Subsystem Unit Tests", "PyTest suite executing 42+\nunit & parser test cases", 0.51, 0.58),
-        ("4. Container Testbed", "Spawns Docker vulnerable\ntargets (Metasploitable/Juice)", 0.74, 0.58),
+        ("1. Code Push / PR", "Developer commits to GitHub;\nTriggers CI/CD Actions", 0.06, 0.58),
+        ("2. Static Code Linting", "Flake8, Pyright, Black syntax\nand typing enforcement", 0.29, 0.58),
+        ("3. Subsystem Unit Tests", "PyTest suite executing 42+\nunit & parser test cases", 0.52, 0.58),
+        ("4. Container Testbed", "Spawns Docker vulnerable\ntargets (Metasploitable/Juice)", 0.75, 0.58),
 
-        ("8. Release Package", "Builds verified Debian package\nkalinova_1.3.1_all.deb", 0.05, 0.12),
-        ("7. Security Audits", "Bandit AST vulnerability scan &\nCIDR boundary scope checks", 0.28, 0.12),
-        ("6. Performance Bench", "Validates < 200MB memory &\nrecon latency acceleration", 0.51, 0.12),
-        ("5. End-to-End Test", "Simulates Nmap -> AppState ->\nML Advisor -> Report pipeline", 0.74, 0.12)
+        ("8. Release Package", "Builds verified Debian package\nkalinova_1.3.1_all.deb", 0.06, 0.12),
+        ("7. Security Audits", "Bandit AST vulnerability scan &\nCIDR boundary scope checks", 0.29, 0.12),
+        ("6. Performance Bench", "Validates < 200MB memory &\nrecon latency acceleration", 0.52, 0.12),
+        ("5. End-to-End Test", "Simulates Nmap -> AppState ->\nML Advisor -> Report pipeline", 0.75, 0.12)
     ]
 
     for ctitle, cdesc, cx, cy in ci_stages:
-        draw_box(ax, cx, cy, 0.21, 0.25, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
-        ax.text(cx + 0.105, cy + 0.205, ctitle, color=TEXT_BLACK, fontsize=10, fontweight='bold', ha='center')
-        ax.plot([cx + 0.02, cx + 0.19], [cy + 0.18, cy + 0.18], color=BORDER_BLACK, lw=0.8)
-        ax.text(cx + 0.105, cy + 0.09, cdesc, color=TEXT_MUTED, fontsize=8.5, ha='center', va='center')
+        draw_box(ax, cx, cy, 0.18, 0.25, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
+        ax.text(cx + 0.09, cy + 0.205, ctitle, color=TEXT_BLACK, fontsize=9.5, fontweight='bold', ha='center')
+        ax.plot([cx + 0.02, cx + 0.16], [cy + 0.18, cy + 0.18], color=BORDER_BLACK, lw=0.8)
+        ax.text(cx + 0.09, cy + 0.09, cdesc, color=TEXT_MUTED, fontsize=8.5, ha='center', va='center')
 
-    ax.annotate("", xy=(0.28, 0.705), xytext=(0.26, 0.705), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
-    ax.annotate("", xy=(0.51, 0.705), xytext=(0.49, 0.705), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
-    ax.annotate("", xy=(0.74, 0.705), xytext=(0.72, 0.705), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
-    ax.annotate("", xy=(0.845, 0.37), xytext=(0.845, 0.58), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
-    ax.annotate("", xy=(0.72, 0.245), xytext=(0.74, 0.245), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
-    ax.annotate("", xy=(0.49, 0.245), xytext=(0.51, 0.245), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
-    ax.annotate("", xy=(0.26, 0.245), xytext=(0.28, 0.245), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
+    # Top row forward arrows (clear 0.05 gap between boxes)
+    ax.annotate("", xy=(0.285, 0.705), xytext=(0.245, 0.705), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
+    ax.annotate("", xy=(0.515, 0.705), xytext=(0.475, 0.705), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
+    ax.annotate("", xy=(0.745, 0.705), xytext=(0.705, 0.705), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
+
+    # Turn down
+    ax.annotate("", xy=(0.84, 0.375), xytext=(0.84, 0.575), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
+
+    # Bottom row reverse arrows
+    ax.annotate("", xy=(0.705, 0.245), xytext=(0.745, 0.245), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
+    ax.annotate("", xy=(0.475, 0.245), xytext=(0.515, 0.245), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
+    ax.annotate("", xy=(0.245, 0.245), xytext=(0.285, 0.245), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.8))
 
     save_fig(fig, "integration_testing.png")
 
