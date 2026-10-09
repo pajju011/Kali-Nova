@@ -9,15 +9,40 @@ import numpy as np
 OUTPUT_DIRS = [
     r"c:\Users\ASUS\Desktop\Kali-Nova\docs\figures",
     r"c:\Users\ASUS\Desktop\Kali-Nova\docs",
-    r"c:\Users\ASUS\Desktop\Kali-Nova\report_images",
-    r"C:\Users\ASUS\.gemini\antigravity-ide\brain\523ecfae-57b6-4417-8a2a-e091cd140d51"
+    r"c:\Users\ASUS\Desktop\Kali-Nova\report_images"
 ]
 
 def save_fig(fig, filename):
+    base_name = os.path.splitext(filename)[0]
     for d in OUTPUT_DIRS:
         os.makedirs(d, exist_ok=True)
-        target = os.path.join(d, filename)
-        fig.savefig(target, dpi=300, bbox_inches='tight', facecolor='#FFFFFF', edgecolor='none')
+        # Optimized PNG for Overleaf & web: 140 DPI (~1500-1600px wide, lightweight, fast loading)
+        png_target = os.path.join(d, f"{base_name}.png")
+        fig.savefig(png_target, dpi=140, bbox_inches='tight', facecolor='#FFFFFF', edgecolor='none')
+        
+        try:
+            from PIL import Image
+            with Image.open(png_target) as img:
+                img.save(png_target, optimize=True)
+        except Exception:
+            pass
+
+    # Ensure paper figure aliases exist
+    if base_name == "system_architecture":
+        for d in OUTPUT_DIRS:
+            src = os.path.join(d, f"{base_name}.png")
+            dst = os.path.join(d, "architecture_diagram.png")
+            if os.path.exists(src):
+                import shutil
+                shutil.copy2(src, dst)
+    elif base_name == "tool_execution_workflow":
+        for d in OUTPUT_DIRS:
+            src = os.path.join(d, f"{base_name}.png")
+            dst = os.path.join(d, "state_transition_diagram.png")
+            if os.path.exists(src):
+                import shutil
+                shutil.copy2(src, dst)
+
     print(f"Generated Clean B&W {filename}")
     plt.close(fig)
 
