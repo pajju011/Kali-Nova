@@ -7,10 +7,8 @@ import matplotlib.patches as patches
 import numpy as np
 
 OUTPUT_DIRS = [
-    r"c:\Users\ASUS\Desktop\Kali-Nova\docs\figures",
-    r"c:\Users\ASUS\Desktop\Kali-Nova\docs",
-    r"c:\Users\ASUS\Desktop\Kali-Nova\report_images",
-    r"C:\Users\ASUS\.gemini\antigravity-ide\brain\523ecfae-57b6-4417-8a2a-e091cd140d51"
+    r"c:\Users\ASUS\Desktop\Kali-Nova\Kali-Nova-Figures-Folder",
+    r"c:\Users\ASUS\Desktop\Kali-Nova\docs\figures"
 ]
 
 for d in OUTPUT_DIRS:

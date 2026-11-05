@@ -7,9 +7,8 @@ import matplotlib.patches as patches
 import numpy as np
 
 OUTPUT_DIRS = [
-    r"c:\Users\ASUS\Desktop\Kali-Nova\docs\figures",
-    r"c:\Users\ASUS\Desktop\Kali-Nova\docs",
-    r"c:\Users\ASUS\Desktop\Kali-Nova\report_images"
+    r"c:\Users\ASUS\Desktop\Kali-Nova\Kali-Nova-Figures-Folder",
+    r"c:\Users\ASUS\Desktop\Kali-Nova\docs\figures"
 ]
 
 def save_fig(fig, filename):

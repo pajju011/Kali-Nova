@@ -10,11 +10,8 @@ from PIL import Image
 
 WORKSPACE_ROOT = r"c:\Users\ASUS\Desktop\Kali-Nova"
 OUTPUT_DIRS = [
-    os.path.join(WORKSPACE_ROOT, "Kali-Nova Figures Folder"),
     os.path.join(WORKSPACE_ROOT, "Kali-Nova-Figures-Folder"),
-    os.path.join(WORKSPACE_ROOT, "docs"),
     os.path.join(WORKSPACE_ROOT, "docs", "figures"),
-    os.path.join(WORKSPACE_ROOT, "report_images")
 ]
 
 BG_WHITE = "#FFFFFF"
@@ -47,9 +44,9 @@ def save_fig(fig, filename):
     plt.close(fig)
 
 def sync_all_figures():
-    """Ensure all existing figures are synced into Kali-Nova-Figures-Folder (with hyphens)."""
-    src_dir = os.path.join(WORKSPACE_ROOT, "Kali-Nova Figures Folder")
-    dst_dir = os.path.join(WORKSPACE_ROOT, "Kali-Nova-Figures-Folder")
+    """Ensure all existing figures are synced into docs/figures."""
+    src_dir = os.path.join(WORKSPACE_ROOT, "Kali-Nova-Figures-Folder")
+    dst_dir = os.path.join(WORKSPACE_ROOT, "docs", "figures")
     os.makedirs(dst_dir, exist_ok=True)
     if os.path.exists(src_dir):
         for fname in os.listdir(src_dir):
@@ -57,7 +54,7 @@ def sync_all_figures():
                 src_file = os.path.join(src_dir, fname)
                 dst_file = os.path.join(dst_dir, fname)
                 shutil.copy2(src_file, dst_file)
-    print("Synced all figure assets to Kali-Nova-Figures-Folder.")
+    print("Synced all figure assets to docs/figures.")
 
 # =========================================================================
 # Figure 4.2: Experimental Setup of Kali-Nova (experimental_setup.png)

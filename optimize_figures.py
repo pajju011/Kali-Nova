@@ -3,9 +3,8 @@ import shutil
 from PIL import Image
 
 TARGET_DIRS = [
-    r"c:\Users\ASUS\Desktop\Kali-Nova\docs",
-    r"c:\Users\ASUS\Desktop\Kali-Nova\docs\figures",
-    r"c:\Users\ASUS\Desktop\Kali-Nova\report_images"
+    r"c:\Users\ASUS\Desktop\Kali-Nova\Kali-Nova-Figures-Folder",
+    r"c:\Users\ASUS\Desktop\Kali-Nova\docs\figures"
 ]
 
 MAX_WIDTH = 1600
