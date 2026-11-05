@@ -115,27 +115,27 @@ def gen_fig3_18():
     ax.axis('off')
 
     # External Entities
-    draw_box(ax, 0.02, 0.77, 0.145, 0.16, bg=FILL_GRAY2, lw=2)
-    ax.text(0.0925, 0.850, "Security Analyst\n(Operator)", color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center')
+    draw_box(ax, 0.015, 0.77, 0.155, 0.16, bg=FILL_GRAY2, lw=2)
+    ax.text(0.0925, 0.850, "Security Analyst\n(Operator)", color=TEXT_BLACK, fontsize=11.5, fontweight='bold', ha='center', va='center')
 
-    draw_box(ax, 0.835, 0.77, 0.145, 0.16, bg=FILL_GRAY2, lw=2)
-    ax.text(0.9075, 0.850, "Target Host\n(Remote)", color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center')
+    draw_box(ax, 0.830, 0.77, 0.155, 0.16, bg=FILL_GRAY2, lw=2)
+    ax.text(0.9075, 0.850, "Target Host\n(Remote)", color=TEXT_BLACK, fontsize=11.5, fontweight='bold', ha='center', va='center')
 
-    draw_box(ax, 0.835, 0.08, 0.145, 0.16, bg=FILL_GRAY2, lw=2)
-    ax.text(0.9075, 0.160, "AI LLM Provider\n(Groq / Mistral)", color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center')
+    draw_box(ax, 0.830, 0.08, 0.155, 0.16, bg=FILL_GRAY2, lw=2)
+    ax.text(0.9075, 0.160, "AI LLM Provider\n(Groq / Mistral)", color=TEXT_BLACK, fontsize=11.2, fontweight='bold', ha='center', va='center')
 
     # Processes
     procs = [
-        ("1.0 Scope & Config\nValidator", 0.295, 0.77),
-        ("2.0 Interactive\nExecutor", 0.575, 0.77),
-        ("3.0 Telemetry\nStream Parser", 0.575, 0.43),
-        ("4.0 State & Risk\nOrchestrator", 0.22, 0.43),
-        ("5.0 Copilot Patch\nSynthesizer", 0.575, 0.08),
-        ("6.0 Report Engine\n& Exporter", 0.02, 0.08)
+        ("1.0 Scope &\nConfig Engine", 0.290, 0.77),
+        ("2.0 Interactive\nExecutor", 0.570, 0.77),
+        ("3.0 Telemetry\nStream Parser", 0.570, 0.43),
+        ("4.0 State & Risk\nOrchestrator", 0.220, 0.43),
+        ("5.0 Copilot Patch\nSynthesizer", 0.570, 0.08),
+        ("6.0 Report Engine\n& Exporter", 0.015, 0.08)
     ]
     for pname, px, py in procs:
-        draw_box(ax, px, py, 0.155, 0.16, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
-        ax.text(px + 0.0775, py + 0.080, pname, color=TEXT_BLACK, fontsize=12.2, fontweight='bold', ha='center', va='center')
+        draw_box(ax, px, py, 0.160, 0.16, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
+        ax.text(px + 0.080, py + 0.080, pname, color=TEXT_BLACK, fontsize=11.5, fontweight='bold', ha='center', va='center', linespacing=1.3)
 
     # Data Stores
     for ds_name, dx, dy in [("[D1] kalinova.db (SQLite)", 0.23, 0.04), ("[D2] Artifacts Dict (State)", 0.23, 0.25)]:
@@ -288,13 +288,13 @@ def gen_fig3_20():
     ax.text(0.06, 0.07, "- Forensic Appendix: Command history & hashes", color=TEXT_BLACK, fontsize=12.0)
 
     draw_box(ax, 0.52, 0.04, 0.44, 0.44, bg=FILL_WHITE, lw=1.5)
-    ax.text(0.54, 0.435, "Interactive HTML Dashboard Report", color=TEXT_BLACK, fontsize=15.0, fontweight='bold')
+    ax.text(0.54, 0.435, "Interactive HTML Dashboard Report", color=TEXT_BLACK, fontsize=14.5, fontweight='bold')
     ax.plot([0.54, 0.92], [0.410, 0.410], color=BORDER_BLACK, lw=1.2)
-    ax.text(0.54, 0.35, "- Responsive Bento Grid: Radar plots & severity dials", color=TEXT_BLACK, fontsize=12.0)
-    ax.text(0.54, 0.28, "- Filterable Findings: Search by severity or port", color=TEXT_BLACK, fontsize=12.0)
-    ax.text(0.54, 0.21, "- Code Snippets: One-click patch copy for developers", color=TEXT_BLACK, fontsize=12.0)
-    ax.text(0.54, 0.14, "- Offline Compliant: Zero external CDN dependencies", color=TEXT_BLACK, fontsize=12.0)
-    ax.text(0.54, 0.07, "- Portable Output: Self-contained single-file HTML", color=TEXT_BLACK, fontsize=12.0)
+    ax.text(0.54, 0.35, "- Responsive Grid: Radar plots & severity dials", color=TEXT_BLACK, fontsize=11.2)
+    ax.text(0.54, 0.28, "- Filterable Findings: Search by severity or port", color=TEXT_BLACK, fontsize=11.2)
+    ax.text(0.54, 0.21, "- Code Snippets: One-click patch copying", color=TEXT_BLACK, fontsize=11.2)
+    ax.text(0.54, 0.14, "- Offline Ready: Zero external CDN dependencies", color=TEXT_BLACK, fontsize=11.2)
+    ax.text(0.54, 0.07, "- Portable Output: Self-contained single-file HTML", color=TEXT_BLACK, fontsize=11.2)
 
     save_fig(fig, "report_generation.png")
 
@@ -310,12 +310,12 @@ def gen_fig3_21():
 
     # Topbar
     draw_box(ax, 0.02, 0.905, 0.96, 0.065, bg=FILL_GRAY2, lw=2)
-    ax.text(0.04, 0.9375, "A. TOPBAR: Target FQDN | Scope CIDR | Risk Index | Profile Mode Switcher", color=TEXT_BLACK, fontsize=13.5, fontweight='bold', va='center')
+    ax.text(0.04, 0.9375, "A. TOPBAR: Target FQDN | Scope CIDR | Risk Index | Profile Mode Switcher", color=TEXT_BLACK, fontsize=13.0, fontweight='bold', va='center')
 
     # Sidebar with dedicated header
     draw_box(ax, 0.02, 0.04, 0.17, 0.845, bg=FILL_LIGHT, lw=1.5)
     draw_box(ax, 0.03, 0.825, 0.15, 0.048, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.105, 0.849, "B. SIDEBAR", color=TEXT_BLACK, fontsize=13.0, fontweight='bold', ha='center', va='center')
+    ax.text(0.105, 0.849, "B. SIDEBAR", color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center')
     nav_list = [
         "- Dashboard View",
         "- Recon (Nmap)",
@@ -326,37 +326,37 @@ def gen_fig3_21():
         "- Global Settings"
     ]
     for idx, item in enumerate(nav_list):
-        ax.text(0.035, 0.74 - idx * 0.095, item, color=TEXT_BLACK, fontsize=12.0, fontweight='bold')
+        ax.text(0.035, 0.74 - idx * 0.095, item, color=TEXT_BLACK, fontsize=11.0, fontweight='bold')
 
     # Central Workspace with dedicated header
     draw_box(ax, 0.21, 0.35, 0.55, 0.535, bg=FILL_WHITE, lw=2)
     draw_box(ax, 0.22, 0.825, 0.53, 0.048, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.485, 0.849, "C. PRIMARY CENTRAL WORKSPACE", color=TEXT_BLACK, fontsize=13.5, fontweight='bold', ha='center', va='center')
+    ax.text(0.485, 0.849, "C. PRIMARY CENTRAL WORKSPACE", color=TEXT_BLACK, fontsize=13.0, fontweight='bold', ha='center', va='center')
     ws_features = [
-        "- Animated Network Topology Canvas (20 FPS Spatial Radar Sweep)",
-        "- Dynamic Threat Score Speedometer Gauge (0 - 100 CVSS Arc)",
-        "- Real-Time Discovered Port Matrix with Live Service Banners",
-        "- Dynamic Security Tool Configuration & Execution Parameter Forms",
-        "- Automated Next-Step Workflow Prescription Cards"
+        "- Animated Network Radar Topology (20 FPS Sweep)",
+        "- Dynamic Threat Speedometer (0 - 100 CVSS Arc)",
+        "- Real-Time Discovered Port Matrix & Banners",
+        "- Dynamic Security Tool Config & Parameter Forms",
+        "- Automated Next-Step Workflow Action Cards"
     ]
     for idx, feat in enumerate(ws_features):
-        ax.text(0.23, 0.74 - idx * 0.082, feat, color=TEXT_MUTED, fontsize=12.0)
+        ax.text(0.23, 0.74 - idx * 0.082, feat, color=TEXT_MUTED, fontsize=11.2)
 
     # Console Dock with dedicated header
     draw_box(ax, 0.21, 0.04, 0.55, 0.29, bg=FILL_LIGHT, lw=1.5)
     draw_box(ax, 0.22, 0.275, 0.53, 0.045, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.485, 0.2975, "D. INTERACTIVE CONSOLE DOCK (Live PTY Stream)", color=TEXT_BLACK, fontsize=13.0, fontweight='bold', ha='center', va='center')
+    ax.text(0.485, 0.2975, "D. INTERACTIVE CONSOLE DOCK (Live PTY Stream)", color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center')
     console_sample = (
         "$ nmap -sV -T4 192.168.1.105 [PTY Stream 100 Hz]\n"
         "[+] Port 80/tcp OPEN (Apache 2.4.41 PHP 7.4.3)\n"
         "[+] Port 3306/tcp OPEN (MariaDB 10.3.38 MySQL)"
     )
-    ax.text(0.23, 0.155, console_sample, color=TEXT_BLACK, fontsize=11.2, family='monospace')
+    ax.text(0.23, 0.155, console_sample, color=TEXT_BLACK, fontsize=10.5, family='monospace')
 
     # AI Copilot Drawer with dedicated header
     draw_box(ax, 0.78, 0.04, 0.20, 0.845, bg=FILL_LIGHT, lw=1.5)
     draw_box(ax, 0.79, 0.825, 0.18, 0.048, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.88, 0.849, "E. AI COPILOT", color=TEXT_BLACK, fontsize=13.0, fontweight='bold', ha='center', va='center')
+    ax.text(0.88, 0.849, "E. AI COPILOT", color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center')
     copilot_items = [
         "- Sliding Drawer UI",
         "- Diagnostics Pane",
@@ -367,7 +367,7 @@ def gen_fig3_21():
         "- Diagnostic Reason"
     ]
     for idx, citem in enumerate(copilot_items):
-        ax.text(0.80, 0.74 - idx * 0.085, citem, color=TEXT_BLACK, fontsize=12.0)
+        ax.text(0.80, 0.74 - idx * 0.085, citem, color=TEXT_BLACK, fontsize=11.2)
 
     save_fig(fig, "ui_layout.png")
 
@@ -382,24 +382,24 @@ def gen_fig3_22():
     ax.axis('off')
 
     tiers = [
-        ("Tier 1: Unit Testing (PyTest)", "Test regex parsers, CVSS scoring math,\nAppState mutations & input validation.", 0.74, "98.2% Code Coverage", FILL_WHITE),
-        ("Tier 2: Concurrency & PTY Testing", "Stress test CommandThread lifecycle,\nbuffer overflow prevention & cleanup.", 0.51, "Zero Process Leaks", FILL_LIGHT),
-        ("Tier 3: GUI & Signal Integration", "PyQt6 headless test harness validating\nsignal emissions, state updates & HUD FPS.", 0.28, "60 FPS Responsive HUD", FILL_GRAY1),
+        ("Tier 1: Unit Testing (PyTest)", "Test regex parsers, CVSS scoring math,\nAppState mutations & input validation.", 0.74, "98.2% Coverage", FILL_WHITE),
+        ("Tier 2: Concurrency & PTY Testing", "Stress test CommandThread lifecycle,\nbuffer overflow prevention & cleanup.", 0.51, "Zero Leaks", FILL_LIGHT),
+        ("Tier 3: GUI & Signal Integration", "PyQt6 headless test harness validating\nsignal emissions, state updates & HUD FPS.", 0.28, "60 FPS HUD", FILL_GRAY1),
         ("Tier 4: Cyber-Range Validation", "End-to-end testing against 15 vulnerable VMs\n(OWASP Juice Shop, Metasploitable 2/3, DVWA).", 0.05, "84.3% Latency Drop", FILL_GRAY2)
     ]
 
     for ttitle, tdesc, ty, tstat, tbg in tiers:
         # Main Tier Box - Uniform 0.88 width ensures zero badge-text collision
         draw_box(ax, 0.06, ty, 0.88, 0.19, bg=tbg, border=BORDER_BLACK, lw=1.5, zorder=3)
-        ax.text(0.09, ty + 0.138, ttitle, color=TEXT_BLACK, fontsize=14.5, fontweight='bold', zorder=5)
+        ax.text(0.09, ty + 0.138, ttitle, color=TEXT_BLACK, fontsize=14.0, fontweight='bold', zorder=5)
 
         # Divider line
         ax.plot([0.09, 0.50], [ty + 0.112, ty + 0.112], color=BORDER_BLACK, lw=1.2, zorder=5)
-        ax.text(0.09, ty + 0.052, tdesc, color=TEXT_MUTED, fontsize=12.2, zorder=5)
+        ax.text(0.09, ty + 0.052, tdesc, color=TEXT_MUTED, fontsize=11.5, zorder=5, linespacing=1.3)
 
         # Right Stat Badge Box safely on the right
-        draw_box(ax, 0.69, ty + 0.052, 0.22, 0.085, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.2, zorder=5)
-        ax.text(0.80, ty + 0.095, tstat, color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center', zorder=6)
+        draw_box(ax, 0.68, ty + 0.052, 0.23, 0.085, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.2, zorder=5)
+        ax.text(0.795, ty + 0.095, tstat, color=TEXT_BLACK, fontsize=11.8, fontweight='bold', ha='center', va='center', zorder=6)
 
     save_fig(fig, "testing_workflow.png")
 

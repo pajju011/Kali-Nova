@@ -73,7 +73,7 @@ def gen_fig3_9():
 
     # Box 1: Feature Vector
     draw_box(ax, 0.04, 0.30, 0.28, 0.66, bg=FILL_LIGHT, lw=1.5)
-    ax.text(0.06, 0.925, "1. Feature Vector phi(S_t)", color=TEXT_BLACK, fontsize=15.5, fontweight='bold')
+    ax.text(0.06, 0.925, r"1. Feature Vector $\mathbf{x}_t$", color=TEXT_BLACK, fontsize=13.5, fontweight='bold')
     ax.plot([0.06, 0.30], [0.898, 0.898], color=BORDER_BLACK, lw=1.2)
     features = [
         "x_1: Discovered Ports",
@@ -85,13 +85,13 @@ def gen_fig3_9():
         "x_7: Composite Risk R_t"
     ]
     for idx, f in enumerate(features):
-        ax.text(0.06, 0.835 - idx * 0.076, f, color=TEXT_BLACK, fontsize=12.5, fontweight='bold')
+        ax.text(0.06, 0.835 - idx * 0.076, f, color=TEXT_BLACK, fontsize=12.0, fontweight='bold')
 
     # Box 2: Classifier
     draw_box(ax, 0.35, 0.30, 0.30, 0.66, bg=FILL_LIGHT, lw=1.5)
-    ax.text(0.50, 0.925, "2. Scenario Model Engine", color=TEXT_BLACK, fontsize=15.5, fontweight='bold', ha='center')
+    ax.text(0.50, 0.925, "2. Scenario Model Engine", color=TEXT_BLACK, fontsize=13.5, fontweight='bold', ha='center')
     ax.plot([0.38, 0.62], [0.898, 0.898], color=BORDER_BLACK, lw=1.2)
-    ax.text(0.50, 0.825, r"$P(A = a \mid \mathbf{x}_t) = \mathrm{Softmax}(\mathbf{W}\mathbf{x}_t + \mathbf{b})$", color=TEXT_BLACK, fontsize=14.8, ha='center')
+    ax.text(0.50, 0.825, r"$P(A = a \mid \mathbf{x}_t) = \mathrm{Softmax}(\mathbf{W}\mathbf{x}_t + \mathbf{b})$", color=TEXT_BLACK, fontsize=12.2, ha='center')
     ax.plot([0.38, 0.62], [0.770, 0.770], color=BORDER_BLACK, lw=1.2)
     summary_text = (
         "- 500+ Operational Scenarios\n\n"
@@ -99,11 +99,11 @@ def gen_fig3_9():
         "- Prevents Illegal Tool Sequences\n\n"
         "- Top-1 Acc: 96.2% | Top-3: 99.3%"
     )
-    ax.text(0.50, 0.545, summary_text, color=TEXT_MUTED, fontsize=13.0, ha='center', va='center')
+    ax.text(0.50, 0.545, summary_text, color=TEXT_MUTED, fontsize=12.0, ha='center', va='center')
 
     # Box 3: Recommendations
     draw_box(ax, 0.68, 0.30, 0.28, 0.66, bg=FILL_LIGHT, lw=1.5)
-    ax.text(0.70, 0.925, "3. Action Probabilities", color=TEXT_BLACK, fontsize=15.5, fontweight='bold')
+    ax.text(0.70, 0.925, "3. Action Probabilities", color=TEXT_BLACK, fontsize=13.5, fontweight='bold')
     ax.plot([0.70, 0.94], [0.898, 0.898], color=BORDER_BLACK, lw=1.2)
     actions = [
         ("SQLMap (Audit)", "94.2%", 0.942, FILL_GRAY3),
@@ -114,8 +114,8 @@ def gen_fig3_9():
     ]
     for idx, (tname, tprob, barw, fcol) in enumerate(actions):
         ay = 0.835 - idx * 0.106
-        ax.text(0.70, ay, tname, color=TEXT_BLACK, fontsize=12.5, fontweight='bold')
-        ax.text(0.94, ay, tprob, color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='right')
+        ax.text(0.70, ay, tname, color=TEXT_BLACK, fontsize=12.0, fontweight='bold')
+        ax.text(0.94, ay, tprob, color=TEXT_BLACK, fontsize=12.0, fontweight='bold', ha='right')
         rect = patches.Rectangle((0.70, ay - 0.036), barw * 0.24, 0.018, facecolor=fcol, edgecolor=BORDER_BLACK, lw=1, zorder=5)
         ax.add_patch(rect)
 
@@ -125,10 +125,10 @@ def gen_fig3_9():
 
     # Bottom Guardrail Box
     draw_box(ax, 0.04, 0.04, 0.92, 0.23, bg=FILL_WHITE, lw=1.5)
-    ax.text(0.06, 0.225, "Decision Rule Integration & Safety Guardrails", color=TEXT_BLACK, fontsize=15.5, fontweight='bold')
+    ax.text(0.06, 0.225, "Decision Rule Integration & Safety Guardrails", color=TEXT_BLACK, fontsize=14.5, fontweight='bold')
     ax.plot([0.06, 0.46], [0.198, 0.198], color=BORDER_BLACK, lw=1.2)
-    ax.text(0.06, 0.135, "- Logical Preconditions: SQL injection audits are suppressed until active HTTP/HTTPS endpoints are verified.", color=TEXT_BLACK, fontsize=12.2)
-    ax.text(0.06, 0.075, "- Autonomous Guidance: Replaces trial-and-error CLI workflows with automated, evidence-backed next actions.", color=TEXT_BLACK, fontsize=12.2)
+    ax.text(0.06, 0.135, "- Logical Preconditions: SQL injection audits are suppressed until active HTTP/HTTPS endpoints are verified.", color=TEXT_BLACK, fontsize=11.2)
+    ax.text(0.06, 0.075, "- Autonomous Guidance: Replaces trial-and-error CLI workflows with automated, evidence-backed next actions.", color=TEXT_BLACK, fontsize=11.2)
 
     save_fig(fig, "ml_advisor.png")
 
@@ -162,7 +162,7 @@ def gen_fig3_10():
 
     # Bottom remediation code drawer
     draw_box(ax, 0.04, 0.04, 0.92, 0.44, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.5)
-    ax.text(0.06, 0.435, "Generated Remediation Code Artifact (Embedded in Sliding Drawer)", color=TEXT_BLACK, fontsize=15.5, fontweight='bold')
+    ax.text(0.06, 0.435, "Generated Remediation Code Artifact (Embedded in Sliding Drawer)", color=TEXT_BLACK, fontsize=14.5, fontweight='bold')
     ax.plot([0.06, 0.58], [0.410, 0.410], color=BORDER_BLACK, lw=1.2)
 
     draw_box(ax, 0.05, 0.06, 0.90, 0.33, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.2)
@@ -174,9 +174,9 @@ def gen_fig3_10():
         "    query = 'SELECT id, username, role FROM users WHERE id = ?'\n"
         "    cursor.execute(query, (user_id,))\n"
         "    return cursor.fetchone()  # Parameterized query eliminates injection\n\n"
-        "# WAF Rule (Bash): iptables -A INPUT -p tcp --dport 80 -m string --string \"UNION SELECT\" -j DROP"
+        "# WAF Defense (Bash): iptables -A INPUT -p tcp --dport 80 -m string --string \"UNION SELECT\" -j DROP"
     )
-    ax.text(0.07, 0.362, code_text, color=TEXT_BLACK, fontsize=11.2, family='monospace', va='top')
+    ax.text(0.065, 0.362, code_text, color=TEXT_BLACK, fontsize=10.0, family='monospace', va='top')
 
     save_fig(fig, "ai_copilot.png")
 
@@ -269,10 +269,10 @@ def gen_fig3_12():
 
     # Draw Central Gateway Box
     draw_box(ax, rcx - 0.13, rcy - 0.08, 0.26, 0.16, bg=FILL_GRAY2, border=BORDER_BLACK, lw=2, zorder=3)
-    ax.text(rcx, rcy + 0.040, "Core Gateway / Firewall", color=TEXT_BLACK, fontsize=14.5, fontweight='bold', ha='center', zorder=5)
-    ax.text(rcx, rcy + 0.006, "192.168.1.1", color=TEXT_BLACK, fontsize=13.0, fontweight='bold', ha='center', zorder=5)
+    ax.text(rcx, rcy + 0.040, "Core Gateway / Firewall", color=TEXT_BLACK, fontsize=13.0, fontweight='bold', ha='center', zorder=5)
+    ax.text(rcx, rcy + 0.006, "192.168.1.1", color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', zorder=5)
     ax.plot([rcx - 0.10, rcx + 0.10], [rcy - 0.015, rcy - 0.015], color=BORDER_BLACK, lw=0.8, zorder=5)
-    ax.text(rcx, rcy - 0.050, "[Subnet Root: /24]", color=TEXT_MUTED, fontsize=11.8, ha='center', zorder=5)
+    ax.text(rcx, rcy - 0.050, "[Subnet Root: /24]", color=TEXT_MUTED, fontsize=11.2, ha='center', zorder=5)
 
     # Draw Peripheral Node Boxes
     for nx, ny, ntitle, nsub, nstat, nports in net_nodes:
@@ -341,7 +341,7 @@ def gen_fig3_13():
         ax.text(0.610, ry + 0.012, cve, color=TEXT_BLACK, fontsize=11.8, va='center')
 
         draw_box(ax, 0.835, ry - 0.016, 0.122, 0.058, bg=FILL_WHITE, border=BORDER_BLACK, lw=1)
-        ax.text(0.896, ry + 0.012, act, color=TEXT_BLACK, fontsize=11.2, fontweight='bold', ha='center', va='center')
+        ax.text(0.896, ry + 0.012, act, color=TEXT_BLACK, fontsize=10.2, fontweight='bold', ha='center', va='center')
 
     ax.plot([0.04, 0.96], [0.08, 0.08], color=BORDER_BLACK, lw=2.5)
     save_fig(fig, "port_matrix.png")
@@ -445,9 +445,9 @@ def gen_fig3_15():
     ]
     for ptitle, pdesc, px in params:
         draw_box(ax, px, 0.04, 0.26, 0.16, bg=FILL_WHITE, lw=1.2)
-        ax.text(px + 0.13, 0.155, ptitle, color=TEXT_BLACK, fontsize=13.5, fontweight='bold', ha='center')
+        ax.text(px + 0.13, 0.155, ptitle, color=TEXT_BLACK, fontsize=13.0, fontweight='bold', ha='center')
         ax.plot([px + 0.02, px + 0.24], [0.130, 0.130], color=BORDER_BLACK, lw=0.8)
-        ax.text(px + 0.13, 0.075, pdesc, color=TEXT_MUTED, fontsize=12.0, ha='center', va='center')
+        ax.text(px + 0.13, 0.082, pdesc, color=TEXT_MUTED, fontsize=11.2, ha='center', va='center', linespacing=1.25)
 
     save_fig(fig, "risk_gauge.png")
 
@@ -462,22 +462,22 @@ def gen_fig3_16():
     ax.axis('off')
 
     lifecycle_nodes = [
-        ("1. GUI\nParameterization", "Target, CIDR & flags\nconfigured in UI form", 0.045, 0.55),
-        ("2. Scope\nValidation", "CIDR verification\nenforces ethical\naudit boundary", 0.285, 0.55),
+        ("1. GUI\nConfig", "Target, CIDR & flags\nconfigured in UI form", 0.045, 0.55),
+        ("2. Scope\nCheck", "CIDR verification\nenforces ethical\naudit boundary", 0.285, 0.55),
         ("3. Concurrency\nThread", "CommandThread\nallocates PTY &\nspawns process", 0.525, 0.55),
         ("4. Streaming\nTelemetry", "Asynchronous chunk\nreads stream stdout\nto cyber console", 0.765, 0.55),
 
         ("8. Persistent\nArchiving", "Scan metadata &\nrisk score sealed\nin kalinova.db", 0.045, 0.07),
-        ("7. Copilot &\nML Update", "ML recommends action;\nAI Copilot generates\ncode patch", 0.285, 0.07),
+        ("7. Copilot &\nML Update", "ML selects action;\nAI Copilot generates\ncode patch", 0.285, 0.07),
         ("6. Risk\nRecalculation", "RiskEngine computes\nnew composite R_t\nupdates radar & dial", 0.525, 0.07),
         ("5. Real-Time\nRegex Parser", "Output evaluated for\nopen ports & CVE\nsignatures", 0.765, 0.07)
     ]
 
     for title, desc, nx, ny in lifecycle_nodes:
         draw_box(ax, nx, ny, 0.19, 0.38, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
-        ax.text(nx + 0.095, ny + 0.295, title, color=TEXT_BLACK, fontsize=13.5, fontweight='bold', ha='center', va='center')
+        ax.text(nx + 0.095, ny + 0.295, title, color=TEXT_BLACK, fontsize=12.8, fontweight='bold', ha='center', va='center')
         ax.plot([nx + 0.02, nx + 0.17], [ny + 0.22, ny + 0.22], color=BORDER_BLACK, lw=0.8)
-        ax.text(nx + 0.095, ny + 0.110, desc, color=TEXT_MUTED, fontsize=12.0, ha='center', va='center')
+        ax.text(nx + 0.095, ny + 0.110, desc, color=TEXT_MUTED, fontsize=11.2, ha='center', va='center', linespacing=1.3)
 
     # Top row forward arrows
     ax.annotate("", xy=(0.280, 0.74), xytext=(0.240, 0.74), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2.4))
