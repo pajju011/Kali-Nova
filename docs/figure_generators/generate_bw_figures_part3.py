@@ -85,9 +85,9 @@ def gen_fig3_17():
 
     for ptitle, pdesc, px, py in phases:
         draw_box(ax, px, py, 0.19, 0.38, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
-        ax.text(px + 0.095, py + 0.295, ptitle, color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center')
+        ax.text(px + 0.095, py + 0.295, ptitle, color=TEXT_BLACK, fontsize=13.5, fontweight='bold', ha='center', va='center')
         ax.plot([px + 0.02, px + 0.17], [ny := py + 0.22, ny], color=BORDER_BLACK, lw=0.8)
-        ax.text(px + 0.095, py + 0.110, pdesc, color=TEXT_MUTED, fontsize=11.2, ha='center', va='center')
+        ax.text(px + 0.095, py + 0.110, pdesc, color=TEXT_MUTED, fontsize=12.0, ha='center', va='center')
 
     # Top row forward arrows
     ax.annotate("", xy=(0.280, 0.73), xytext=(0.240, 0.73), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2.4))
@@ -116,13 +116,13 @@ def gen_fig3_18():
 
     # External Entities
     draw_box(ax, 0.02, 0.77, 0.145, 0.16, bg=FILL_GRAY2, lw=2)
-    ax.text(0.0925, 0.850, "Security Analyst\n(Operator)", color=TEXT_BLACK, fontsize=11.5, fontweight='bold', ha='center', va='center')
+    ax.text(0.0925, 0.850, "Security Analyst\n(Operator)", color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center')
 
     draw_box(ax, 0.835, 0.77, 0.145, 0.16, bg=FILL_GRAY2, lw=2)
-    ax.text(0.9075, 0.850, "Target Host\n(Remote)", color=TEXT_BLACK, fontsize=11.5, fontweight='bold', ha='center', va='center')
+    ax.text(0.9075, 0.850, "Target Host\n(Remote)", color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center')
 
     draw_box(ax, 0.835, 0.08, 0.145, 0.16, bg=FILL_GRAY2, lw=2)
-    ax.text(0.9075, 0.160, "AI LLM Provider\n(Groq / Mistral)", color=TEXT_BLACK, fontsize=11.5, fontweight='bold', ha='center', va='center')
+    ax.text(0.9075, 0.160, "AI LLM Provider\n(Groq / Mistral)", color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center')
 
     # Processes
     procs = [
@@ -135,43 +135,43 @@ def gen_fig3_18():
     ]
     for pname, px, py in procs:
         draw_box(ax, px, py, 0.155, 0.16, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
-        ax.text(px + 0.0775, py + 0.080, pname, color=TEXT_BLACK, fontsize=11.2, fontweight='bold', ha='center', va='center')
+        ax.text(px + 0.0775, py + 0.080, pname, color=TEXT_BLACK, fontsize=12.2, fontweight='bold', ha='center', va='center')
 
     # Data Stores
     for ds_name, dx, dy in [("[D1] kalinova.db (SQLite)", 0.23, 0.04), ("[D2] Artifacts Dict (State)", 0.23, 0.25)]:
         ax.plot([dx, dx + 0.24], [dy + 0.065, dy + 0.065], color=BORDER_BLACK, lw=2.2)
         ax.plot([dx, dx + 0.24], [dy, dy], color=BORDER_BLACK, lw=2.2)
-        ax.text(dx + 0.12, dy + 0.032, ds_name, color=TEXT_BLACK, fontsize=11.2, fontweight='bold', ha='center', va='center')
+        ax.text(dx + 0.12, dy + 0.032, ds_name, color=TEXT_BLACK, fontsize=12.2, fontweight='bold', ha='center', va='center')
 
     # Top horizontal arrows & labels (cleanly in gaps)
     ax.annotate("", xy=(0.290, 0.850), xytext=(0.170, 0.850), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2.2))
-    ax.text(0.230, 0.880, "Target Scope", color=TEXT_BLACK, fontsize=10.5, fontweight='bold', ha='center', va='bottom')
+    ax.text(0.230, 0.880, "Target Scope", color=TEXT_BLACK, fontsize=11.5, fontweight='bold', ha='center', va='bottom')
 
     ax.annotate("", xy=(0.570, 0.850), xytext=(0.455, 0.850), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2.2))
-    ax.text(0.5125, 0.880, "Sanitized CLI", color=TEXT_BLACK, fontsize=10.5, fontweight='bold', ha='center', va='bottom')
+    ax.text(0.5125, 0.880, "Sanitized CLI", color=TEXT_BLACK, fontsize=11.5, fontweight='bold', ha='center', va='bottom')
 
     ax.annotate("", xy=(0.830, 0.850), xytext=(0.735, 0.850), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2.2))
-    ax.text(0.7825, 0.880, "Probes", color=TEXT_BLACK, fontsize=10.5, fontweight='bold', ha='center', va='bottom')
+    ax.text(0.7825, 0.880, "Probes", color=TEXT_BLACK, fontsize=11.5, fontweight='bold', ha='center', va='bottom')
 
     # Vertical arrow from 2.0 to 3.0
     ax.annotate("", xy=(0.6525, 0.595), xytext=(0.6525, 0.765), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2.2))
-    ax.text(0.675, 0.680, "Raw stdout", color=TEXT_BLACK, fontsize=10.5, fontweight='bold', va='center')
+    ax.text(0.675, 0.680, "Raw stdout", color=TEXT_BLACK, fontsize=11.5, fontweight='bold', va='center')
 
     # Extracted Ports arrow cleanly in gap
     ax.annotate("", xy=(0.380, 0.510), xytext=(0.570, 0.510), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2.2))
-    ax.text(0.475, 0.535, "Extracted Ports", color=TEXT_BLACK, fontsize=10.5, fontweight='bold', ha='center', va='bottom')
+    ax.text(0.475, 0.535, "Extracted Ports", color=TEXT_BLACK, fontsize=11.5, fontweight='bold', ha='center', va='bottom')
 
     # Vertical arrow from 3.0 to 5.0
     ax.annotate("", xy=(0.6525, 0.245), xytext=(0.6525, 0.425), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2.2))
-    ax.text(0.675, 0.335, "Threat Event", color=TEXT_BLACK, fontsize=10.5, fontweight='bold', va='center')
+    ax.text(0.675, 0.335, "Threat Event", color=TEXT_BLACK, fontsize=11.5, fontweight='bold', va='center')
 
     # Bottom right prompt/resp
     ax.annotate("", xy=(0.830, 0.160), xytext=(0.735, 0.160), arrowprops=dict(arrowstyle="<->", color=BORDER_BLACK, lw=2.2))
-    ax.text(0.7825, 0.185, "Prompt / Resp", color=TEXT_BLACK, fontsize=10.5, fontweight='bold', ha='center', va='bottom')
+    ax.text(0.7825, 0.185, "Prompt / Resp", color=TEXT_BLACK, fontsize=11.5, fontweight='bold', ha='center', va='bottom')
 
     # Findings arrow from 4.0 to 6.0
     ax.annotate("", xy=(0.11, 0.245), xytext=(0.23, 0.425), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2.2))
-    ax.text(0.135, 0.355, "Findings", color=TEXT_BLACK, fontsize=10.5, fontweight='bold', va='center')
+    ax.text(0.135, 0.355, "Findings", color=TEXT_BLACK, fontsize=11.5, fontweight='bold', va='center')
 
     # Connect processes to data stores
     ax.annotate("", xy=(0.29, 0.320), xytext=(0.29, 0.425), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2.0))
@@ -225,9 +225,9 @@ def gen_fig3_19():
         # Dedicated Header Banner
         rect = patches.Rectangle((tx, ty + 0.51), 0.28, 0.09, facecolor=FILL_GRAY2, edgecolor=BORDER_BLACK, lw=1.2)
         ax.add_patch(rect)
-        ax.text(tx + 0.14, ty + 0.555, tname, color=TEXT_BLACK, fontsize=13.0, fontweight='bold', ha='center', va='center')
+        ax.text(tx + 0.14, ty + 0.555, tname, color=TEXT_BLACK, fontsize=14.0, fontweight='bold', ha='center', va='center')
         for fidx, f in enumerate(fields):
-            ax.text(tx + 0.02, ty + 0.455 - fidx * 0.058, f, color=TEXT_BLACK, fontsize=10.5, family='monospace')
+            ax.text(tx + 0.02, ty + 0.455 - fidx * 0.058, f, color=TEXT_BLACK, fontsize=11.2, family='monospace')
 
     # Connect table headers cleanly in the gap
     ax.annotate("", xy=(0.355, 0.895), xytext=(0.325, 0.895), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2.4))
@@ -235,7 +235,7 @@ def gen_fig3_19():
 
     # Bottom Operations Box
     draw_box(ax, 0.05, 0.04, 0.90, 0.26, bg=FILL_WHITE, lw=1.5)
-    ax.text(0.07, 0.255, "Session Management Operations", color=TEXT_BLACK, fontsize=13.5, fontweight='bold')
+    ax.text(0.07, 0.255, "Session Management Operations", color=TEXT_BLACK, fontsize=15.0, fontweight='bold')
     ax.plot([0.07, 0.40], [0.235, 0.235], color=BORDER_BLACK, lw=1.2)
 
     ops = [
@@ -245,9 +245,9 @@ def gen_fig3_19():
     ]
     for otitle, odesc, ox in ops:
         draw_box(ax, ox, 0.055, 0.24, 0.170, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.2)
-        ax.text(ox + 0.12, 0.190, otitle, color=TEXT_BLACK, fontsize=12.2, fontweight='bold', ha='center', va='center')
+        ax.text(ox + 0.12, 0.190, otitle, color=TEXT_BLACK, fontsize=13.2, fontweight='bold', ha='center', va='center')
         ax.plot([ox + 0.02, ox + 0.22], [0.168, 0.168], color=BORDER_BLACK, lw=0.8)
-        ax.text(ox + 0.12, 0.110, odesc, color=TEXT_MUTED, fontsize=10.2, ha='center', va='center')
+        ax.text(ox + 0.12, 0.110, odesc, color=TEXT_MUTED, fontsize=11.2, ha='center', va='center')
 
     save_fig(fig, "session_management.png")
 
@@ -269,9 +269,9 @@ def gen_fig3_20():
     ]
     for stitle, sdesc, sx in stages:
         draw_box(ax, sx, 0.52, 0.20, 0.42, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
-        ax.text(sx + 0.10, 0.86, stitle, color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center')
+        ax.text(sx + 0.10, 0.86, stitle, color=TEXT_BLACK, fontsize=13.5, fontweight='bold', ha='center', va='center')
         ax.plot([sx + 0.02, sx + 0.18], [0.795, 0.795], color=BORDER_BLACK, lw=0.8)
-        ax.text(sx + 0.10, 0.645, sdesc, color=TEXT_MUTED, fontsize=10.5, ha='center', va='center')
+        ax.text(sx + 0.10, 0.645, sdesc, color=TEXT_MUTED, fontsize=11.5, ha='center', va='center')
 
     for i in range(len(stages) - 1):
         x1 = stages[i][2] + 0.20 + 0.005
@@ -279,22 +279,22 @@ def gen_fig3_20():
         ax.annotate("", xy=(x2, 0.76), xytext=(x1, 0.76), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2.4))
 
     draw_box(ax, 0.04, 0.04, 0.44, 0.44, bg=FILL_WHITE, lw=1.5)
-    ax.text(0.06, 0.435, "Executive PDF Report Structure", color=TEXT_BLACK, fontsize=13.8, fontweight='bold')
+    ax.text(0.06, 0.435, "Executive PDF Report Structure", color=TEXT_BLACK, fontsize=15.0, fontweight='bold')
     ax.plot([0.06, 0.44], [0.410, 0.410], color=BORDER_BLACK, lw=1.2)
-    ax.text(0.06, 0.35, "- Cover Page: Target FQDN, Date, Lead Auditor", color=TEXT_BLACK, fontsize=11.2)
-    ax.text(0.06, 0.28, "- Executive Summary: Composite Risk Score 78.4", color=TEXT_BLACK, fontsize=11.2)
-    ax.text(0.06, 0.21, "- Vulnerability Matrix: CVE-2011-2523, SQLi, Ports", color=TEXT_BLACK, fontsize=11.2)
-    ax.text(0.06, 0.14, "- Technical Remediation: Code diffs & WAF rules", color=TEXT_BLACK, fontsize=11.2)
-    ax.text(0.06, 0.07, "- Forensic Appendix: Command history & hashes", color=TEXT_BLACK, fontsize=11.2)
+    ax.text(0.06, 0.35, "- Cover Page: Target FQDN, Date, Lead Auditor", color=TEXT_BLACK, fontsize=12.0)
+    ax.text(0.06, 0.28, "- Executive Summary: Composite Risk Score 78.4", color=TEXT_BLACK, fontsize=12.0)
+    ax.text(0.06, 0.21, "- Vulnerability Matrix: CVE-2011-2523, SQLi, Ports", color=TEXT_BLACK, fontsize=12.0)
+    ax.text(0.06, 0.14, "- Technical Remediation: Code diffs & WAF rules", color=TEXT_BLACK, fontsize=12.0)
+    ax.text(0.06, 0.07, "- Forensic Appendix: Command history & hashes", color=TEXT_BLACK, fontsize=12.0)
 
     draw_box(ax, 0.52, 0.04, 0.44, 0.44, bg=FILL_WHITE, lw=1.5)
-    ax.text(0.54, 0.435, "Interactive HTML Dashboard Report", color=TEXT_BLACK, fontsize=13.8, fontweight='bold')
+    ax.text(0.54, 0.435, "Interactive HTML Dashboard Report", color=TEXT_BLACK, fontsize=15.0, fontweight='bold')
     ax.plot([0.54, 0.92], [0.410, 0.410], color=BORDER_BLACK, lw=1.2)
-    ax.text(0.54, 0.35, "- Responsive Bento Grid: Radar plots & severity dials", color=TEXT_BLACK, fontsize=11.0)
-    ax.text(0.54, 0.28, "- Filterable Findings: Search by severity or port", color=TEXT_BLACK, fontsize=11.0)
-    ax.text(0.54, 0.21, "- Code Snippets: One-click patch copy for developers", color=TEXT_BLACK, fontsize=11.0)
-    ax.text(0.54, 0.14, "- Offline Compliant: Zero external CDN dependencies", color=TEXT_BLACK, fontsize=11.0)
-    ax.text(0.54, 0.07, "- Portable Output: Self-contained single-file HTML", color=TEXT_BLACK, fontsize=11.0)
+    ax.text(0.54, 0.35, "- Responsive Bento Grid: Radar plots & severity dials", color=TEXT_BLACK, fontsize=12.0)
+    ax.text(0.54, 0.28, "- Filterable Findings: Search by severity or port", color=TEXT_BLACK, fontsize=12.0)
+    ax.text(0.54, 0.21, "- Code Snippets: One-click patch copy for developers", color=TEXT_BLACK, fontsize=12.0)
+    ax.text(0.54, 0.14, "- Offline Compliant: Zero external CDN dependencies", color=TEXT_BLACK, fontsize=12.0)
+    ax.text(0.54, 0.07, "- Portable Output: Self-contained single-file HTML", color=TEXT_BLACK, fontsize=12.0)
 
     save_fig(fig, "report_generation.png")
 
@@ -310,12 +310,12 @@ def gen_fig3_21():
 
     # Topbar
     draw_box(ax, 0.02, 0.905, 0.96, 0.065, bg=FILL_GRAY2, lw=2)
-    ax.text(0.04, 0.9375, "A. TOPBAR: Target FQDN | Scope CIDR | Risk Index | Profile Mode Switcher", color=TEXT_BLACK, fontsize=12.2, fontweight='bold', va='center')
+    ax.text(0.04, 0.9375, "A. TOPBAR: Target FQDN | Scope CIDR | Risk Index | Profile Mode Switcher", color=TEXT_BLACK, fontsize=13.5, fontweight='bold', va='center')
 
     # Sidebar with dedicated header
     draw_box(ax, 0.02, 0.04, 0.17, 0.845, bg=FILL_LIGHT, lw=1.5)
     draw_box(ax, 0.03, 0.825, 0.15, 0.048, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.105, 0.849, "B. SIDEBAR", color=TEXT_BLACK, fontsize=12.0, fontweight='bold', ha='center', va='center')
+    ax.text(0.105, 0.849, "B. SIDEBAR", color=TEXT_BLACK, fontsize=13.0, fontweight='bold', ha='center', va='center')
     nav_list = [
         "- Dashboard View",
         "- Recon (Nmap)",
@@ -326,12 +326,12 @@ def gen_fig3_21():
         "- Global Settings"
     ]
     for idx, item in enumerate(nav_list):
-        ax.text(0.035, 0.74 - idx * 0.095, item, color=TEXT_BLACK, fontsize=11.0, fontweight='bold')
+        ax.text(0.035, 0.74 - idx * 0.095, item, color=TEXT_BLACK, fontsize=12.0, fontweight='bold')
 
     # Central Workspace with dedicated header
     draw_box(ax, 0.21, 0.35, 0.55, 0.535, bg=FILL_WHITE, lw=2)
     draw_box(ax, 0.22, 0.825, 0.53, 0.048, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.485, 0.849, "C. PRIMARY CENTRAL WORKSPACE", color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center')
+    ax.text(0.485, 0.849, "C. PRIMARY CENTRAL WORKSPACE", color=TEXT_BLACK, fontsize=13.5, fontweight='bold', ha='center', va='center')
     ws_features = [
         "- Animated Network Topology Canvas (20 FPS Spatial Radar Sweep)",
         "- Dynamic Threat Score Speedometer Gauge (0 - 100 CVSS Arc)",
@@ -340,23 +340,23 @@ def gen_fig3_21():
         "- Automated Next-Step Workflow Prescription Cards"
     ]
     for idx, feat in enumerate(ws_features):
-        ax.text(0.23, 0.74 - idx * 0.082, feat, color=TEXT_MUTED, fontsize=11.0)
+        ax.text(0.23, 0.74 - idx * 0.082, feat, color=TEXT_MUTED, fontsize=12.0)
 
     # Console Dock with dedicated header
     draw_box(ax, 0.21, 0.04, 0.55, 0.29, bg=FILL_LIGHT, lw=1.5)
     draw_box(ax, 0.22, 0.275, 0.53, 0.045, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.485, 0.2975, "D. INTERACTIVE CONSOLE DOCK (Live PTY Stream)", color=TEXT_BLACK, fontsize=12.0, fontweight='bold', ha='center', va='center')
+    ax.text(0.485, 0.2975, "D. INTERACTIVE CONSOLE DOCK (Live PTY Stream)", color=TEXT_BLACK, fontsize=13.0, fontweight='bold', ha='center', va='center')
     console_sample = (
         "$ nmap -sV -T4 192.168.1.105 [PTY Stream 100 Hz]\n"
         "[+] Port 80/tcp OPEN (Apache 2.4.41 PHP 7.4.3)\n"
         "[+] Port 3306/tcp OPEN (MariaDB 10.3.38 MySQL)"
     )
-    ax.text(0.23, 0.155, console_sample, color=TEXT_BLACK, fontsize=10.5, family='monospace')
+    ax.text(0.23, 0.155, console_sample, color=TEXT_BLACK, fontsize=11.2, family='monospace')
 
     # AI Copilot Drawer with dedicated header
     draw_box(ax, 0.78, 0.04, 0.20, 0.845, bg=FILL_LIGHT, lw=1.5)
     draw_box(ax, 0.79, 0.825, 0.18, 0.048, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.88, 0.849, "E. AI COPILOT", color=TEXT_BLACK, fontsize=12.0, fontweight='bold', ha='center', va='center')
+    ax.text(0.88, 0.849, "E. AI COPILOT", color=TEXT_BLACK, fontsize=13.0, fontweight='bold', ha='center', va='center')
     copilot_items = [
         "- Sliding Drawer UI",
         "- Diagnostics Pane",
@@ -367,7 +367,7 @@ def gen_fig3_21():
         "- Diagnostic Reason"
     ]
     for idx, citem in enumerate(copilot_items):
-        ax.text(0.80, 0.74 - idx * 0.085, citem, color=TEXT_BLACK, fontsize=11.0)
+        ax.text(0.80, 0.74 - idx * 0.085, citem, color=TEXT_BLACK, fontsize=12.0)
 
     save_fig(fig, "ui_layout.png")
 
@@ -391,15 +391,15 @@ def gen_fig3_22():
     for ttitle, tdesc, ty, tstat, tbg in tiers:
         # Main Tier Box - Uniform 0.88 width ensures zero badge-text collision
         draw_box(ax, 0.06, ty, 0.88, 0.19, bg=tbg, border=BORDER_BLACK, lw=1.5, zorder=3)
-        ax.text(0.09, ty + 0.138, ttitle, color=TEXT_BLACK, fontsize=13.5, fontweight='bold', zorder=5)
+        ax.text(0.09, ty + 0.138, ttitle, color=TEXT_BLACK, fontsize=14.5, fontweight='bold', zorder=5)
 
         # Divider line
         ax.plot([0.09, 0.50], [ty + 0.112, ty + 0.112], color=BORDER_BLACK, lw=1.2, zorder=5)
-        ax.text(0.09, ty + 0.052, tdesc, color=TEXT_MUTED, fontsize=11.2, zorder=5)
+        ax.text(0.09, ty + 0.052, tdesc, color=TEXT_MUTED, fontsize=12.2, zorder=5)
 
         # Right Stat Badge Box safely on the right
         draw_box(ax, 0.69, ty + 0.052, 0.22, 0.085, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.2, zorder=5)
-        ax.text(0.80, ty + 0.095, tstat, color=TEXT_BLACK, fontsize=11.5, fontweight='bold', ha='center', va='center', zorder=6)
+        ax.text(0.80, ty + 0.095, tstat, color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center', zorder=6)
 
     save_fig(fig, "testing_workflow.png")
 
@@ -421,14 +421,14 @@ def gen_fig4_11():
     y_pos = np.arange(len(vulns))
     for i in range(len(vulns)):
         ax_bar.barh(y_pos[i], scores[i], height=0.52, facecolor=grays[i], edgecolor=BORDER_BLACK, lw=1.5)
-        ax_bar.text(scores[i] + 0.32, y_pos[i], f"{scores[i]}", color=TEXT_BLACK, va='center', fontweight='bold', fontsize=12.5)
+        ax_bar.text(scores[i] + 0.32, y_pos[i], f"{scores[i]}", color=TEXT_BLACK, va='center', fontweight='bold', fontsize=13.5)
 
     ax_bar.set_yticks(y_pos)
-    ax_bar.set_yticklabels(vulns, color=TEXT_BLACK, fontsize=12.0, fontweight='bold')
-    ax_bar.set_xlabel("CVSS v3.1 Base Severity Score", color=TEXT_BLACK, fontsize=13.5, fontweight='bold')
+    ax_bar.set_yticklabels(vulns, color=TEXT_BLACK, fontsize=12.8, fontweight='bold')
+    ax_bar.set_xlabel("CVSS v3.1 Base Severity Score", color=TEXT_BLACK, fontsize=14.5, fontweight='bold')
     ax_bar.set_xlim(0, 11.5)
     ax_bar.grid(axis='x', color=FILL_GRAY3, linestyle='--', lw=1.2)
-    ax_bar.tick_params(colors=TEXT_BLACK, labelsize=11.5)
+    ax_bar.tick_params(colors=TEXT_BLACK, labelsize=12.0)
     ax_bar.spines['top'].set_visible(False)
     ax_bar.spines['right'].set_visible(False)
     ax_bar.spines['left'].set_color(BORDER_BLACK)
@@ -436,7 +436,7 @@ def gen_fig4_11():
 
     # Statistics Card
     draw_box(ax, 0.52, 0.08, 0.45, 0.86, bg=FILL_LIGHT, lw=1.5)
-    ax.text(0.54, 0.895, "Assessment Statistics & Metrics", color=TEXT_BLACK, fontsize=14.0, fontweight='bold')
+    ax.text(0.54, 0.895, "Assessment Statistics & Metrics", color=TEXT_BLACK, fontsize=15.5, fontweight='bold')
     ax.plot([0.54, 0.95], [0.868, 0.868], color=BORDER_BLACK, lw=1.2)
 
     stats = [
@@ -451,11 +451,8 @@ def gen_fig4_11():
     ]
     for sidx, (slbl, sval) in enumerate(stats):
         sy = 0.80 - sidx * 0.085
-        ax.text(0.54, sy, slbl, color=TEXT_MUTED, fontsize=11.0)
-        ax.text(0.95, sy, sval, color=TEXT_BLACK, fontsize=11.2, fontweight='bold', ha='right')
-        sy = 0.80 - sidx * 0.085
-        ax.text(0.56, sy, slbl, color=TEXT_MUTED, fontsize=11.8)
-        ax.text(0.93, sy, sval, color=TEXT_BLACK, fontsize=12.2, fontweight='bold', ha='right')
+        ax.text(0.55, sy, slbl, color=TEXT_BLACK, fontsize=12.2)
+        ax.text(0.95, sy, sval, color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='right')
 
     save_fig(fig, "cvss_result.png")
 
@@ -483,9 +480,9 @@ def gen_fig4_15():
 
     for ctitle, cdesc, cx, cy in ci_stages:
         draw_box(ax, cx, cy, 0.19, 0.38, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
-        ax.text(cx + 0.095, cy + 0.295, ctitle, color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center')
+        ax.text(cx + 0.095, cy + 0.295, ctitle, color=TEXT_BLACK, fontsize=13.5, fontweight='bold', ha='center', va='center')
         ax.plot([cx + 0.02, cx + 0.17], [ny := cy + 0.22, ny], color=BORDER_BLACK, lw=0.8)
-        ax.text(cx + 0.095, cy + 0.110, cdesc, color=TEXT_MUTED, fontsize=11.2, ha='center', va='center')
+        ax.text(cx + 0.095, cy + 0.110, cdesc, color=TEXT_MUTED, fontsize=12.0, ha='center', va='center')
 
     # Top row forward arrows
     ax.annotate("", xy=(0.280, 0.73), xytext=(0.240, 0.73), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2.4))

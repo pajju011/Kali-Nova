@@ -204,19 +204,19 @@ def gen_fig3_11():
     ax_sub.fill(angles, values, color=FILL_GRAY2, alpha=0.45)
     ax_sub.set_ylim(0, 1.15)
     ax_sub.set_xticks(angles[:-1])
-    ax_sub.set_xticklabels(metrics, color=TEXT_BLACK, fontsize=10.5, fontweight='bold')
+    ax_sub.set_xticklabels(metrics, color=TEXT_BLACK, fontsize=11.5, fontweight='bold')
     ax_sub.set_yticklabels([])
     ax_sub.grid(color=FILL_GRAY3, lw=1.2)
     ax_sub.spines['polar'].set_visible(False)
 
     # Right Card
     draw_box(ax, 0.50, 0.05, 0.47, 0.90, bg=FILL_LIGHT, lw=1.5)
-    ax.text(0.52, 0.905, "CVSS v3.1 Metrics & Vector Breakdown", color=TEXT_BLACK, fontsize=13.5, fontweight='bold')
+    ax.text(0.52, 0.905, "CVSS v3.1 Metrics & Vector Breakdown", color=TEXT_BLACK, fontsize=15.0, fontweight='bold')
     ax.plot([0.52, 0.94], [0.878, 0.878], color=BORDER_BLACK, lw=1.2)
 
-    ax.text(0.52, 0.835, "VECTOR: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H", color=TEXT_BLACK, fontsize=10.0, family='monospace', fontweight='bold')
-    ax.text(0.52, 0.780, "BASE SCORE: 9.8", color=TEXT_BLACK, fontsize=15.0, fontweight='bold')
-    ax.text(0.74, 0.780, "SEVERITY: CRITICAL", color=TEXT_BLACK, fontsize=14.0, fontweight='bold')
+    ax.text(0.52, 0.835, "VECTOR: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H", color=TEXT_BLACK, fontsize=10.8, family='monospace', fontweight='bold')
+    ax.text(0.52, 0.780, "BASE SCORE: 9.8", color=TEXT_BLACK, fontsize=16.5, fontweight='bold')
+    ax.text(0.74, 0.780, "SEVERITY: CRITICAL", color=TEXT_BLACK, fontsize=15.0, fontweight='bold')
     ax.plot([0.52, 0.94], [0.745, 0.745], color=BORDER_BLACK, lw=1.2)
 
     specs = [
@@ -229,8 +229,8 @@ def gen_fig3_11():
     ]
     for idx, (head, desc) in enumerate(specs):
         sy = 0.675 - idx * 0.096
-        ax.text(0.52, sy, head, color=TEXT_BLACK, fontsize=11.8, fontweight='bold')
-        ax.text(0.52, sy - 0.038, desc, color=TEXT_MUTED, fontsize=10.8)
+        ax.text(0.52, sy, head, color=TEXT_BLACK, fontsize=12.5, fontweight='bold')
+        ax.text(0.52, sy - 0.038, desc, color=TEXT_MUTED, fontsize=11.5)
 
     save_fig(fig, "cvss_analysis.png")
 
@@ -264,28 +264,28 @@ def gen_fig3_12():
 
     # Draw Internal SQL Traffic Link
     ax.plot([0.18, 0.82], [0.70, 0.70], color=BORDER_BLACK, lw=1.6, ls=":", zorder=2)
-    ax.text(0.50, 0.67, "Internal SQL Traffic Link (Port 3306)", color=TEXT_BLACK, fontsize=10.8, fontweight='bold', ha='center',
+    ax.text(0.50, 0.67, "Internal SQL Traffic Link (Port 3306)", color=TEXT_BLACK, fontsize=11.5, fontweight='bold', ha='center',
             bbox=dict(boxstyle="round,pad=0.25", fc="white", ec=BORDER_BLACK, lw=1), zorder=6)
 
     # Draw Central Gateway Box
     draw_box(ax, rcx - 0.13, rcy - 0.08, 0.26, 0.16, bg=FILL_GRAY2, border=BORDER_BLACK, lw=2, zorder=3)
-    ax.text(rcx, rcy + 0.040, "Core Gateway / Firewall", color=TEXT_BLACK, fontsize=13.5, fontweight='bold', ha='center', zorder=5)
-    ax.text(rcx, rcy + 0.006, "192.168.1.1", color=TEXT_BLACK, fontsize=12.0, fontweight='bold', ha='center', zorder=5)
+    ax.text(rcx, rcy + 0.040, "Core Gateway / Firewall", color=TEXT_BLACK, fontsize=14.5, fontweight='bold', ha='center', zorder=5)
+    ax.text(rcx, rcy + 0.006, "192.168.1.1", color=TEXT_BLACK, fontsize=13.0, fontweight='bold', ha='center', zorder=5)
     ax.plot([rcx - 0.10, rcx + 0.10], [rcy - 0.015, rcy - 0.015], color=BORDER_BLACK, lw=0.8, zorder=5)
-    ax.text(rcx, rcy - 0.050, "[Subnet Root: /24]", color=TEXT_MUTED, fontsize=11.0, ha='center', zorder=5)
+    ax.text(rcx, rcy - 0.050, "[Subnet Root: /24]", color=TEXT_MUTED, fontsize=11.8, ha='center', zorder=5)
 
     # Draw Peripheral Node Boxes
     for nx, ny, ntitle, nsub, nstat, nports in net_nodes:
         draw_box(ax, nx - 0.125, ny - 0.078, 0.25, 0.155, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.5, zorder=3)
-        ax.text(nx, ny + 0.045, ntitle, color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', zorder=5)
-        ax.text(nx, ny + 0.015, nsub, color=TEXT_MUTED, fontsize=11.2, ha='center', zorder=5)
+        ax.text(nx, ny + 0.045, ntitle, color=TEXT_BLACK, fontsize=13.5, fontweight='bold', ha='center', zorder=5)
+        ax.text(nx, ny + 0.015, nsub, color=TEXT_MUTED, fontsize=12.0, ha='center', zorder=5)
         ax.plot([nx - 0.09, nx + 0.09], [ny - 0.005, ny - 0.005], color=BORDER_BLACK, lw=0.6, zorder=5)
-        ax.text(nx, ny - 0.028, nstat, color=TEXT_BLACK, fontsize=11.2, fontweight='bold', ha='center', zorder=5)
-        ax.text(nx, ny - 0.056, nports, color=TEXT_MUTED, fontsize=10.5, ha='center', zorder=5)
+        ax.text(nx, ny - 0.028, nstat, color=TEXT_BLACK, fontsize=12.0, fontweight='bold', ha='center', zorder=5)
+        ax.text(nx, ny - 0.056, nports, color=TEXT_MUTED, fontsize=11.5, ha='center', zorder=5)
 
     # Bottom Legend Banner
     draw_box(ax, 0.05, 0.048, 0.90, 0.16, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.5, zorder=3)
-    ax.text(0.50, 0.175, "Node Security Posture & Vulnerability Status Legend", color=TEXT_BLACK, fontsize=13.0, fontweight='bold', ha='center', zorder=5)
+    ax.text(0.50, 0.175, "Node Security Posture & Vulnerability Status Legend", color=TEXT_BLACK, fontsize=14.0, fontweight='bold', ha='center', zorder=5)
     ax.plot([0.10, 0.90], [0.155, 0.155], color=BORDER_BLACK, lw=0.8, zorder=5)
 
     legend_items = [
@@ -296,8 +296,8 @@ def gen_fig3_12():
     ]
     for lx, ltag, ldesc, lcol in legend_items:
         draw_box(ax, lx - 0.10, 0.065, 0.20, 0.072, bg=lcol, border=BORDER_BLACK, lw=1.2, zorder=4)
-        ax.text(lx, 0.108, f"[{ltag}]", color=TEXT_BLACK, fontsize=11.5, fontweight='bold', ha='center', zorder=5)
-        ax.text(lx, 0.082, ldesc, color=TEXT_MUTED, fontsize=9.8, ha='center', zorder=5)
+        ax.text(lx, 0.108, f"[{ltag}]", color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', zorder=5)
+        ax.text(lx, 0.082, ldesc, color=TEXT_MUTED, fontsize=10.8, ha='center', zorder=5)
 
     save_fig(fig, "network_visualization.png")
 
@@ -315,7 +315,7 @@ def gen_fig3_13():
     ax.plot([0.04, 0.96], [0.93, 0.93], color=BORDER_BLACK, lw=2.5)
     headers = [("PORT", 0.055), ("SERVICE BANNER", 0.180), ("STATE", 0.400), ("RISK", 0.500), ("VULNERABILITY / CVE", 0.610), ("ACTION", 0.865)]
     for hname, hx in headers:
-        ax.text(hx, 0.895, hname, color=TEXT_BLACK, fontsize=12.5, fontweight='bold', va='center')
+        ax.text(hx, 0.895, hname, color=TEXT_BLACK, fontsize=13.5, fontweight='bold', va='center')
     ax.plot([0.04, 0.96], [0.86, 0.86], color=BORDER_BLACK, lw=1.5)
 
     rows = [
@@ -334,14 +334,14 @@ def gen_fig3_13():
         bg_col = FILL_GRAY1 if idx % 2 == 0 else FILL_WHITE
         rect = patches.Rectangle((0.04, ry - 0.025), 0.92, 0.075, facecolor=bg_col, edgecolor='none', zorder=1)
         ax.add_patch(rect)
-        ax.text(0.055, ry + 0.012, port, color=TEXT_BLACK, fontsize=12.0, fontweight='bold', va='center')
-        ax.text(0.180, ry + 0.012, serv, color=TEXT_MUTED, fontsize=11.2, va='center')
-        ax.text(0.400, ry + 0.012, state, color=TEXT_BLACK, fontsize=11.5, fontweight='bold', va='center')
-        ax.text(0.500, ry + 0.012, rlevel, color=TEXT_BLACK, fontsize=11.5, fontweight='bold', va='center')
-        ax.text(0.610, ry + 0.012, cve, color=TEXT_BLACK, fontsize=11.0, va='center')
+        ax.text(0.055, ry + 0.012, port, color=TEXT_BLACK, fontsize=12.8, fontweight='bold', va='center')
+        ax.text(0.180, ry + 0.012, serv, color=TEXT_MUTED, fontsize=12.0, va='center')
+        ax.text(0.400, ry + 0.012, state, color=TEXT_BLACK, fontsize=12.2, fontweight='bold', va='center')
+        ax.text(0.500, ry + 0.012, rlevel, color=TEXT_BLACK, fontsize=12.2, fontweight='bold', va='center')
+        ax.text(0.610, ry + 0.012, cve, color=TEXT_BLACK, fontsize=11.8, va='center')
 
         draw_box(ax, 0.835, ry - 0.016, 0.122, 0.058, bg=FILL_WHITE, border=BORDER_BLACK, lw=1)
-        ax.text(0.896, ry + 0.012, act, color=TEXT_BLACK, fontsize=10.5, fontweight='bold', ha='center', va='center')
+        ax.text(0.896, ry + 0.012, act, color=TEXT_BLACK, fontsize=11.2, fontweight='bold', ha='center', va='center')
 
     ax.plot([0.04, 0.96], [0.08, 0.08], color=BORDER_BLACK, lw=2.5)
     save_fig(fig, "port_matrix.png")
@@ -362,7 +362,7 @@ def gen_fig3_14():
     for r, rlbl in zip(radii, ring_labels):
         circle = plt.Circle((rcx, rcy), r, color=BORDER_BLACK, fill=False, lw=1.2, ls="--", zorder=3)
         ax.add_patch(circle)
-        ax.text(rcx, rcy + r + 0.005, rlbl, color=TEXT_MUTED, fontsize=10.0, fontweight='bold', ha='center', va='bottom',
+        ax.text(rcx, rcy + r + 0.005, rlbl, color=TEXT_MUTED, fontsize=11.2, fontweight='bold', ha='center', va='bottom',
                 bbox=dict(boxstyle="square,pad=0.2", fc="white", ec="none"), zorder=5)
 
     ax.plot([rcx - 0.35, rcx + 0.35], [rcy, rcy], color=BORDER_BLACK, lw=1, ls=":", zorder=3)
@@ -384,19 +384,19 @@ def gen_fig3_14():
         pring = plt.Circle((bx, by), 0.018, color=BORDER_BLACK, fill=False, lw=1, ls=":", zorder=5)
         ax.add_patch(pring)
         ax.scatter([bx], [by], color=BORDER_BLACK, marker=bmarker, s=130, zorder=6)
-        ax.text(bx, by - 0.038, blbl, color=TEXT_BLACK, fontsize=10.2, fontweight='bold', ha='center',
+        ax.text(bx, by - 0.038, blbl, color=TEXT_BLACK, fontsize=11.2, fontweight='bold', ha='center',
                 bbox=dict(boxstyle="round,pad=0.2", fc="white", ec=BORDER_BLACK, lw=0.8), zorder=7)
 
     # Left & Right Telemetry Cards
     draw_box(ax, 0.03, 0.63, 0.24, 0.33, bg=FILL_LIGHT, lw=1.5)
-    ax.text(0.05, 0.925, "RADAR TELEMETRY", color=TEXT_BLACK, fontsize=13.5, fontweight='bold')
+    ax.text(0.05, 0.925, "RADAR TELEMETRY", color=TEXT_BLACK, fontsize=15.0, fontweight='bold')
     ax.plot([0.05, 0.25], [0.898, 0.898], color=BORDER_BLACK, lw=0.8)
-    ax.text(0.05, 0.765, "Sweep Rate: 20 FPS\nActive Sector: 045° - 095°\nTarget: 192.168.1.105\nHealth: CRITICAL (78%)", color=TEXT_BLACK, fontsize=11.5)
+    ax.text(0.05, 0.765, "Sweep Rate: 20 FPS\nActive Sector: 045° - 095°\nTarget: 192.168.1.105\nHealth: CRITICAL (78%)", color=TEXT_BLACK, fontsize=12.2)
 
     draw_box(ax, 0.73, 0.63, 0.24, 0.33, bg=FILL_LIGHT, lw=1.5)
-    ax.text(0.75, 0.925, "SPATIAL SIGNALS", color=TEXT_BLACK, fontsize=13.5, fontweight='bold')
+    ax.text(0.75, 0.925, "SPATIAL SIGNALS", color=TEXT_BLACK, fontsize=15.0, fontweight='bold')
     ax.plot([0.75, 0.95], [0.898, 0.898], color=BORDER_BLACK, lw=0.8)
-    ax.text(0.75, 0.765, "Nodes: 5 Active\nVulns: 7 Flagged\nPacket Rate: 1.4 kpps\nProximity: IMMEDIATE", color=TEXT_BLACK, fontsize=11.5)
+    ax.text(0.75, 0.765, "Nodes: 5 Active\nVulns: 7 Flagged\nPacket Rate: 1.4 kpps\nProximity: IMMEDIATE", color=TEXT_BLACK, fontsize=12.2)
 
     save_fig(fig, "radar_visualization.png")
 
@@ -423,7 +423,7 @@ def gen_fig3_15():
         t = np.linspace(start_a, end_a, 50)
         ax.plot(gcx + r_outer * np.cos(t), gcy + r_outer * np.sin(t), color=BORDER_BLACK, lw=16, zorder=3)
         mid_a = (start_a + end_a) / 2
-        ax.text(gcx + 0.37 * np.cos(mid_a), gcy + 0.37 * np.sin(mid_a), lbl, color=TEXT_BLACK, fontsize=11.8, fontweight='bold', ha='center', va='center',
+        ax.text(gcx + 0.37 * np.cos(mid_a), gcy + 0.37 * np.sin(mid_a), lbl, color=TEXT_BLACK, fontsize=12.8, fontweight='bold', ha='center', va='center',
                 bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.9), zorder=5)
 
     # Needle at 78.4%
@@ -434,9 +434,9 @@ def gen_fig3_15():
     ax.scatter([gcx], [gcy], color=BORDER_BLACK, s=240, zorder=7)
 
     # Dedicated score box safely placed with generous clearance
-    draw_box(ax, 0.32, 0.25, 0.36, 0.17, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
-    ax.text(0.50, 0.355, "78.4 / 100", color=TEXT_BLACK, fontsize=28, fontweight='bold', ha='center')
-    ax.text(0.50, 0.280, "CRITICAL RISK LEVEL DETECTED", color=TEXT_BLACK, fontsize=13.0, fontweight='bold', ha='center')
+    draw_box(ax, 0.30, 0.25, 0.40, 0.17, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
+    ax.text(0.50, 0.355, "78.4 / 100", color=TEXT_BLACK, fontsize=32, fontweight='bold', ha='center')
+    ax.text(0.50, 0.280, "CRITICAL RISK LEVEL DETECTED", color=TEXT_BLACK, fontsize=14.5, fontweight='bold', ha='center')
 
     params = [
         ("Critical Open Ports", "4 Ports Open\n(21, 80, 443, 3306)", 0.05),
@@ -445,9 +445,9 @@ def gen_fig3_15():
     ]
     for ptitle, pdesc, px in params:
         draw_box(ax, px, 0.04, 0.26, 0.16, bg=FILL_WHITE, lw=1.2)
-        ax.text(px + 0.13, 0.155, ptitle, color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center')
+        ax.text(px + 0.13, 0.155, ptitle, color=TEXT_BLACK, fontsize=13.5, fontweight='bold', ha='center')
         ax.plot([px + 0.02, px + 0.24], [0.130, 0.130], color=BORDER_BLACK, lw=0.8)
-        ax.text(px + 0.13, 0.075, pdesc, color=TEXT_MUTED, fontsize=11.2, ha='center', va='center')
+        ax.text(px + 0.13, 0.075, pdesc, color=TEXT_MUTED, fontsize=12.0, ha='center', va='center')
 
     save_fig(fig, "risk_gauge.png")
 
@@ -475,9 +475,9 @@ def gen_fig3_16():
 
     for title, desc, nx, ny in lifecycle_nodes:
         draw_box(ax, nx, ny, 0.19, 0.38, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
-        ax.text(nx + 0.095, ny + 0.295, title, color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center')
+        ax.text(nx + 0.095, ny + 0.295, title, color=TEXT_BLACK, fontsize=13.5, fontweight='bold', ha='center', va='center')
         ax.plot([nx + 0.02, nx + 0.17], [ny + 0.22, ny + 0.22], color=BORDER_BLACK, lw=0.8)
-        ax.text(nx + 0.095, ny + 0.110, desc, color=TEXT_MUTED, fontsize=11.2, ha='center', va='center')
+        ax.text(nx + 0.095, ny + 0.110, desc, color=TEXT_MUTED, fontsize=12.0, ha='center', va='center')
 
     # Top row forward arrows
     ax.annotate("", xy=(0.280, 0.74), xytext=(0.240, 0.74), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2.4))
