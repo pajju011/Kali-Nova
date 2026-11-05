@@ -66,22 +66,16 @@ def gen_fig4_2():
     ax.set_ylim(0, 1)
     ax.axis('off')
 
-    # Main Title and Subtitle
-    ax.text(0.5, 0.975, "Figure 4.2: Kali-Nova Experimental Testing & Cyber-Range Evaluation Setup",
-            color=TEXT_BLACK, fontsize=15.5, fontweight='bold', ha='center')
-    ax.text(0.5, 0.944, "Isolated Virtualized Cyber-Range Infrastructure with Controlled Subnets, Target Nodes, and 7-Stage Assessment Lifecycle",
-            color=TEXT_MUTED, fontsize=10.0, style='italic', ha='center')
-
-    # Outer Container Frame
-    draw_box(ax, 0.02, 0.03, 0.96, 0.895, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.8)
+    # Outer Container Frame (Expanded vertically into freed top title space)
+    draw_box(ax, 0.02, 0.025, 0.96, 0.95, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.8)
 
     # -------------------------------------------------------------
     # 1. Host Workstation / Penetration Testing Controller (Left)
     # -------------------------------------------------------------
-    draw_box(ax, 0.035, 0.30, 0.28, 0.605, bg=FILL_WHITE, lw=1.5)
-    draw_box(ax, 0.045, 0.830, 0.26, 0.062, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.175, 0.868, "1. HOST CONTROLLER", color=TEXT_BLACK, fontsize=9.2, fontweight='bold', ha='center', va='center')
-    ax.text(0.175, 0.844, "(Kali-Nova Assessment Host Station)", color=TEXT_MUTED, fontsize=6.8, ha='center', va='center')
+    draw_box(ax, 0.035, 0.27, 0.28, 0.69, bg=FILL_WHITE, lw=1.5)
+    draw_box(ax, 0.045, 0.885, 0.26, 0.065, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
+    ax.text(0.175, 0.925, "1. HOST CONTROLLER", color=TEXT_BLACK, fontsize=11.0, fontweight='bold', ha='center', va='center')
+    ax.text(0.175, 0.900, "(Kali-Nova Assessment Host Station)", color=TEXT_MUTED, fontsize=8.5, ha='center', va='center')
 
     host_items = [
         ("Host Platform & Virtualizer", "Kali Linux 2026.3 | Kernel 6.8.0\nPython 3.10+ Virtual Environment"),
@@ -91,94 +85,94 @@ def gen_fig4_2():
         ("Local Persistence Vault", "SQLite kalinova.db Database\nWAL Journal Mode | SHA-256 Ledger")
     ]
     for idx, (head, desc) in enumerate(host_items):
-        y_pos = 0.725 - idx * 0.098
-        draw_box(ax, 0.045, y_pos, 0.26, 0.082, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
-        ax.text(0.055, y_pos + 0.058, head, color=TEXT_BLACK, fontsize=7.8, fontweight='bold')
-        ax.text(0.055, y_pos + 0.024, desc, color=TEXT_MUTED, fontsize=6.8)
+        y_pos = 0.765 - idx * 0.118
+        draw_box(ax, 0.045, y_pos, 0.26, 0.100, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
+        ax.text(0.055, y_pos + 0.070, head, color=TEXT_BLACK, fontsize=9.5, fontweight='bold')
+        ax.text(0.055, y_pos + 0.030, desc, color=TEXT_MUTED, fontsize=8.2)
 
     # -------------------------------------------------------------
     # 2. Isolated Virtual Network Sandbox (Center)
     # -------------------------------------------------------------
-    draw_box(ax, 0.345, 0.30, 0.29, 0.605, bg=FILL_WHITE, lw=1.5)
-    draw_box(ax, 0.355, 0.830, 0.27, 0.062, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.490, 0.868, "2. ISOLATED VIRTUAL NETWORK", color=TEXT_BLACK, fontsize=9.2, fontweight='bold', ha='center', va='center')
-    ax.text(0.490, 0.844, "(Host-Only Air-Gapped Cyber Sandbox)", color=TEXT_MUTED, fontsize=6.8, ha='center', va='center')
+    draw_box(ax, 0.345, 0.27, 0.29, 0.69, bg=FILL_WHITE, lw=1.5)
+    draw_box(ax, 0.355, 0.885, 0.27, 0.065, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
+    ax.text(0.490, 0.925, "2. ISOLATED VIRTUAL NETWORK", color=TEXT_BLACK, fontsize=11.0, fontweight='bold', ha='center', va='center')
+    ax.text(0.490, 0.900, "(Host-Only Air-Gapped Cyber Sandbox)", color=TEXT_MUTED, fontsize=8.5, ha='center', va='center')
 
     # Switch Box
-    draw_box(ax, 0.360, 0.675, 0.26, 0.130, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.490, 0.775, "Host-Only Virtual Switch", color=TEXT_BLACK, fontsize=8.5, fontweight='bold', ha='center')
-    ax.text(0.490, 0.750, "Interface: vboxnet0 / vmnet1  |  MTU: 1500", color=TEXT_MUTED, fontsize=7.0, ha='center')
-    ax.text(0.490, 0.725, "Subnet: 192.168.1.0/24 (Air-Gapped)", color=BORDER_BLACK, fontsize=7.0, fontweight='bold', ha='center')
-    ax.text(0.490, 0.700, "Security: Zero External Egress Allowed", color=TEXT_MUTED, fontsize=6.8, ha='center')
+    draw_box(ax, 0.360, 0.705, 0.26, 0.155, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.2)
+    ax.text(0.490, 0.825, "Host-Only Virtual Switch", color=TEXT_BLACK, fontsize=10.2, fontweight='bold', ha='center')
+    ax.text(0.490, 0.795, "Interface: vboxnet0 / vmnet1  |  MTU: 1500", color=TEXT_MUTED, fontsize=8.5, ha='center')
+    ax.text(0.490, 0.765, "Subnet: 192.168.1.0/24 (Air-Gapped)", color=BORDER_BLACK, fontsize=8.5, fontweight='bold', ha='center')
+    ax.text(0.490, 0.735, "Security: Zero External Egress Allowed", color=TEXT_MUTED, fontsize=8.2, ha='center')
 
     # Gateway Box
-    draw_box(ax, 0.360, 0.505, 0.26, 0.145, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
-    ax.text(0.490, 0.620, "Virtual Gateway & Packet Mirror", color=TEXT_BLACK, fontsize=8.5, fontweight='bold', ha='center')
-    ax.text(0.490, 0.590, "IP: 192.168.1.1  |  Promiscuous Mirror", color=TEXT_MUTED, fontsize=7.0, ha='center')
-    ax.text(0.490, 0.565, "Latency: 0.0012s  |  Speed: 1000 Mbps", color=TEXT_MUTED, fontsize=6.8, ha='center')
-    ax.text(0.490, 0.538, "Boundary: Strict Egress Filter Active", color="#B91C1C", fontsize=6.8, fontweight='bold', ha='center')
+    draw_box(ax, 0.360, 0.510, 0.26, 0.165, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
+    ax.text(0.490, 0.640, "Virtual Gateway & Packet Mirror", color=TEXT_BLACK, fontsize=10.2, fontweight='bold', ha='center')
+    ax.text(0.490, 0.605, "IP: 192.168.1.1  |  Promiscuous Mirror", color=TEXT_MUTED, fontsize=8.5, ha='center')
+    ax.text(0.490, 0.575, "Latency: 0.0012s  |  Speed: 1000 Mbps", color=TEXT_MUTED, fontsize=8.2, ha='center')
+    ax.text(0.490, 0.542, "Boundary: Strict Egress Filter Active", color="#B91C1C", fontsize=8.2, fontweight='bold', ha='center')
 
     # Bidirectional Telemetry Pipeline
-    draw_box(ax, 0.360, 0.325, 0.26, 0.155, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.0)
-    ax.text(0.490, 0.450, "Bidirectional Telemetry Pipeline", color=TEXT_BLACK, fontsize=8.2, fontweight='bold', ha='center')
-    ax.text(0.490, 0.422, "Outbound: Asynchronous CLI Scans", color=TEXT_BLACK, fontsize=7.0, fontweight='bold', ha='center')
-    ax.text(0.490, 0.400, "(Nmap, Nikto, Hydra, SSLyze, OSINT)", color=TEXT_MUTED, fontsize=6.6, ha='center')
-    ax.plot([0.385, 0.595], [0.385, 0.385], color=BORDER_BLACK, lw=0.6)
-    ax.text(0.490, 0.365, "Inbound: PTY Stdout Stream Telemetry", color=TEXT_BLACK, fontsize=7.0, fontweight='bold', ha='center')
-    ax.text(0.490, 0.342, "-> Reactive AppState -> Live Cyber HUD", color=TEXT_MUTED, fontsize=6.6, ha='center')
+    draw_box(ax, 0.360, 0.295, 0.26, 0.185, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.0)
+    ax.text(0.490, 0.445, "Bidirectional Telemetry Pipeline", color=TEXT_BLACK, fontsize=10.0, fontweight='bold', ha='center')
+    ax.text(0.490, 0.412, "Outbound: Asynchronous CLI Scans", color=TEXT_BLACK, fontsize=8.5, fontweight='bold', ha='center')
+    ax.text(0.490, 0.386, "(Nmap, Nikto, Hydra, SSLyze, OSINT)", color=TEXT_MUTED, fontsize=8.0, ha='center')
+    ax.plot([0.385, 0.595], [0.368, 0.368], color=BORDER_BLACK, lw=0.6)
+    ax.text(0.490, 0.345, "Inbound: PTY Stdout Stream Telemetry", color=TEXT_BLACK, fontsize=8.5, fontweight='bold', ha='center')
+    ax.text(0.490, 0.318, "-> Reactive AppState -> Live Cyber HUD", color=TEXT_MUTED, fontsize=8.0, ha='center')
 
     # Connecting arrows between Left, Center, and Right
-    ax.annotate("", xy=(0.345, 0.60), xytext=(0.315, 0.60),
+    ax.annotate("", xy=(0.345, 0.61), xytext=(0.315, 0.61),
                 arrowprops=dict(arrowstyle="<->", color=BORDER_BLACK, lw=2.2))
 
-    ax.annotate("", xy=(0.665, 0.60), xytext=(0.635, 0.60),
+    ax.annotate("", xy=(0.665, 0.61), xytext=(0.635, 0.61),
                 arrowprops=dict(arrowstyle="<->", color=BORDER_BLACK, lw=2.2))
 
     # -------------------------------------------------------------
     # 3. Authorized Target Evaluation Range (Right)
     # -------------------------------------------------------------
-    draw_box(ax, 0.665, 0.30, 0.30, 0.605, bg=FILL_WHITE, lw=1.5)
-    draw_box(ax, 0.675, 0.830, 0.28, 0.062, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.815, 0.868, "3. TARGET EVALUATION RANGE", color=TEXT_BLACK, fontsize=9.2, fontweight='bold', ha='center', va='center')
-    ax.text(0.815, 0.844, "(Authorized In-Scope Vulnerable Systems)", color=TEXT_MUTED, fontsize=6.8, ha='center', va='center')
+    draw_box(ax, 0.665, 0.27, 0.30, 0.69, bg=FILL_WHITE, lw=1.5)
+    draw_box(ax, 0.675, 0.885, 0.28, 0.065, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
+    ax.text(0.815, 0.925, "3. TARGET EVALUATION RANGE", color=TEXT_BLACK, fontsize=11.0, fontweight='bold', ha='center', va='center')
+    ax.text(0.815, 0.900, "(Authorized In-Scope Vulnerable Systems)", color=TEXT_MUTED, fontsize=8.5, ha='center', va='center')
 
     # Target Node 1
-    draw_box(ax, 0.675, 0.665, 0.28, 0.145, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
-    ax.text(0.685, 0.785, "Target 1: Metasploitable 2", color=TEXT_BLACK, fontsize=8.0, fontweight='bold')
-    ax.text(0.945, 0.785, "[CRITICAL - 9.8]", color=TEXT_BLACK, fontsize=7.2, fontweight='bold', ha='right')
-    ax.text(0.685, 0.760, "IP: 192.168.1.105 (range-srv01.local)", color=TEXT_MUTED, fontsize=6.8, fontfamily='monospace')
-    ax.text(0.685, 0.738, "• Port 21/tcp : ProFTPD 1.3.3a (CVE-2011-2523)", color=TEXT_BLACK, fontsize=6.5)
-    ax.text(0.685, 0.718, "• Port 22/tcp : OpenSSH 7.2p2 (Weak dictionary)", color=TEXT_BLACK, fontsize=6.5)
-    ax.text(0.685, 0.698, "• Port 80/tcp : Apache 2.4.41 (PHP / SQL Injection)", color=TEXT_BLACK, fontsize=6.5)
-    ax.text(0.685, 0.678, "• Port 3306/tcp: MySQL 5.7 (Unauthenticated root)", color=TEXT_BLACK, fontsize=6.5)
+    draw_box(ax, 0.675, 0.690, 0.28, 0.175, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
+    ax.text(0.685, 0.835, "Target 1: Metasploitable 2", color=TEXT_BLACK, fontsize=9.8, fontweight='bold')
+    ax.text(0.945, 0.835, "[CRITICAL - 9.8]", color=TEXT_BLACK, fontsize=8.8, fontweight='bold', ha='right')
+    ax.text(0.685, 0.805, "IP: 192.168.1.105 (range-srv01.local)", color=TEXT_MUTED, fontsize=8.2, fontfamily='monospace')
+    ax.text(0.685, 0.778, "• Port 21/tcp : ProFTPD 1.3.3a (CVE-2011-2523)", color=TEXT_BLACK, fontsize=8.0)
+    ax.text(0.685, 0.754, "• Port 22/tcp : OpenSSH 7.2p2 (Weak dictionary)", color=TEXT_BLACK, fontsize=8.0)
+    ax.text(0.685, 0.730, "• Port 80/tcp : Apache 2.4.41 (PHP / SQL Injection)", color=TEXT_BLACK, fontsize=8.0)
+    ax.text(0.685, 0.706, "• Port 3306/tcp: MySQL 5.7 (Unauthenticated root)", color=TEXT_BLACK, fontsize=8.0)
 
     # Target Node 2
-    draw_box(ax, 0.675, 0.495, 0.28, 0.145, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
-    ax.text(0.685, 0.615, "Target 2: OWASP VulnApp", color=TEXT_BLACK, fontsize=8.0, fontweight='bold')
-    ax.text(0.945, 0.615, "[HIGH - 8.4]", color=TEXT_BLACK, fontsize=7.2, fontweight='bold', ha='right')
-    ax.text(0.685, 0.590, "IP: 192.168.1.110 (range-app02.local)", color=TEXT_MUTED, fontsize=6.8, fontfamily='monospace')
-    ax.text(0.685, 0.568, "• Port 8080/tcp: Apache Tomcat / Java App", color=TEXT_BLACK, fontsize=6.5)
-    ax.text(0.685, 0.548, "• Web Vectors: SQLi, Directory Traversal, XSS", color=TEXT_BLACK, fontsize=6.5)
-    ax.text(0.685, 0.528, "• Auth Vulnerability: Session fixation on /auth", color=TEXT_BLACK, fontsize=6.5)
-    ax.text(0.685, 0.508, "• Role: Automated web fuzzing & patch verify", color=TEXT_MUTED, fontsize=6.5)
+    draw_box(ax, 0.675, 0.490, 0.28, 0.175, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
+    ax.text(0.685, 0.635, "Target 2: OWASP VulnApp", color=TEXT_BLACK, fontsize=9.8, fontweight='bold')
+    ax.text(0.945, 0.635, "[HIGH - 8.4]", color=TEXT_BLACK, fontsize=8.8, fontweight='bold', ha='right')
+    ax.text(0.685, 0.605, "IP: 192.168.1.110 (range-app02.local)", color=TEXT_MUTED, fontsize=8.2, fontfamily='monospace')
+    ax.text(0.685, 0.778 - 0.20, "• Port 8080/tcp: Apache Tomcat / Java App", color=TEXT_BLACK, fontsize=8.0)
+    ax.text(0.685, 0.754 - 0.20, "• Web Vectors: SQLi, Directory Traversal, XSS", color=TEXT_BLACK, fontsize=8.0)
+    ax.text(0.685, 0.730 - 0.20, "• Auth Vulnerability: Session fixation on /auth", color=TEXT_BLACK, fontsize=8.0)
+    ax.text(0.685, 0.706 - 0.20, "• Role: Automated web fuzzing & patch verify", color=TEXT_MUTED, fontsize=8.0)
 
     # Target Node 3
-    draw_box(ax, 0.675, 0.325, 0.28, 0.145, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
-    ax.text(0.685, 0.445, "Target 3: Perimeter Target", color=TEXT_BLACK, fontsize=8.0, fontweight='bold')
-    ax.text(0.945, 0.445, "[MEDIUM - 6.5]", color=TEXT_BLACK, fontsize=7.2, fontweight='bold', ha='right')
-    ax.text(0.685, 0.420, "IP: 192.168.1.120 (range-sec03.local)", color=TEXT_MUTED, fontsize=6.8, fontfamily='monospace')
-    ax.text(0.685, 0.398, "• Port 443/tcp: TLS 1.0 Enabled (Weak Ciphers)", color=TEXT_BLACK, fontsize=6.5)
-    ax.text(0.685, 0.378, "• Port 139/445: Samba SMB Null Session", color=TEXT_BLACK, fontsize=6.5)
-    ax.text(0.685, 0.358, "• Benchmark for SSLyze & Auth fuzzing", color=TEXT_BLACK, fontsize=6.5)
-    ax.text(0.685, 0.338, "• Network anomaly and handshake telemetry", color=TEXT_MUTED, fontsize=6.5)
+    draw_box(ax, 0.675, 0.290, 0.28, 0.175, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
+    ax.text(0.685, 0.435, "Target 3: Perimeter Target", color=TEXT_BLACK, fontsize=9.8, fontweight='bold')
+    ax.text(0.945, 0.435, "[MEDIUM - 6.5]", color=TEXT_BLACK, fontsize=8.8, fontweight='bold', ha='right')
+    ax.text(0.685, 0.405, "IP: 192.168.1.120 (range-sec03.local)", color=TEXT_MUTED, fontsize=8.2, fontfamily='monospace')
+    ax.text(0.685, 0.578 - 0.20, "• Port 443/tcp: TLS 1.0 Enabled (Weak Ciphers)", color=TEXT_BLACK, fontsize=8.0)
+    ax.text(0.685, 0.554 - 0.20, "• Port 139/445: Samba SMB Null Session", color=TEXT_BLACK, fontsize=8.0)
+    ax.text(0.685, 0.530 - 0.20, "• Benchmark for SSLyze & Auth fuzzing", color=TEXT_BLACK, fontsize=8.0)
+    ax.text(0.685, 0.506 - 0.20, "• Network anomaly and handshake telemetry", color=TEXT_MUTED, fontsize=8.0)
 
     # -------------------------------------------------------------
     # 4. End-to-End Security Testing Workflow (Bottom)
     # -------------------------------------------------------------
-    draw_box(ax, 0.035, 0.045, 0.93, 0.235, bg=FILL_WHITE, lw=1.5)
-    draw_box(ax, 0.045, 0.228, 0.91, 0.040, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.50, 0.248, "STANDARDIZED END-TO-END SECURITY TESTING WORKFLOW PIPELINE",
-            color=TEXT_BLACK, fontsize=9.2, fontweight='bold', ha='center', va='center')
+    draw_box(ax, 0.035, 0.040, 0.93, 0.215, bg=FILL_WHITE, lw=1.5)
+    draw_box(ax, 0.045, 0.210, 0.91, 0.038, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
+    ax.text(0.50, 0.229, "STANDARDIZED END-TO-END SECURITY TESTING WORKFLOW PIPELINE",
+            color=TEXT_BLACK, fontsize=10.5, fontweight='bold', ha='center', va='center')
 
     stages = [
         ("1. Target Scope", "IP / Subnet Ingestion\n192.168.1.105 bind"),
@@ -191,19 +185,19 @@ def gen_fig4_2():
     ]
     for sidx, (stitle, sdetail) in enumerate(stages):
         sx = 0.045 + sidx * 0.130
-        draw_box(ax, sx, 0.088, 0.118, 0.125, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
-        ax.text(sx + 0.059, 0.180, stitle, color=TEXT_BLACK, fontsize=7.5, fontweight='bold', ha='center')
-        ax.plot([sx + 0.015, sx + 0.103], [0.165, 0.165], color=BORDER_BLACK, lw=0.6)
-        ax.text(sx + 0.059, 0.125, sdetail, color=TEXT_MUTED, fontsize=6.6, ha='center')
+        draw_box(ax, sx, 0.078, 0.118, 0.120, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
+        ax.text(sx + 0.059, 0.168, stitle, color=TEXT_BLACK, fontsize=9.0, fontweight='bold', ha='center')
+        ax.plot([sx + 0.015, sx + 0.103], [0.150, 0.150], color=BORDER_BLACK, lw=0.6)
+        ax.text(sx + 0.059, 0.112, sdetail, color=TEXT_MUTED, fontsize=8.0, ha='center')
 
         if sidx < len(stages) - 1:
-            ax.annotate("", xy=(sx + 0.128, 0.150), xytext=(sx + 0.118, 0.150),
+            ax.annotate("", xy=(sx + 0.128, 0.138), xytext=(sx + 0.118, 0.138),
                         arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=1.6))
 
     # Bottom Compliance Footnote
-    draw_box(ax, 0.045, 0.052, 0.91, 0.028, bg=FILL_GRAY1, border=BORDER_BLACK, lw=0.8)
-    ax.text(0.50, 0.066, "Authorized Environment Assurance: Testing strictly constrained to isolated local sandbox; zero risk of external network disruption.",
-            color=TEXT_BLACK, fontsize=7.2, fontweight='bold', ha='center', va='center')
+    draw_box(ax, 0.045, 0.046, 0.91, 0.026, bg=FILL_GRAY1, border=BORDER_BLACK, lw=0.8)
+    ax.text(0.50, 0.059, "Authorized Environment Assurance: Testing strictly constrained to isolated local sandbox; zero risk of external network disruption.",
+            color=TEXT_BLACK, fontsize=8.2, fontweight='bold', ha='center', va='center')
 
     save_fig(fig, "experimental_setup.png")
 
@@ -217,14 +211,8 @@ def gen_fig4_3():
     ax.set_ylim(0, 1)
     ax.axis('off')
 
-    # Main Title and Subtitle
-    ax.text(0.5, 0.975, "Figure 4.3: Kali-Nova Application Initialization & Component Startup Lifecycle",
-            color=TEXT_BLACK, fontsize=15.5, fontweight='bold', ha='center')
-    ax.text(0.5, 0.944, "Deterministic Five-Phase Bootstrapping Pipeline from Core Runtime Verification to Interactive Cyber HUD Readiness",
-            color=TEXT_MUTED, fontsize=10.0, style='italic', ha='center')
-
-    # Outer Container Frame
-    draw_box(ax, 0.02, 0.03, 0.96, 0.895, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.8)
+    # Outer Container Frame (Expanded vertically into freed top title space)
+    draw_box(ax, 0.02, 0.025, 0.96, 0.95, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.8)
 
     # -------------------------------------------------------------
     # Top 5 Sequential Phases
@@ -249,35 +237,35 @@ def gen_fig4_3():
 
     for pidx, (pstep, ptitle, pdesc, pbadge) in enumerate(phases):
         px = 0.035 + pidx * 0.191
-        draw_box(ax, px, 0.54, 0.176, 0.365, bg=FILL_WHITE, lw=1.4)
+        draw_box(ax, px, 0.53, 0.176, 0.42, bg=FILL_WHITE, lw=1.4)
         
         # Step header banner
-        draw_box(ax, px + 0.008, 0.845, 0.160, 0.048, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.0)
-        ax.text(px + 0.088, 0.869, pstep, color=TEXT_BLACK, fontsize=8.5, fontweight='bold', ha='center', va='center')
+        draw_box(ax, px + 0.008, 0.885, 0.160, 0.052, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.0)
+        ax.text(px + 0.088, 0.911, pstep, color=TEXT_BLACK, fontsize=10.5, fontweight='bold', ha='center', va='center')
 
         # Title
-        ax.text(px + 0.088, 0.815, ptitle, color=TEXT_BLACK, fontsize=8.2, fontweight='bold', ha='center')
-        ax.plot([px + 0.02, px + 0.156], [0.798, 0.798], color=BORDER_BLACK, lw=0.6)
+        ax.text(px + 0.088, 0.852, ptitle, color=TEXT_BLACK, fontsize=10.0, fontweight='bold', ha='center')
+        ax.plot([px + 0.015, px + 0.161], [0.835, 0.835], color=BORDER_BLACK, lw=0.6)
 
-        # Description (aligned from top with comfortable line spacing)
-        ax.text(px + 0.015, 0.780, pdesc, color=TEXT_MUTED, fontsize=6.8, va='top')
+        # Description
+        ax.text(px + 0.015, 0.815, pdesc, color=TEXT_MUTED, fontsize=8.4, va='top')
 
         # Status badge
-        draw_box(ax, px + 0.015, 0.555, 0.146, 0.040, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.0)
-        ax.text(px + 0.088, 0.575, pbadge, color=TEXT_BLACK, fontsize=7.2, fontweight='bold', ha='center', va='center')
+        draw_box(ax, px + 0.015, 0.545, 0.146, 0.046, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.0)
+        ax.text(px + 0.088, 0.568, pbadge, color=TEXT_BLACK, fontsize=9.0, fontweight='bold', ha='center', va='center')
 
         # Connecting arrow to next phase
         if pidx < len(phases) - 1:
-            ax.annotate("", xy=(px + 0.188, 0.72), xytext=(px + 0.176, 0.72),
+            ax.annotate("", xy=(px + 0.188, 0.74), xytext=(px + 0.176, 0.74),
                         arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2.0))
 
     # -------------------------------------------------------------
     # Bottom Left: Real-Time Application Boot Telemetry Stream
     # -------------------------------------------------------------
-    draw_box(ax, 0.035, 0.045, 0.58, 0.47, bg=FILL_WHITE, lw=1.5)
-    draw_box(ax, 0.045, 0.465, 0.56, 0.040, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.060, 0.485, "APPLICATION BOOT TELEMETRY STREAM", color=TEXT_BLACK, fontsize=8.8, fontweight='bold', va='center')
-    ax.text(0.590, 0.485, "[PID: 14890  |  COLD START: 485 ms]", color=TEXT_BLACK, fontsize=7.8, fontweight='bold', ha='right', va='center')
+    draw_box(ax, 0.035, 0.040, 0.58, 0.465, bg=FILL_WHITE, lw=1.5)
+    draw_box(ax, 0.045, 0.460, 0.56, 0.042, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
+    ax.text(0.060, 0.481, "APPLICATION BOOT TELEMETRY STREAM", color=TEXT_BLACK, fontsize=10.5, fontweight='bold', va='center')
+    ax.text(0.590, 0.481, "[PID: 14890  |  COLD START: 485 ms]", color=TEXT_BLACK, fontsize=9.2, fontweight='bold', ha='right', va='center')
 
     boot_logs = [
         ("[00:00.005]", "INIT", "Python 3.10.12 runtime detected. Initializing Kali-Nova framework core..."),
@@ -294,22 +282,22 @@ def gen_fig4_3():
     ]
 
     for bidx, (btime, btag, bmsg) in enumerate(boot_logs):
-        by = 0.435 - bidx * 0.033
-        ax.text(0.050, by, btime, color=TEXT_MUTED, fontsize=6.8, fontfamily='monospace', va='center')
-        ax.text(0.125, by, f"[{btag}]", color=TEXT_BLACK, fontsize=6.8, fontfamily='monospace', fontweight='bold', va='center')
-        ax.text(0.175, by, bmsg, color=TEXT_BLACK, fontsize=6.8, fontfamily='monospace', va='center')
+        by = 0.430 - bidx * 0.033
+        ax.text(0.050, by, btime, color=TEXT_MUTED, fontsize=8.4, fontfamily='monospace', va='center')
+        ax.text(0.128, by, f"[{btag}]", color=TEXT_BLACK, fontsize=8.4, fontfamily='monospace', fontweight='bold', va='center')
+        ax.text(0.180, by, bmsg, color=TEXT_BLACK, fontsize=8.4, fontfamily='monospace', va='center')
 
     # Bottom status bar of boot stream
-    draw_box(ax, 0.045, 0.055, 0.56, 0.032, bg=FILL_GRAY1, border=BORDER_BLACK, lw=0.8)
-    ax.text(0.055, 0.071, "System Status: ALL 5 SYSTEM MODULES INITIALIZED WITHOUT CONFLICTS", color=TEXT_BLACK, fontsize=7.0, fontweight='bold', va='center')
-    ax.text(0.590, 0.071, "Memory Footprint: 64.2 MB RSS", color=TEXT_MUTED, fontsize=7.0, ha='right', va='center')
+    draw_box(ax, 0.045, 0.050, 0.56, 0.034, bg=FILL_GRAY1, border=BORDER_BLACK, lw=0.8)
+    ax.text(0.055, 0.067, "System Status: ALL 5 SYSTEM MODULES INITIALIZED WITHOUT CONFLICTS", color=TEXT_BLACK, fontsize=8.5, fontweight='bold', va='center')
+    ax.text(0.590, 0.067, "Memory Footprint: 64.2 MB RSS", color=TEXT_MUTED, fontsize=8.5, ha='right', va='center')
 
     # -------------------------------------------------------------
     # Bottom Right: Component Health & Architecture Verification
     # -------------------------------------------------------------
-    draw_box(ax, 0.630, 0.045, 0.335, 0.47, bg=FILL_WHITE, lw=1.5)
-    draw_box(ax, 0.640, 0.465, 0.315, 0.040, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.7975, 0.485, "SUBSYSTEM HEALTH MATRIX", color=TEXT_BLACK, fontsize=8.8, fontweight='bold', ha='center', va='center')
+    draw_box(ax, 0.630, 0.040, 0.335, 0.465, bg=FILL_WHITE, lw=1.5)
+    draw_box(ax, 0.640, 0.460, 0.315, 0.042, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
+    ax.text(0.7975, 0.481, "SUBSYSTEM HEALTH MATRIX", color=TEXT_BLACK, fontsize=10.5, fontweight='bold', ha='center', va='center')
 
     health_items = [
         ("Core State Manager", "100% HEALTHY", "Reactive AppState Singleton active"),
@@ -319,17 +307,17 @@ def gen_fig4_3():
         ("Display & Render Engine", "60 FPS (PyQt6)", "Hardware-accelerated Cyber HUD")
     ]
     for hidx, (hlbl, hstat, hsub) in enumerate(health_items):
-        hy = 0.400 - hidx * 0.063
+        hy = 0.395 - hidx * 0.062
         draw_box(ax, 0.645, hy, 0.305, 0.052, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
-        ax.text(0.655, hy + 0.032, hlbl, color=TEXT_BLACK, fontsize=7.5, fontweight='bold')
-        ax.text(0.655, hy + 0.013, hsub, color=TEXT_MUTED, fontsize=6.6)
-        draw_box(ax, 0.865, hy + 0.013, 0.078, 0.026, bg=FILL_GRAY1, border=BORDER_BLACK, lw=0.8)
-        ax.text(0.904, hy + 0.026, hstat, color=TEXT_BLACK, fontsize=6.3, fontweight='bold', ha='center', va='center')
+        ax.text(0.655, hy + 0.033, hlbl, color=TEXT_BLACK, fontsize=9.2, fontweight='bold')
+        ax.text(0.655, hy + 0.012, hsub, color=TEXT_MUTED, fontsize=8.0)
+        draw_box(ax, 0.850, hy + 0.012, 0.093, 0.028, bg=FILL_GRAY1, border=BORDER_BLACK, lw=0.8)
+        ax.text(0.8965, hy + 0.026, hstat, color=TEXT_BLACK, fontsize=7.8, fontweight='bold', ha='center', va='center')
 
     # Startup Outcome Note
-    draw_box(ax, 0.645, 0.055, 0.305, 0.075, bg=FILL_GRAY1, border=BORDER_BLACK, lw=0.9)
-    ax.text(0.7975, 0.106, "Startup Outcome & Assessment Readiness", color=TEXT_BLACK, fontsize=7.5, fontweight='bold', ha='center')
-    ax.text(0.7975, 0.082, "Zero operational delay; platform transitions automatically\nfrom cold launch to fully armed assessment dashboard.", color=TEXT_MUTED, fontsize=6.6, ha='center', va='top')
+    draw_box(ax, 0.645, 0.050, 0.305, 0.075, bg=FILL_GRAY1, border=BORDER_BLACK, lw=0.9)
+    ax.text(0.7975, 0.100, "Startup Outcome & Assessment Readiness", color=TEXT_BLACK, fontsize=9.2, fontweight='bold', ha='center')
+    ax.text(0.7975, 0.074, "Zero operational delay; platform transitions automatically\nfrom cold launch to fully armed assessment dashboard.", color=TEXT_MUTED, fontsize=8.0, ha='center', va='top')
 
     save_fig(fig, "application_start.png")
 
@@ -343,22 +331,16 @@ def gen_fig4_4():
     ax.set_ylim(0, 1)
     ax.axis('off')
 
-    # Main Title and Subtitle
-    ax.text(0.5, 0.978, "Figure 4.4: Final Kali-Nova Interactive Security Dashboard",
-            color=TEXT_BLACK, fontsize=15.5, fontweight='bold', ha='center')
-    ax.text(0.5, 0.948, "Centralized Cyber HUD with Dynamic Threat Risk Gauge, Real-Time Port Matrix, Pipeline Timeline, and AI Copilot",
-            color=TEXT_MUTED, fontsize=10.0, style='italic', ha='center')
-
-    # Topbar Header Bar
-    draw_box(ax, 0.02, 0.865, 0.96, 0.068, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.6)
-    ax.text(0.04, 0.899, "KALI-NOVA  v1.3.1  —  CYBER HUD", color=TEXT_BLACK, fontsize=11.0, fontweight='bold', va='center')
-    ax.text(0.53, 0.899, "TARGET: 192.168.1.105 (range-srv01.local)  |  PROFILE: EXPERT  |  STATUS: COMPLETE", color=TEXT_BLACK, fontsize=8.8, ha='center', va='center')
-    ax.text(0.96, 0.899, "[ARMED & SYNCED]", color=TEXT_BLACK, fontsize=9.5, fontweight='bold', ha='right', va='center')
+    # Topbar Header Bar (Moved up to top)
+    draw_box(ax, 0.02, 0.905, 0.96, 0.068, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.6)
+    ax.text(0.04, 0.939, "KALI-NOVA  v1.3.1  —  CYBER HUD", color=TEXT_BLACK, fontsize=12.5, fontweight='bold', va='center')
+    ax.text(0.53, 0.939, "TARGET: 192.168.1.105 (range-srv01.local)  |  PROFILE: EXPERT  |  STATUS: COMPLETE", color=TEXT_BLACK, fontsize=10.0, ha='center', va='center')
+    ax.text(0.96, 0.939, "[ARMED & SYNCED]", color=TEXT_BLACK, fontsize=11.0, fontweight='bold', ha='right', va='center')
 
     # Left Sidebar Navigation
-    draw_box(ax, 0.02, 0.04, 0.16, 0.81, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
-    draw_box(ax, 0.03, 0.775, 0.14, 0.055, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.10, 0.8025, "NAVIGATION", color=TEXT_BLACK, fontsize=9.2, fontweight='bold', ha='center', va='center')
+    draw_box(ax, 0.02, 0.035, 0.16, 0.855, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
+    draw_box(ax, 0.03, 0.825, 0.14, 0.055, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
+    ax.text(0.10, 0.8525, "NAVIGATION", color=TEXT_BLACK, fontsize=10.5, fontweight='bold', ha='center', va='center')
 
     nav_items = [
         "Dashboard (Active)",
@@ -370,27 +352,27 @@ def gen_fig4_4():
         "System Settings"
     ]
     for i, item in enumerate(nav_items):
-        y_pos = 0.69 - i * 0.095
+        y_pos = 0.73 - i * 0.102
         bg_col = FILL_GRAY1 if i == 0 else FILL_WHITE
-        draw_box(ax, 0.03, y_pos, 0.14, 0.075, bg=bg_col, border=BORDER_BLACK, lw=1.2)
-        ax.text(0.10, y_pos + 0.0375, item, color=TEXT_BLACK, fontsize=8.2, fontweight='bold' if i==0 else 'normal', ha='center', va='center')
+        draw_box(ax, 0.03, y_pos, 0.14, 0.082, bg=bg_col, border=BORDER_BLACK, lw=1.2)
+        ax.text(0.10, y_pos + 0.041, item, color=TEXT_BLACK, fontsize=9.6, fontweight='bold' if i==0 else 'normal', ha='center', va='center')
 
     # Top-Left: Threat Radar & Risk Gauge
-    draw_box(ax, 0.20, 0.46, 0.38, 0.39, bg=FILL_WHITE, lw=1.5)
-    ax.text(0.22, 0.815, "DYNAMIC THREAT RISK GAUGE", color=TEXT_BLACK, fontsize=10.0, fontweight='bold')
-    ax.plot([0.22, 0.56], [0.80, 0.80], color=BORDER_BLACK, lw=0.8)
+    draw_box(ax, 0.20, 0.48, 0.38, 0.41, bg=FILL_WHITE, lw=1.5)
+    ax.text(0.22, 0.855, "DYNAMIC THREAT RISK GAUGE", color=TEXT_BLACK, fontsize=11.5, fontweight='bold')
+    ax.plot([0.22, 0.56], [0.838, 0.838], color=BORDER_BLACK, lw=0.8)
 
     # Arc Gauge
     theta = np.linspace(np.pi, 0, 100)
-    r = 0.075
-    cx, cy = 0.39, 0.69
-    ax.plot(cx + r*np.cos(theta), cy + r*np.sin(theta), color=FILL_GRAY3, lw=8, zorder=3)
+    r = 0.080
+    cx, cy = 0.39, 0.72
+    ax.plot(cx + r*np.cos(theta), cy + r*np.sin(theta), color=FILL_GRAY3, lw=9, zorder=3)
     t_active = np.linspace(np.pi, np.pi * 0.216, 78)
-    ax.plot(cx + r*np.cos(t_active), cy + r*np.sin(t_active), color=BORDER_BLACK, lw=8, zorder=4)
+    ax.plot(cx + r*np.cos(t_active), cy + r*np.sin(t_active), color=BORDER_BLACK, lw=9, zorder=4)
 
-    draw_box(ax, 0.31, 0.56, 0.16, 0.072, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1)
-    ax.text(0.39, 0.608, "78.4 / 100", color=TEXT_BLACK, fontsize=11.5, fontweight='bold', ha='center')
-    ax.text(0.39, 0.575, "CRITICAL RISK LEVEL", color=TEXT_MUTED, fontsize=7.5, ha='center')
+    draw_box(ax, 0.30, 0.58, 0.18, 0.076, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.2)
+    ax.text(0.39, 0.630, "78.4 / 100", color=TEXT_BLACK, fontsize=13.0, fontweight='bold', ha='center')
+    ax.text(0.39, 0.596, "CRITICAL RISK LEVEL", color=TEXT_MUTED, fontsize=8.8, ha='center')
 
     gauge_stats = [
         ("Base CVSS Exposure:", "45.0 pts"),
@@ -398,14 +380,14 @@ def gen_fig4_4():
         ("Discovered Signals:", "13.4 pts")
     ]
     for gidx, (glbl, gval) in enumerate(gauge_stats):
-        gy = 0.525 - gidx * 0.024
-        ax.text(0.23, gy, glbl, color=TEXT_MUTED, fontsize=7.8)
-        ax.text(0.55, gy, gval, color=TEXT_BLACK, fontsize=7.8, fontweight='bold', ha='right')
+        gy = 0.545 - gidx * 0.026
+        ax.text(0.23, gy, glbl, color=TEXT_MUTED, fontsize=9.0)
+        ax.text(0.55, gy, gval, color=TEXT_BLACK, fontsize=9.0, fontweight='bold', ha='right')
 
     # Top-Right: Port Matrix Card
-    draw_box(ax, 0.60, 0.46, 0.38, 0.39, bg=FILL_WHITE, lw=1.5)
-    ax.text(0.62, 0.815, "ACTIVE DISCOVERED PORT SURFACE (5 OPEN)", color=TEXT_BLACK, fontsize=10.0, fontweight='bold')
-    ax.plot([0.62, 0.96], [0.80, 0.80], color=BORDER_BLACK, lw=0.8)
+    draw_box(ax, 0.60, 0.48, 0.38, 0.41, bg=FILL_WHITE, lw=1.5)
+    ax.text(0.62, 0.855, "ACTIVE DISCOVERED PORT SURFACE (5 OPEN)", color=TEXT_BLACK, fontsize=11.5, fontweight='bold')
+    ax.plot([0.62, 0.96], [0.838, 0.838], color=BORDER_BLACK, lw=0.8)
 
     ports_data = [
         ("Port 21/tcp", "FTP (ProFTPD 1.3.3a - Backdoor)", "CRITICAL"),
@@ -415,16 +397,16 @@ def gen_fig4_4():
         ("Port 3306/tcp", "MySQL 5.7 (Unauthenticated Root)", "HIGH")
     ]
     for pidx, (pnum, pdesc, psev) in enumerate(ports_data):
-        py = 0.735 - pidx * 0.054
-        draw_box(ax, 0.62, py, 0.34, 0.046, bg=FILL_LIGHT if pidx%2==0 else FILL_WHITE, border=BORDER_BLACK, lw=1)
-        ax.text(0.63, py + 0.023, pnum, color=TEXT_BLACK, fontsize=8.0, fontweight='bold', va='center')
-        ax.text(0.725, py + 0.023, pdesc, color=TEXT_MUTED, fontsize=7.0, va='center')
-        ax.text(0.95, py + 0.023, psev, color=TEXT_BLACK, fontsize=7.5, fontweight='bold', ha='right', va='center')
+        py = 0.768 - pidx * 0.058
+        draw_box(ax, 0.62, py, 0.34, 0.050, bg=FILL_LIGHT if pidx%2==0 else FILL_WHITE, border=BORDER_BLACK, lw=1)
+        ax.text(0.63, py + 0.025, pnum, color=TEXT_BLACK, fontsize=9.2, fontweight='bold', va='center')
+        ax.text(0.730, py + 0.025, pdesc, color=TEXT_MUTED, fontsize=8.2, va='center')
+        ax.text(0.95, py + 0.025, psev, color=TEXT_BLACK, fontsize=8.6, fontweight='bold', ha='right', va='center')
 
     # Bottom-Left: Execution History Timeline
-    draw_box(ax, 0.20, 0.04, 0.38, 0.40, bg=FILL_WHITE, lw=1.5)
-    ax.text(0.22, 0.405, "PIPELINE EXECUTION HISTORY & ARTIFACTS", color=TEXT_BLACK, fontsize=10.0, fontweight='bold')
-    ax.plot([0.22, 0.56], [0.39, 0.39], color=BORDER_BLACK, lw=0.8)
+    draw_box(ax, 0.20, 0.035, 0.38, 0.425, bg=FILL_WHITE, lw=1.5)
+    ax.text(0.22, 0.425, "PIPELINE EXECUTION HISTORY & ARTIFACTS", color=TEXT_BLACK, fontsize=11.5, fontweight='bold')
+    ax.plot([0.22, 0.56], [0.408, 0.408], color=BORDER_BLACK, lw=0.8)
 
     history_logs = [
         ("10:02:11", "theHarvester", "FQDN range-srv01.local bound"),
@@ -435,28 +417,28 @@ def gen_fig4_4():
         ("10:04:30", "ReportLab", "kalinova_report_192.168.1.105.pdf created")
     ]
     for hidx, (htime, htool, hres) in enumerate(history_logs):
-        hy = 0.345 - hidx * 0.050
-        draw_box(ax, 0.22, hy, 0.34, 0.042, bg=FILL_GRAY1, border=BORDER_BLACK, lw=0.8)
-        ax.text(0.228, hy + 0.021, f"[{htime}]", color=TEXT_MUTED, fontsize=6.8, va='center')
-        ax.text(0.288, hy + 0.021, htool, color=TEXT_BLACK, fontsize=7.4, fontweight='bold', va='center')
-        ax.text(0.385, hy + 0.021, hres, color=TEXT_BLACK, fontsize=6.6, va='center')
+        hy = 0.355 - hidx * 0.054
+        draw_box(ax, 0.22, hy, 0.34, 0.046, bg=FILL_GRAY1, border=BORDER_BLACK, lw=0.8)
+        ax.text(0.228, hy + 0.023, f"[{htime}]", color=TEXT_MUTED, fontsize=8.0, va='center')
+        ax.text(0.295, hy + 0.023, htool, color=TEXT_BLACK, fontsize=8.8, fontweight='bold', va='center')
+        ax.text(0.395, hy + 0.023, hres, color=TEXT_BLACK, fontsize=8.0, va='center')
 
     # Bottom-Right: Autonomous Advisor & AI Directive
-    draw_box(ax, 0.60, 0.04, 0.38, 0.40, bg=FILL_WHITE, lw=1.5)
-    ax.text(0.62, 0.405, "AUTONOMOUS SCENARIO ADVISOR & COPILOT", color=TEXT_BLACK, fontsize=10.0, fontweight='bold')
-    ax.plot([0.62, 0.96], [0.39, 0.39], color=BORDER_BLACK, lw=0.8)
+    draw_box(ax, 0.60, 0.035, 0.38, 0.425, bg=FILL_WHITE, lw=1.5)
+    ax.text(0.62, 0.425, "AUTONOMOUS SCENARIO ADVISOR & COPILOT", color=TEXT_BLACK, fontsize=11.5, fontweight='bold')
+    ax.plot([0.62, 0.96], [0.408, 0.408], color=BORDER_BLACK, lw=0.8)
 
-    draw_box(ax, 0.62, 0.26, 0.34, 0.115, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.64, 0.350, "ACTIVE AI DIRECTIVE: VULNERABILITY REMEDIATION", color=TEXT_BLACK, fontsize=7.8, fontweight='bold')
-    ax.text(0.64, 0.318, "Model Confidence: 98.4%  |  Target Vector: /login.php", color=TEXT_MUTED, fontsize=7.2)
-    ax.text(0.64, 0.282, "Action: Deploy parameterized SQL queries & isolate FTP daemon.", color=TEXT_BLACK, fontsize=7.0)
+    draw_box(ax, 0.62, 0.275, 0.34, 0.125, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.2)
+    ax.text(0.64, 0.368, "ACTIVE AI DIRECTIVE: VULNERABILITY REMEDIATION", color=TEXT_BLACK, fontsize=9.0, fontweight='bold')
+    ax.text(0.64, 0.334, "Model Confidence: 98.4%  |  Target Vector: /login.php", color=TEXT_MUTED, fontsize=8.2)
+    ax.text(0.64, 0.296, "Action: Deploy parameterized SQL queries & isolate FTP daemon.", color=TEXT_BLACK, fontsize=8.2)
 
-    draw_box(ax, 0.62, 0.145, 0.34, 0.095, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.79, 0.203, "▶  EXECUTE AUTOMATED PATCH DEPLOYMENT", color=TEXT_BLACK, fontsize=8.6, fontweight='bold', ha='center', va='center')
-    ax.text(0.79, 0.170, "(Non-Blocking Subprocess Dispatch via InteractiveExecutor)", color=TEXT_MUTED, fontsize=6.8, ha='center', va='center')
+    draw_box(ax, 0.62, 0.155, 0.34, 0.105, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
+    ax.text(0.79, 0.220, "▶  EXECUTE AUTOMATED PATCH DEPLOYMENT", color=TEXT_BLACK, fontsize=9.8, fontweight='bold', ha='center', va='center')
+    ax.text(0.79, 0.182, "(Non-Blocking Subprocess Dispatch via InteractiveExecutor)", color=TEXT_MUTED, fontsize=8.0, ha='center', va='center')
 
-    draw_box(ax, 0.62, 0.055, 0.34, 0.075, bg=FILL_WHITE, border=BORDER_BLACK, lw=1)
-    ax.text(0.79, 0.092, "Audit Exporters: [ PDF Report ]  [ HTML Canvas ]  [ kalinova.db ]", color=TEXT_BLACK, fontsize=7.2, fontweight='bold', ha='center', va='center')
+    draw_box(ax, 0.62, 0.055, 0.34, 0.082, bg=FILL_WHITE, border=BORDER_BLACK, lw=1)
+    ax.text(0.79, 0.096, "Audit Exporters: [ PDF Report ]  [ HTML Canvas ]  [ kalinova.db ]", color=TEXT_BLACK, fontsize=8.5, fontweight='bold', ha='center', va='center')
 
     save_fig(fig, "dashboard_result.png")
 
@@ -470,28 +452,25 @@ def gen_fig4_5():
     ax.set_ylim(0, 1)
     ax.axis('off')
 
-    ax.text(0.5, 0.97, "Real-Time Interactive Pseudo-Terminal (PTY) Output Stream", color=TEXT_BLACK, fontsize=17, fontweight='bold', ha='center')
-    ax.text(0.5, 0.935, "Asynchronous Standard I/O Rendering with Real-Time Regex Telemetry Tokenization", color=TEXT_MUTED, fontsize=11, style='italic', ha='center')
-
-    # Terminal Outer Window Frame
-    draw_box(ax, 0.04, 0.05, 0.92, 0.86, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.8)
+    # Terminal Outer Window Frame (Expanded vertically into freed top title space)
+    draw_box(ax, 0.03, 0.03, 0.94, 0.94, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.8)
 
     # Window Title Bar
-    draw_box(ax, 0.04, 0.85, 0.92, 0.06, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.4)
-    for bx, col in [(0.06, FILL_WHITE), (0.075, FILL_GRAY3), (0.09, BORDER_BLACK)]:
-        circle = patches.Circle((bx, 0.88), 0.007, facecolor=col, edgecolor=BORDER_BLACK, lw=1, zorder=5)
+    draw_box(ax, 0.03, 0.905, 0.94, 0.065, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.4)
+    for bx, col in [(0.052, FILL_WHITE), (0.068, FILL_GRAY3), (0.084, BORDER_BLACK)]:
+        circle = patches.Circle((bx, 0.9375), 0.007, facecolor=col, edgecolor=BORDER_BLACK, lw=1, zorder=5)
         ax.add_patch(circle)
 
-    ax.text(0.50, 0.88, "Kali-Nova Interactive Console  —  Session #03 (Nmap Service Probe)", color=TEXT_BLACK, fontsize=10, fontweight='bold', ha='center', va='center')
-    ax.text(0.94, 0.88, "[STATUS: RUNNING | PID: 14920]", color=TEXT_BLACK, fontsize=9, fontweight='bold', ha='right', va='center')
+    ax.text(0.50, 0.9375, "Kali-Nova Interactive Console  —  Session #03 (Nmap Service Probe)", color=TEXT_BLACK, fontsize=12.0, fontweight='bold', ha='center', va='center')
+    ax.text(0.95, 0.9375, "[STATUS: RUNNING | PID: 14920]", color=TEXT_BLACK, fontsize=10.5, fontweight='bold', ha='right', va='center')
 
     # Telemetry Sub-bar
-    draw_box(ax, 0.05, 0.795, 0.90, 0.045, bg=FILL_WHITE, border=BORDER_BLACK, lw=1)
-    ax.text(0.06, 0.8175, "COMMAND: nmap -sV -sC -p 21,22,80,443,3306 -T4 192.168.1.105", color=TEXT_BLACK, fontsize=8.5, fontweight='bold', va='center')
-    ax.text(0.93, 0.8175, "Throughput: 14.8 KB/s | Buffer: 0 dropped | Worker Latency: 4.2 ms", color=TEXT_MUTED, fontsize=8, ha='right', va='center')
+    draw_box(ax, 0.04, 0.845, 0.92, 0.048, bg=FILL_WHITE, border=BORDER_BLACK, lw=1)
+    ax.text(0.055, 0.869, "COMMAND: nmap -sV -sC -p 21,22,80,443,3306 -T4 192.168.1.105", color=TEXT_BLACK, fontsize=10.0, fontweight='bold', va='center')
+    ax.text(0.945, 0.869, "Throughput: 14.8 KB/s | Buffer: 0 dropped | Worker Latency: 4.2 ms", color=TEXT_MUTED, fontsize=9.2, ha='right', va='center')
 
     # Console Text Body (Terminal screen)
-    draw_box(ax, 0.05, 0.12, 0.90, 0.66, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.2)
+    draw_box(ax, 0.04, 0.10, 0.92, 0.735, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.2)
 
     console_lines = [
         ("[00:00.01]", "kali-nova@recon:~$ nmap -sV -sC -p 21,22,80,443,3306 -T4 192.168.1.105", True, False),
@@ -519,18 +498,18 @@ def gen_fig4_5():
     ]
 
     for lidx, (ltime, ltxt, is_bold, is_alert) in enumerate(console_lines):
-        ly = 0.75 - lidx * 0.028
-        ax.text(0.06, ly, ltime, color=TEXT_MUTED, fontsize=7.2, fontfamily='monospace', va='center')
+        ly = 0.805 - lidx * 0.032
+        ax.text(0.052, ly, ltime, color=TEXT_MUTED, fontsize=8.6, fontfamily='monospace', va='center')
         tcolor = TEXT_BLACK
         if is_alert:
             tcolor = "#B91C1C" if is_bold else TEXT_BLACK
-        ax.text(0.13, ly, ltxt, color=tcolor, fontsize=7.8, fontfamily='monospace',
+        ax.text(0.125, ly, ltxt, color=tcolor, fontsize=9.2, fontfamily='monospace',
                 fontweight='bold' if is_bold else 'normal', va='center')
 
     # Terminal Footer / Stdin Bar
-    draw_box(ax, 0.05, 0.06, 0.90, 0.048, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1)
-    ax.text(0.06, 0.084, "Interactive Input Stdin: [ Enter commands or responses to child process... ]", color=TEXT_MUTED, fontsize=8, fontfamily='monospace', va='center')
-    ax.text(0.93, 0.084, "[CTRL+C: SIGINT]  [CTRL+Z: SIGTSTP]", color=TEXT_BLACK, fontsize=8, fontweight='bold', fontfamily='monospace', ha='right', va='center')
+    draw_box(ax, 0.04, 0.042, 0.92, 0.046, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1)
+    ax.text(0.055, 0.065, "Interactive Input Stdin: [ Enter commands or responses to child process... ]", color=TEXT_MUTED, fontsize=9.2, fontfamily='monospace', va='center')
+    ax.text(0.945, 0.065, "[CTRL+C: SIGINT]  [CTRL+Z: SIGTSTP]", color=TEXT_BLACK, fontsize=9.2, fontweight='bold', fontfamily='monospace', ha='right', va='center')
 
     save_fig(fig, "terminal_streaming.png")
 
@@ -544,14 +523,11 @@ def gen_fig4_6():
     ax.set_ylim(0, 1)
     ax.axis('off')
 
-    ax.text(0.5, 0.97, "Real-Time Port & Security Event Parsing Engine Results", color=TEXT_BLACK, fontsize=17, fontweight='bold', ha='center')
-    ax.text(0.5, 0.935, "Transformation of Raw Unstructured CLI Telemetry into Strongly Typed Global State Tuples", color=TEXT_MUTED, fontsize=11, style='italic', ha='center')
-
-    # Stage 1: Raw Output Stream
-    draw_box(ax, 0.03, 0.12, 0.28, 0.77, bg=FILL_WHITE, lw=1.5)
-    ax.text(0.17, 0.855, "1. Raw CLI Telemetry Stream", color=TEXT_BLACK, fontsize=10.5, fontweight='bold', ha='center')
-    ax.text(0.17, 0.83, "(InteractiveExecutor stdout)", color=TEXT_MUTED, fontsize=8, ha='center')
-    ax.plot([0.05, 0.29], [0.815, 0.815], color=BORDER_BLACK, lw=0.8)
+    # Stage 1: Raw Output Stream (Expanded vertically into freed top space)
+    draw_box(ax, 0.03, 0.10, 0.28, 0.86, bg=FILL_WHITE, lw=1.5)
+    ax.text(0.17, 0.925, "1. Raw CLI Telemetry Stream", color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center')
+    ax.text(0.17, 0.898, "(InteractiveExecutor stdout)", color=TEXT_MUTED, fontsize=9.5, ha='center')
+    ax.plot([0.05, 0.29], [0.880, 0.880], color=BORDER_BLACK, lw=0.8)
 
     raw_snippets = [
         "21/tcp open ftp ProFTPD 1.3.3a",
@@ -564,19 +540,19 @@ def gen_fig4_6():
         "|_empty-password: root user"
     ]
     for ridx, raw in enumerate(raw_snippets):
-        ry = 0.76 - ridx * 0.075
-        draw_box(ax, 0.045, ry, 0.25, 0.06, bg=FILL_LIGHT, border=BORDER_BLACK, lw=0.9)
-        ax.text(0.055, ry + 0.03, raw, color=TEXT_BLACK, fontsize=7.8, fontfamily='monospace', va='center')
+        ry = 0.810 - ridx * 0.088
+        draw_box(ax, 0.045, ry, 0.25, 0.070, bg=FILL_LIGHT, border=BORDER_BLACK, lw=0.9)
+        ax.text(0.055, ry + 0.035, raw, color=TEXT_BLACK, fontsize=9.2, fontfamily='monospace', va='center')
 
     # Arrow 1 -> 2
-    ax.annotate("", xy=(0.35, 0.50), xytext=(0.31, 0.50), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2))
-    ax.text(0.33, 0.53, "Tokenize\n& Match", color=TEXT_MUTED, fontsize=7.5, ha='center')
+    ax.annotate("", xy=(0.35, 0.53), xytext=(0.31, 0.53), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2))
+    ax.text(0.33, 0.565, "Tokenize\n& Match", color=TEXT_MUTED, fontsize=9.0, ha='center')
 
     # Stage 2: Heuristic Regex & Classification Engine
-    draw_box(ax, 0.36, 0.12, 0.28, 0.77, bg=FILL_LIGHT, lw=1.5)
-    ax.text(0.50, 0.855, "2. Heuristic Pattern Tokenizer", color=TEXT_BLACK, fontsize=10.5, fontweight='bold', ha='center')
-    ax.text(0.50, 0.83, "(Regular Expression Grammars)", color=TEXT_MUTED, fontsize=8, ha='center')
-    ax.plot([0.38, 0.62], [0.815, 0.815], color=BORDER_BLACK, lw=0.8)
+    draw_box(ax, 0.36, 0.10, 0.28, 0.86, bg=FILL_LIGHT, lw=1.5)
+    ax.text(0.50, 0.925, "2. Heuristic Pattern Tokenizer", color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center')
+    ax.text(0.50, 0.898, "(Regular Expression Grammars)", color=TEXT_MUTED, fontsize=9.5, ha='center')
+    ax.plot([0.38, 0.62], [0.880, 0.880], color=BORDER_BLACK, lw=0.8)
 
     rules = [
         ("Port Regex Parser", r"^(\d+)\/(tcp|udp)\s+(\w+)\s+(.+)$", "Extracts port, proto, state, service banner"),
@@ -585,21 +561,21 @@ def gen_fig4_6():
         ("Credential Extractor", r"(password|admin|root|hash):\s*(\S+)", "Binds discovered hashes to auth pipelines")
     ]
     for kidx, (rtitle, rpat, rdesc) in enumerate(rules):
-        ky = 0.74 - kidx * 0.15
-        draw_box(ax, 0.375, ky, 0.25, 0.125, bg=FILL_WHITE, border=BORDER_BLACK, lw=1)
-        ax.text(0.39, ky + 0.098, rtitle, color=TEXT_BLACK, fontsize=8.5, fontweight='bold')
-        ax.text(0.39, ky + 0.065, rpat, color=TEXT_MUTED, fontsize=7.5, fontfamily='monospace')
-        ax.text(0.39, ky + 0.025, rdesc, color=TEXT_BLACK, fontsize=7.2)
+        ky = 0.730 - kidx * 0.180
+        draw_box(ax, 0.375, ky, 0.25, 0.150, bg=FILL_WHITE, border=BORDER_BLACK, lw=1)
+        ax.text(0.39, ky + 0.118, rtitle, color=TEXT_BLACK, fontsize=10.5, fontweight='bold')
+        ax.text(0.39, ky + 0.078, rpat, color=TEXT_MUTED, fontsize=9.0, fontfamily='monospace')
+        ax.text(0.39, ky + 0.030, rdesc, color=TEXT_BLACK, fontsize=8.6)
 
     # Arrow 2 -> 3
-    ax.annotate("", xy=(0.68, 0.50), xytext=(0.64, 0.50), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2))
-    ax.text(0.66, 0.53, "Bind To\nAppState", color=TEXT_MUTED, fontsize=7.5, ha='center')
+    ax.annotate("", xy=(0.68, 0.53), xytext=(0.64, 0.53), arrowprops=dict(arrowstyle="->", color=BORDER_BLACK, lw=2))
+    ax.text(0.66, 0.565, "Bind To\nAppState", color=TEXT_MUTED, fontsize=9.0, ha='center')
 
     # Stage 3: Structured AppState Entities
-    draw_box(ax, 0.69, 0.12, 0.28, 0.77, bg=FILL_WHITE, lw=1.5)
-    ax.text(0.83, 0.855, "3. Structured AppState Entities", color=TEXT_BLACK, fontsize=10.5, fontweight='bold', ha='center')
-    ax.text(0.83, 0.83, "(Reactive Singleton Repository)", color=TEXT_MUTED, fontsize=8, ha='center')
-    ax.plot([0.71, 0.95], [0.815, 0.815], color=BORDER_BLACK, lw=0.8)
+    draw_box(ax, 0.69, 0.10, 0.28, 0.86, bg=FILL_WHITE, lw=1.5)
+    ax.text(0.83, 0.925, "3. Structured AppState Entities", color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center')
+    ax.text(0.83, 0.898, "(Reactive Singleton Repository)", color=TEXT_MUTED, fontsize=9.5, ha='center')
+    ax.plot([0.71, 0.95], [0.880, 0.880], color=BORDER_BLACK, lw=0.8)
 
     json_blocks = [
         ("TARGET IDENTITY", "host: 192.168.1.105\nfqdn: range-srv01.local\nstatus: ACTIVE_IN_SCOPE"),
@@ -608,14 +584,14 @@ def gen_fig4_6():
         ("STATE AGGREGATE", "threat_tier: CRITICAL\nrisk_score: 78.4 / 100\nremediation_status: PENDING")
     ]
     for jidx, (jtitle, jcontent) in enumerate(json_blocks):
-        jy = 0.74 - jidx * 0.15
-        draw_box(ax, 0.705, jy, 0.25, 0.125, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1)
-        ax.text(0.72, jy + 0.098, jtitle, color=TEXT_BLACK, fontsize=8.2, fontweight='bold')
-        ax.text(0.72, jy + 0.045, jcontent, color=TEXT_MUTED, fontsize=7.2, fontfamily='monospace')
+        jy = 0.730 - jidx * 0.180
+        draw_box(ax, 0.705, jy, 0.25, 0.150, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1)
+        ax.text(0.72, jy + 0.118, jtitle, color=TEXT_BLACK, fontsize=10.2, fontweight='bold')
+        ax.text(0.72, jy + 0.055, jcontent, color=TEXT_MUTED, fontsize=8.6, fontfamily='monospace')
 
     # Bottom Banner
-    draw_box(ax, 0.03, 0.03, 0.94, 0.065, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.50, 0.0625, "Outcome: Zero manual copy-pasting; downstream utilities (Nikto, SQLMap, Hydra) auto-fill target IP, open ports, and URLs.", color=TEXT_BLACK, fontsize=9, fontweight='bold', ha='center', va='center')
+    draw_box(ax, 0.03, 0.025, 0.94, 0.058, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2)
+    ax.text(0.50, 0.054, "Outcome: Zero manual copy-pasting; downstream utilities (Nikto, SQLMap, Hydra) auto-fill target IP, open ports, and URLs.", color=TEXT_BLACK, fontsize=10.2, fontweight='bold', ha='center', va='center')
 
     save_fig(fig, "port_parsing.png")
 
@@ -629,30 +605,27 @@ def gen_fig4_10():
     ax.set_ylim(0, 1)
     ax.axis('off')
 
-    ax.text(0.5, 0.97, "AI Copilot Diagnostic Interface & Defensive Remediation Synthesis", color=TEXT_BLACK, fontsize=17, fontweight='bold', ha='center')
-    ax.text(0.5, 0.935, "Context-Aware Large Language Model Analysis with Parameterized Multi-Stack Code Generation", color=TEXT_MUTED, fontsize=11, style='italic', ha='center')
-
-    # Top Diagnostic Card
-    draw_box(ax, 0.04, 0.65, 0.92, 0.26, bg=FILL_LIGHT, lw=1.6)
-    ax.text(0.06, 0.87, "AI COPILOT THREAT DIAGNOSTIC REPORT", color=TEXT_BLACK, fontsize=11.5, fontweight='bold')
-    ax.text(0.94, 0.87, "INFERENCE ENGINE: Hybrid Llama-3-70B  |  LATENCY: 1.24s", color=TEXT_MUTED, fontsize=9, ha='right')
-    ax.plot([0.06, 0.94], [0.85, 0.85], color=BORDER_BLACK, lw=0.8)
+    # Top Diagnostic Card (Expanded vertically into freed top title space)
+    draw_box(ax, 0.04, 0.67, 0.92, 0.29, bg=FILL_LIGHT, lw=1.6)
+    ax.text(0.06, 0.925, "AI COPILOT THREAT DIAGNOSTIC REPORT", color=TEXT_BLACK, fontsize=13.0, fontweight='bold')
+    ax.text(0.94, 0.925, "INFERENCE ENGINE: Hybrid Llama-3-70B  |  LATENCY: 1.24s", color=TEXT_MUTED, fontsize=10.5, ha='right')
+    ax.plot([0.06, 0.94], [0.902, 0.902], color=BORDER_BLACK, lw=0.8)
 
     # Severity badge
-    draw_box(ax, 0.06, 0.75, 0.18, 0.08, bg=FILL_GRAY3, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.15, 0.80, "CRITICAL SEVERITY", color=TEXT_BLACK, fontsize=8.5, fontweight='bold', ha='center')
-    ax.text(0.15, 0.765, "CVSS v3.1 Score: 9.8 / 10", color=TEXT_BLACK, fontsize=8.5, ha='center')
+    draw_box(ax, 0.06, 0.785, 0.18, 0.095, bg=FILL_GRAY3, border=BORDER_BLACK, lw=1.2)
+    ax.text(0.15, 0.845, "CRITICAL SEVERITY", color=TEXT_BLACK, fontsize=10.5, fontweight='bold', ha='center')
+    ax.text(0.15, 0.805, "CVSS v3.1 Score: 9.8 / 10", color=TEXT_BLACK, fontsize=10.0, ha='center')
 
-    ax.text(0.26, 0.81, "Finding: Structured Query Language (SQL) Injection in /login.php", color=TEXT_BLACK, fontsize=10.5, fontweight='bold')
-    ax.text(0.26, 0.78, "Vector: HTTP POST parameter 'username' passed unescaped to database query.", color=TEXT_MUTED, fontsize=8.8)
-    ax.text(0.26, 0.745, "CVSS String: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H  (Impact: Total Data Compromise)", color=TEXT_BLACK, fontsize=8.2, fontfamily='monospace')
-    ax.text(0.26, 0.71, "Impact: Allows remote unauthenticated threat actors to dump 'users' table, extract password hashes, or achieve RCE.", color=TEXT_MUTED, fontsize=8)
+    ax.text(0.26, 0.860, "Finding: Structured Query Language (SQL) Injection in /login.php", color=TEXT_BLACK, fontsize=12.0, fontweight='bold')
+    ax.text(0.26, 0.825, "Vector: HTTP POST parameter 'username' passed unescaped to database query.", color=TEXT_MUTED, fontsize=10.2)
+    ax.text(0.26, 0.785, "CVSS String: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H  (Impact: Total Data Compromise)", color=TEXT_BLACK, fontsize=9.6, fontfamily='monospace')
+    ax.text(0.26, 0.745, "Impact: Allows remote unauthenticated threat actors to dump 'users' table, extract password hashes, or achieve RCE.", color=TEXT_MUTED, fontsize=9.5)
 
     # 3 Code Remediation Cards
     # Card 1: Python
-    draw_box(ax, 0.04, 0.08, 0.29, 0.54, bg=FILL_WHITE, lw=1.5)
-    draw_box(ax, 0.05, 0.55, 0.27, 0.055, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1)
-    ax.text(0.185, 0.5775, "Python (psycopg2 / sqlite3)", color=TEXT_BLACK, fontsize=9, fontweight='bold', ha='center', va='center')
+    draw_box(ax, 0.04, 0.08, 0.29, 0.57, bg=FILL_WHITE, lw=1.5)
+    draw_box(ax, 0.05, 0.585, 0.27, 0.055, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1)
+    ax.text(0.185, 0.6125, "Python (psycopg2 / sqlite3)", color=TEXT_BLACK, fontsize=11.0, fontweight='bold', ha='center', va='center')
     py_code = (
         "# SECURE: Parameterized Query\n"
         "import sqlite3\n\n"
@@ -668,12 +641,12 @@ def gen_fig4_10():
         "    return cur.fetchone()\n\n"
         "# Verified: AST Safe Syntax"
     )
-    ax.text(0.06, 0.32, py_code, color=TEXT_BLACK, fontsize=7.5, fontfamily='monospace', va='center')
+    ax.text(0.06, 0.34, py_code, color=TEXT_BLACK, fontsize=8.8, fontfamily='monospace', va='center')
 
     # Card 2: Node.js
-    draw_box(ax, 0.355, 0.08, 0.29, 0.54, bg=FILL_WHITE, lw=1.5)
-    draw_box(ax, 0.365, 0.55, 0.27, 0.055, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1)
-    ax.text(0.50, 0.5775, "Node.js (Sequelize / pg)", color=TEXT_BLACK, fontsize=9, fontweight='bold', ha='center', va='center')
+    draw_box(ax, 0.355, 0.08, 0.29, 0.57, bg=FILL_WHITE, lw=1.5)
+    draw_box(ax, 0.365, 0.585, 0.27, 0.055, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1)
+    ax.text(0.50, 0.6125, "Node.js (Sequelize / pg)", color=TEXT_BLACK, fontsize=11.0, fontweight='bold', ha='center', va='center')
     node_code = (
         "// SECURE: Prepared Statement\n"
         "const { Client } = require('pg');\n\n"
@@ -691,12 +664,12 @@ def gen_fig4_10():
         "  return res.rows[0];\n"
         "}"
     )
-    ax.text(0.375, 0.32, node_code, color=TEXT_BLACK, fontsize=7.5, fontfamily='monospace', va='center')
+    ax.text(0.375, 0.34, node_code, color=TEXT_BLACK, fontsize=8.8, fontfamily='monospace', va='center')
 
     # Card 3: Firewall & Web Guard (Bash)
-    draw_box(ax, 0.67, 0.08, 0.29, 0.54, bg=FILL_WHITE, lw=1.5)
-    draw_box(ax, 0.68, 0.55, 0.27, 0.055, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1)
-    ax.text(0.815, 0.5775, "Defensive Perimeter (Bash/WAF)", color=TEXT_BLACK, fontsize=9, fontweight='bold', ha='center', va='center')
+    draw_box(ax, 0.67, 0.08, 0.29, 0.57, bg=FILL_WHITE, lw=1.5)
+    draw_box(ax, 0.68, 0.585, 0.27, 0.055, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1)
+    ax.text(0.815, 0.6125, "Defensive Perimeter (Bash/WAF)", color=TEXT_BLACK, fontsize=11.0, fontweight='bold', ha='center', va='center')
     bash_code = (
         "# Web Application Defense Rule\n"
         "# 1. Drop SQLi payloads via IPTables\n"
@@ -711,11 +684,11 @@ def gen_fig4_10():
         "  maxretry 3\n\n"
         "# Verified: 100% Defense Hardening"
     )
-    ax.text(0.69, 0.32, bash_code, color=TEXT_BLACK, fontsize=7.5, fontfamily='monospace', va='center')
+    ax.text(0.69, 0.34, bash_code, color=TEXT_BLACK, fontsize=8.8, fontfamily='monospace', va='center')
 
     # Bottom Actions Bar
     draw_box(ax, 0.04, 0.02, 0.92, 0.048, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1)
-    ax.text(0.50, 0.044, "Status: Production-grade remediation synthesized in 1.24s  |  [ Apply Patch Automatically ]  [ Copy Code ]  [ Export Pull Request ]", color=TEXT_BLACK, fontsize=8.5, fontweight='bold', ha='center', va='center')
+    ax.text(0.50, 0.044, "Status: Production-grade remediation synthesized in 1.24s  |  [ Apply Patch Automatically ]  [ Copy Code ]  [ Export Pull Request ]", color=TEXT_BLACK, fontsize=10.0, fontweight='bold', ha='center', va='center')
 
     save_fig(fig, "ai_copilot_result.png")
 
@@ -729,44 +702,37 @@ def gen_fig4_12():
     ax.set_ylim(0, 1)
     ax.axis('off')
 
-    # Header Title and Subtitle
-    ax.text(0.5, 0.975, "Figure 4.12: Radar-Based Network Threat Visualization Result",
-            color=TEXT_BLACK, fontsize=15.5, fontweight='bold', ha='center')
-    ax.text(0.5, 0.944, "Live Spatial Sweep HUD with Tiered Topology, Port Sector Glyphs, and Real-Time Node Diagnostics",
-            color=TEXT_MUTED, fontsize=10.0, style='italic', ha='center')
-
-    # Window Outer Frame
-    draw_box(ax, 0.02, 0.03, 0.96, 0.895, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.8)
+    # Window Outer Frame (Expanded vertically into freed top space)
+    draw_box(ax, 0.02, 0.025, 0.96, 0.95, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.8)
 
     # Window Title Bar (No text overlap)
-    draw_box(ax, 0.02, 0.855, 0.96, 0.065, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.4)
+    draw_box(ax, 0.02, 0.905, 0.96, 0.065, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.4)
     for bx, col in [(0.04, FILL_WHITE), (0.055, FILL_GRAY3), (0.07, BORDER_BLACK)]:
-        circle = patches.Circle((bx, 0.8875), 0.007, facecolor=col, edgecolor=BORDER_BLACK, lw=1, zorder=5)
+        circle = patches.Circle((bx, 0.9375), 0.007, facecolor=col, edgecolor=BORDER_BLACK, lw=1, zorder=5)
         ax.add_patch(circle)
 
-    ax.text(0.095, 0.8875, "Kali-Nova Cyber HUD — Spatial Threat Radar Engine (Scope: 192.168.1.0/24)",
-            color=TEXT_BLACK, fontsize=10.0, fontweight='bold', va='center')
-    ax.text(0.96, 0.8875, "[20 FPS | AZIMUTH: 068.5°]",
-            color=TEXT_BLACK, fontsize=8.8, fontweight='bold', ha='right', va='center')
+    ax.text(0.095, 0.9375, "Kali-Nova Cyber HUD — Spatial Threat Radar Engine (Scope: 192.168.1.0/24)",
+            color=TEXT_BLACK, fontsize=12.0, fontweight='bold', va='center')
+    ax.text(0.96, 0.9375, "[20 FPS | AZIMUTH: 068.5°]",
+            color=TEXT_BLACK, fontsize=10.5, fontweight='bold', ha='right', va='center')
 
     # Central Radar Display Canvas
-    draw_box(ax, 0.255, 0.12, 0.480, 0.71, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.4)
+    draw_box(ax, 0.255, 0.115, 0.480, 0.775, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.4)
 
-    rcx, rcy = 0.495, 0.455
-    # Keep max radius at 0.195 so it stays completely inside radar box without touching side panels
-    radii = [0.050, 0.095, 0.145, 0.195]
+    rcx, rcy = 0.495, 0.485
+    radii = [0.055, 0.105, 0.155, 0.205]
     
     # Ring Tiers Legend Banner at Top of Radar Canvas
-    draw_box(ax, 0.265, 0.765, 0.460, 0.048, bg=FILL_GRAY1, border=BORDER_BLACK, lw=0.9, zorder=10)
-    ax.text(0.495, 0.789, "RING TIERS: [T1: Core <1ms]  [T2: DMZ 1-5ms]  [T3: Perimeter 5-15ms]  [T4: Boundary >15ms]",
-            color=TEXT_BLACK, fontsize=7.2, fontweight='bold', ha='center', va='center', zorder=11)
+    draw_box(ax, 0.265, 0.825, 0.460, 0.052, bg=FILL_GRAY1, border=BORDER_BLACK, lw=0.9, zorder=10)
+    ax.text(0.495, 0.851, "RING TIERS: [T1: Core <1ms]  [T2: DMZ 1-5ms]  [T3: Perimeter 5-15ms]  [T4: Boundary >15ms]",
+            color=TEXT_BLACK, fontsize=9.0, fontweight='bold', ha='center', va='center', zorder=11)
 
     for ridx, r in enumerate(radii):
         circ = patches.Circle((rcx, rcy), r, fill=False, edgecolor=BORDER_BLACK, linestyle='--', lw=1.0, zorder=3)
         ax.add_patch(circ)
         # Compact tier tag along East radius
-        ax.text(rcx + r - 0.005, rcy + 0.007, f"T{ridx+1}", color=TEXT_MUTED, fontsize=5.8, fontfamily='monospace',
-                fontweight='bold', bbox=dict(boxstyle="square,pad=0.1", facecolor=FILL_WHITE, edgecolor='none'), zorder=5)
+        ax.text(rcx + r - 0.005, rcy + 0.008, f"T{ridx+1}", color=TEXT_MUTED, fontsize=7.5, fontfamily='monospace',
+                fontweight='bold', bbox=dict(boxstyle="square,pad=0.15", facecolor=FILL_WHITE, edgecolor='none'), zorder=5)
 
     # Crosshairs and degree axes (bounded strictly inside radar box)
     angles_deg = [0, 45, 90, 135, 180, 225, 270, 315]
@@ -774,30 +740,30 @@ def gen_fig4_12():
         rad = np.deg2rad(ang)
         x1 = rcx + 0.015 * np.cos(rad)
         y1 = rcy + 0.015 * np.sin(rad)
-        x2 = rcx + 0.195 * np.cos(rad)
-        y2 = rcy + 0.195 * np.sin(rad)
+        x2 = rcx + 0.205 * np.cos(rad)
+        y2 = rcy + 0.205 * np.sin(rad)
         ax.plot([x1, x2], [y1, y2], color=FILL_GRAY3, linestyle=':', lw=1.0, zorder=2)
-        ax.text(rcx + 0.210 * np.cos(rad), rcy + 0.210 * np.sin(rad), f"{ang:03d}°",
-                color=TEXT_MUTED, fontsize=5.8, ha='center', va='center', zorder=4,
+        ax.text(rcx + 0.222 * np.cos(rad), rcy + 0.222 * np.sin(rad), f"{ang:03d}°",
+                color=TEXT_MUTED, fontsize=7.2, ha='center', va='center', zorder=4,
                 bbox=dict(boxstyle="square,pad=0.1", facecolor=FILL_WHITE, edgecolor='none'))
 
     # Sweep Vector Line & Translucent Sweep Sector (Wedge)
     sweep_angle = 68.5
     sweep_rad = np.deg2rad(sweep_angle)
-    wedge = patches.Wedge((rcx, rcy), 0.195, sweep_angle - 35, sweep_angle,
+    wedge = patches.Wedge((rcx, rcy), 0.205, sweep_angle - 35, sweep_angle,
                           facecolor=FILL_GRAY2, edgecolor='none', alpha=0.55, zorder=3)
     ax.add_patch(wedge)
-    ax.plot([rcx, rcx + 0.195 * np.cos(sweep_rad)], [rcy, rcy + 0.195 * np.sin(sweep_rad)],
+    ax.plot([rcx, rcx + 0.205 * np.cos(sweep_rad)], [rcy, rcy + 0.205 * np.sin(sweep_rad)],
             color=BORDER_BLACK, lw=2.2, zorder=4)
 
-    # Plotted Nodes (Clean, spacious text labels with background boxes to prevent crossing lines)
+    # Plotted Nodes
     nodes_radar = [
-        ("192.168.1.1", "Gateway Router", 105, 0.052, 'circle', "INFO", -0.046, 0.014),
-        ("192.168.1.105", "Metasploitable", 50, 0.095, 'square', "CRITICAL", 0.048, 0.008),
-        ("192.168.1.110", "Workstation PC", 215, 0.145, 'inv_triangle', "LOW", -0.048, -0.010),
-        ("192.168.1.120", "MySQL Database", 325, 0.095, 'triangle', "HIGH", 0.048, -0.008),
-        ("192.168.1.130", "FTP Storage", 140, 0.145, 'diamond', "CRITICAL", -0.045, 0.014),
-        ("192.168.1.254", "DNS Ingress", 260, 0.055, 'hexagon', "INFO", -0.038, -0.014)
+        ("192.168.1.1", "Gateway Router", 105, 0.056, 'circle', "INFO", -0.052, 0.018),
+        ("192.168.1.105", "Metasploitable", 50, 0.105, 'square', "CRITICAL", 0.054, 0.012),
+        ("192.168.1.110", "Workstation PC", 215, 0.155, 'inv_triangle', "LOW", -0.054, -0.014),
+        ("192.168.1.120", "MySQL Database", 325, 0.105, 'triangle', "HIGH", 0.054, -0.012),
+        ("192.168.1.130", "FTP Storage", 140, 0.155, 'diamond', "CRITICAL", -0.052, 0.018),
+        ("192.168.1.254", "DNS Ingress", 260, 0.060, 'hexagon', "INFO", -0.046, -0.016)
     ]
 
     for nip, nname, nang, nrad, nshape, nsev, lx_off, ly_off in nodes_radar:
@@ -806,41 +772,41 @@ def gen_fig4_12():
         ny = rcy + nrad * np.sin(n_rad)
 
         if nsev == "CRITICAL":
-            halo = patches.Circle((nx, ny), 0.014, fill=False, edgecolor=BORDER_BLACK, linestyle=':', lw=1.2, zorder=4)
+            halo = patches.Circle((nx, ny), 0.015, fill=False, edgecolor=BORDER_BLACK, linestyle=':', lw=1.2, zorder=4)
             ax.add_patch(halo)
 
         if nshape == 'circle':
-            marker = patches.Circle((nx, ny), 0.007, facecolor=BORDER_BLACK, edgecolor=BORDER_BLACK, lw=1.2, zorder=5)
+            marker = patches.Circle((nx, ny), 0.008, facecolor=BORDER_BLACK, edgecolor=BORDER_BLACK, lw=1.2, zorder=5)
             ax.add_patch(marker)
         elif nshape == 'square':
-            marker = patches.Rectangle((nx - 0.006, ny - 0.006), 0.012, 0.012, facecolor=BORDER_BLACK, edgecolor=BORDER_BLACK, lw=1.5, zorder=5)
+            marker = patches.Rectangle((nx - 0.007, ny - 0.007), 0.014, 0.014, facecolor=BORDER_BLACK, edgecolor=BORDER_BLACK, lw=1.5, zorder=5)
             ax.add_patch(marker)
         elif nshape == 'triangle':
-            marker = patches.Polygon([[nx, ny + 0.008], [nx - 0.007, ny - 0.006], [nx + 0.007, ny - 0.006]], facecolor=BORDER_BLACK, edgecolor=BORDER_BLACK, lw=1.2, zorder=5)
+            marker = patches.Polygon([[nx, ny + 0.009], [nx - 0.008, ny - 0.007], [nx + 0.008, ny - 0.007]], facecolor=BORDER_BLACK, edgecolor=BORDER_BLACK, lw=1.2, zorder=5)
             ax.add_patch(marker)
         elif nshape == 'inv_triangle':
-            marker = patches.Polygon([[nx, ny - 0.008], [nx - 0.007, ny + 0.006], [nx + 0.007, ny + 0.006]], facecolor=FILL_GRAY2, edgecolor=BORDER_BLACK, lw=1.2, zorder=5)
+            marker = patches.Polygon([[nx, ny - 0.009], [nx - 0.008, ny + 0.007], [nx + 0.008, ny + 0.007]], facecolor=FILL_GRAY2, edgecolor=BORDER_BLACK, lw=1.2, zorder=5)
             ax.add_patch(marker)
         elif nshape == 'diamond':
-            marker = patches.Polygon([[nx, ny + 0.009], [nx - 0.007, ny], [nx, ny - 0.009], [nx + 0.007, ny]], facecolor=BORDER_BLACK, edgecolor=BORDER_BLACK, lw=1.2, zorder=5)
+            marker = patches.Polygon([[nx, ny + 0.010], [nx - 0.008, ny], [nx, ny - 0.010], [nx + 0.008, ny]], facecolor=BORDER_BLACK, edgecolor=BORDER_BLACK, lw=1.2, zorder=5)
             ax.add_patch(marker)
         else:
-            marker = patches.RegularPolygon((nx, ny), numVertices=6, radius=0.007, facecolor=FILL_LIGHT, edgecolor=BORDER_BLACK, lw=1.2, zorder=5)
+            marker = patches.RegularPolygon((nx, ny), numVertices=6, radius=0.008, facecolor=FILL_LIGHT, edgecolor=BORDER_BLACK, lw=1.2, zorder=5)
             ax.add_patch(marker)
 
         # Clean text placement
         tx = nx + lx_off
         ty = ny + ly_off
-        ax.text(tx, ty, f"{nip} [{nsev}]", color=TEXT_BLACK, fontsize=6.2, fontfamily='monospace',
+        ax.text(tx, ty, f"{nip} [{nsev}]", color=TEXT_BLACK, fontsize=7.8, fontfamily='monospace',
                 fontweight='bold', ha='center', va='center', zorder=6,
-                bbox=dict(boxstyle="square,pad=0.15", facecolor=FILL_WHITE, edgecolor=BORDER_BLACK, lw=0.6))
+                bbox=dict(boxstyle="square,pad=0.2", facecolor=FILL_WHITE, edgecolor=BORDER_BLACK, lw=0.6))
 
     # -------------------------------------------------------------
     # Left HUD Overlay Card: Sweep Telemetry
     # -------------------------------------------------------------
-    draw_box(ax, 0.035, 0.12, 0.205, 0.71, bg=FILL_WHITE, lw=1.4, zorder=10)
-    draw_box(ax, 0.045, 0.770, 0.185, 0.045, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2, zorder=11)
-    ax.text(0.1375, 0.7925, "RADAR TELEMETRY", color=TEXT_BLACK, fontsize=8.8, fontweight='bold', ha='center', va='center', zorder=12)
+    draw_box(ax, 0.035, 0.115, 0.205, 0.775, bg=FILL_WHITE, lw=1.4, zorder=10)
+    draw_box(ax, 0.045, 0.835, 0.185, 0.046, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2, zorder=11)
+    ax.text(0.1375, 0.858, "RADAR TELEMETRY", color=TEXT_BLACK, fontsize=11.0, fontweight='bold', ha='center', va='center', zorder=12)
 
     rad_stats = [
         ("Sweep FPS:", "20.0 (Smooth)"),
@@ -854,21 +820,21 @@ def gen_fig4_12():
         ("Global Threat:", "78.4 (CRITICAL)")
     ]
     for sidx, (slbl, sval) in enumerate(rad_stats):
-        sy = 0.725 - sidx * 0.046
-        draw_box(ax, 0.045, sy, 0.185, 0.036, bg=FILL_LIGHT, border=BORDER_BLACK, lw=0.8, zorder=11)
-        ax.text(0.052, sy + 0.018, slbl, color=TEXT_MUTED, fontsize=6.6, va='center', zorder=12)
-        ax.text(0.223, sy + 0.018, sval, color=TEXT_BLACK, fontsize=6.8, fontweight='bold', ha='right', va='center', zorder=12)
+        sy = 0.785 - sidx * 0.050
+        draw_box(ax, 0.045, sy, 0.185, 0.040, bg=FILL_LIGHT, border=BORDER_BLACK, lw=0.8, zorder=11)
+        ax.text(0.052, sy + 0.020, slbl, color=TEXT_MUTED, fontsize=8.5, va='center', zorder=12)
+        ax.text(0.223, sy + 0.020, sval, color=TEXT_BLACK, fontsize=8.8, fontweight='bold', ha='right', va='center', zorder=12)
 
-    draw_box(ax, 0.045, 0.145, 0.185, 0.130, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.0, zorder=11)
-    ax.text(0.1375, 0.250, "Spatial Projection Mode", color=TEXT_BLACK, fontsize=7.5, fontweight='bold', ha='center', zorder=12)
-    ax.text(0.1375, 0.222, "Polar radial mapping transforms\nabstract IP routing into spatial\nsituational awareness.", color=TEXT_MUTED, fontsize=6.5, ha='center', va='top', zorder=12)
+    draw_box(ax, 0.045, 0.145, 0.185, 0.145, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.0, zorder=11)
+    ax.text(0.1375, 0.260, "Spatial Projection Mode", color=TEXT_BLACK, fontsize=9.5, fontweight='bold', ha='center', zorder=12)
+    ax.text(0.1375, 0.225, "Polar radial mapping transforms\nabstract IP routing into spatial\nsituational awareness.", color=TEXT_MUTED, fontsize=8.2, ha='center', va='top', zorder=12)
 
     # -------------------------------------------------------------
     # Right HUD Overlay Card: Target Node Roster
     # -------------------------------------------------------------
-    draw_box(ax, 0.750, 0.12, 0.215, 0.71, bg=FILL_WHITE, lw=1.4, zorder=10)
-    draw_box(ax, 0.760, 0.770, 0.195, 0.045, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2, zorder=11)
-    ax.text(0.8575, 0.7925, "TARGET NODE ROSTER", color=TEXT_BLACK, fontsize=8.8, fontweight='bold', ha='center', va='center', zorder=12)
+    draw_box(ax, 0.750, 0.115, 0.215, 0.775, bg=FILL_WHITE, lw=1.4, zorder=10)
+    draw_box(ax, 0.760, 0.835, 0.195, 0.046, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.2, zorder=11)
+    ax.text(0.8575, 0.858, "TARGET NODE ROSTER", color=TEXT_BLACK, fontsize=11.0, fontweight='bold', ha='center', va='center', zorder=12)
 
     roster_nodes = [
         ("192.168.1.105", "Metasploitable Web", "5 Ports | CVSS: 9.8", "CRIT"),
@@ -878,23 +844,23 @@ def gen_fig4_12():
         ("192.168.1.1", "Gateway Router", "Port 80/443 | Normal", "INFO")
     ]
     for ridx, (rip, rname, rports, rstat) in enumerate(roster_nodes):
-        ry = 0.680 - ridx * 0.090
-        draw_box(ax, 0.760, ry, 0.195, 0.076, bg=FILL_LIGHT if ridx==0 else FILL_WHITE, border=BORDER_BLACK, lw=1.0, zorder=11)
-        ax.text(0.770, ry + 0.054, rip, color=TEXT_BLACK, fontsize=7.2, fontfamily='monospace', fontweight='bold', zorder=12)
-        ax.text(0.770, ry + 0.033, rname, color=TEXT_MUTED, fontsize=6.6, zorder=12)
-        ax.text(0.770, ry + 0.013, rports, color=TEXT_BLACK, fontsize=6.4, zorder=12)
-        draw_box(ax, 0.898, ry + 0.046, 0.045, 0.022, bg=FILL_GRAY2, border=BORDER_BLACK, lw=0.7, zorder=12)
-        ax.text(0.9205, ry + 0.057, rstat, color=TEXT_BLACK, fontsize=5.8, fontweight='bold', ha='center', va='center', zorder=13)
+        ry = 0.735 - ridx * 0.100
+        draw_box(ax, 0.760, ry, 0.195, 0.086, bg=FILL_LIGHT if ridx==0 else FILL_WHITE, border=BORDER_BLACK, lw=1.0, zorder=11)
+        ax.text(0.770, ry + 0.060, rip, color=TEXT_BLACK, fontsize=9.0, fontfamily='monospace', fontweight='bold', zorder=12)
+        ax.text(0.770, ry + 0.036, rname, color=TEXT_MUTED, fontsize=8.2, zorder=12)
+        ax.text(0.770, ry + 0.015, rports, color=TEXT_BLACK, fontsize=8.0, zorder=12)
+        draw_box(ax, 0.892, ry + 0.052, 0.055, 0.026, bg=FILL_GRAY2, border=BORDER_BLACK, lw=0.7, zorder=12)
+        ax.text(0.9195, ry + 0.065, rstat, color=TEXT_BLACK, fontsize=7.8, fontweight='bold', ha='center', va='center', zorder=13)
 
-    draw_box(ax, 0.760, 0.145, 0.195, 0.090, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.0, zorder=11)
-    ax.text(0.8575, 0.210, "Visual Scope Compliance", color=TEXT_BLACK, fontsize=7.5, fontweight='bold', ha='center', zorder=12)
-    ax.text(0.8575, 0.185, "Complements tabular scan results\nwith live geometric perimeter clarity.", color=TEXT_MUTED, fontsize=6.5, ha='center', va='top', zorder=12)
+    draw_box(ax, 0.760, 0.145, 0.195, 0.105, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.0, zorder=11)
+    ax.text(0.8575, 0.220, "Visual Scope Compliance", color=TEXT_BLACK, fontsize=9.5, fontweight='bold', ha='center', zorder=12)
+    ax.text(0.8575, 0.190, "Complements tabular scan results\nwith live geometric perimeter clarity.", color=TEXT_MUTED, fontsize=8.2, ha='center', va='top', zorder=12)
 
     # -------------------------------------------------------------
     # Bottom Legend and Descriptive Footer
     # -------------------------------------------------------------
-    draw_box(ax, 0.035, 0.045, 0.93, 0.060, bg=FILL_WHITE, lw=1.2)
-    ax.text(0.060, 0.075, "GLYPH LEGEND:", color=TEXT_BLACK, fontsize=7.8, fontweight='bold', va='center')
+    draw_box(ax, 0.035, 0.040, 0.93, 0.062, bg=FILL_WHITE, lw=1.2)
+    ax.text(0.060, 0.071, "GLYPH LEGEND:", color=TEXT_BLACK, fontsize=9.5, fontweight='bold', va='center')
 
     legends = [
         ("●", "Gateway Router"),
@@ -906,7 +872,7 @@ def gen_fig4_12():
     ]
     for lidx, (lglyph, ldesc) in enumerate(legends):
         lx = 0.18 + lidx * 0.13
-        ax.text(lx, 0.075, f"{lglyph}  {ldesc}", color=TEXT_BLACK, fontsize=7.2, va='center')
+        ax.text(lx, 0.071, f"{lglyph}  {ldesc}", color=TEXT_BLACK, fontsize=8.8, va='center')
 
     save_fig(fig, "radar_result.png")
 
@@ -920,41 +886,35 @@ def gen_fig4_13():
     ax.set_ylim(0, 1)
     ax.axis('off')
 
-    # Main Title and Subtitle
-    ax.text(0.5, 0.975, "Figure 4.13: Session Management & Historical Assessment Dossiers Result",
-            color=TEXT_BLACK, fontsize=15.5, fontweight='bold', ha='center')
-    ax.text(0.5, 0.944, "Persistent SQLite Registry, Interactive Telemetry Inspector, and Forensic Audit Management Interface",
-            color=TEXT_MUTED, fontsize=10.0, style='italic', ha='center')
-
-    # Window Outer Frame
-    draw_box(ax, 0.02, 0.03, 0.96, 0.895, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.8)
+    # Window Outer Frame (Expanded vertically into freed top space)
+    draw_box(ax, 0.02, 0.025, 0.96, 0.95, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.8)
 
     # Window Header Bar (No text overlap)
-    draw_box(ax, 0.02, 0.855, 0.96, 0.065, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.4)
+    draw_box(ax, 0.02, 0.905, 0.96, 0.065, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.4)
     for bx, col in [(0.04, FILL_WHITE), (0.055, FILL_GRAY3), (0.07, BORDER_BLACK)]:
-        circle = patches.Circle((bx, 0.8875), 0.007, facecolor=col, edgecolor=BORDER_BLACK, lw=1, zorder=5)
+        circle = patches.Circle((bx, 0.9375), 0.007, facecolor=col, edgecolor=BORDER_BLACK, lw=1, zorder=5)
         ax.add_patch(circle)
 
-    ax.text(0.095, 0.8875, "KALINOVA // HISTORICAL DOSSIERS — SESSION AUDIT REGISTRY",
-            color=TEXT_BLACK, fontsize=9.2, fontweight='bold', va='center')
-    ax.text(0.96, 0.8875, "[DB: kalinova.db | 6 SESSIONS | VERIFIED]",
-            color=TEXT_BLACK, fontsize=8.2, fontweight='bold', ha='right', va='center')
+    ax.text(0.095, 0.9375, "KALINOVA // HISTORICAL DOSSIERS — SESSION AUDIT REGISTRY",
+            color=TEXT_BLACK, fontsize=11.5, fontweight='bold', va='center')
+    ax.text(0.96, 0.9375, "[DB: kalinova.db | 6 SESSIONS | VERIFIED]",
+            color=TEXT_BLACK, fontsize=10.0, fontweight='bold', ha='right', va='center')
 
     # -------------------------------------------------------------
     # Left Split Frame: Scan Registry Database Table
     # -------------------------------------------------------------
-    draw_box(ax, 0.035, 0.11, 0.455, 0.725, bg=FILL_WHITE, lw=1.5)
-    draw_box(ax, 0.045, 0.775, 0.435, 0.045, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.060, 0.7975, "Scan Registry Database (kalinova.db)", color=TEXT_BLACK, fontsize=9.2, fontweight='bold', va='center')
-    ax.text(0.465, 0.7975, "[TABLE: scans]", color=TEXT_MUTED, fontsize=8.0, fontfamily='monospace', ha='right', va='center')
+    draw_box(ax, 0.035, 0.100, 0.455, 0.795, bg=FILL_WHITE, lw=1.5)
+    draw_box(ax, 0.045, 0.835, 0.435, 0.050, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.2)
+    ax.text(0.060, 0.860, "Scan Registry Database (kalinova.db)", color=TEXT_BLACK, fontsize=11.0, fontweight='bold', va='center')
+    ax.text(0.465, 0.860, "[TABLE: scans]", color=TEXT_MUTED, fontsize=9.2, fontfamily='monospace', ha='right', va='center')
 
     # Table Column Headers
-    draw_box(ax, 0.045, 0.725, 0.435, 0.038, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.0)
-    ax.text(0.055, 0.744, "ID", color=TEXT_BLACK, fontsize=7.2, fontweight='bold', va='center')
-    ax.text(0.105, 0.744, "TARGET HOST", color=TEXT_BLACK, fontsize=7.2, fontweight='bold', va='center')
-    ax.text(0.215, 0.744, "TOOL MODULE", color=TEXT_BLACK, fontsize=7.2, fontweight='bold', va='center')
-    ax.text(0.325, 0.744, "THREAT LEVEL", color=TEXT_BLACK, fontsize=7.2, fontweight='bold', va='center')
-    ax.text(0.420, 0.744, "DATE & TIME", color=TEXT_BLACK, fontsize=7.2, fontweight='bold', va='center')
+    draw_box(ax, 0.045, 0.780, 0.435, 0.042, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.0)
+    ax.text(0.055, 0.801, "ID", color=TEXT_BLACK, fontsize=8.8, fontweight='bold', va='center')
+    ax.text(0.105, 0.801, "TARGET HOST", color=TEXT_BLACK, fontsize=8.8, fontweight='bold', va='center')
+    ax.text(0.215, 0.801, "TOOL MODULE", color=TEXT_BLACK, fontsize=8.8, fontweight='bold', va='center')
+    ax.text(0.325, 0.801, "THREAT LEVEL", color=TEXT_BLACK, fontsize=8.8, fontweight='bold', va='center')
+    ax.text(0.420, 0.801, "DATE & TIME", color=TEXT_BLACK, fontsize=8.8, fontweight='bold', va='center')
 
     sessions = [
         ("001", "192.168.1.105", "Nmap Service Recon", "CRITICAL (78.4)", "10:02:34", True),
@@ -966,52 +926,52 @@ def gen_fig4_13():
     ]
 
     for sidx, (sid, starget, stool, sthreat, sdate, is_sel) in enumerate(sessions):
-        sy = 0.665 - sidx * 0.056
+        sy = 0.715 - sidx * 0.060
         row_bg = FILL_GRAY2 if is_sel else (FILL_LIGHT if sidx%2==1 else FILL_WHITE)
-        draw_box(ax, 0.045, sy, 0.435, 0.048, bg=row_bg, border=BORDER_BLACK, lw=1.2 if is_sel else 0.8)
+        draw_box(ax, 0.045, sy, 0.435, 0.052, bg=row_bg, border=BORDER_BLACK, lw=1.2 if is_sel else 0.8)
         
         prefix = "▶ " if is_sel else ""
-        ax.text(0.055, sy + 0.024, f"{prefix}#{sid}", color=TEXT_BLACK, fontsize=7.0, fontweight='bold' if is_sel else 'normal', va='center')
-        ax.text(0.105, sy + 0.024, starget, color=TEXT_BLACK, fontsize=7.0, fontfamily='monospace', va='center')
-        ax.text(0.215, sy + 0.024, stool, color=TEXT_BLACK, fontsize=7.0, va='center')
-        ax.text(0.325, sy + 0.024, sthreat, color=TEXT_BLACK, fontsize=7.0, fontweight='bold', va='center')
-        ax.text(0.420, sy + 0.024, sdate, color=TEXT_MUTED, fontsize=6.8, va='center')
+        ax.text(0.055, sy + 0.026, f"{prefix}#{sid}", color=TEXT_BLACK, fontsize=8.6, fontweight='bold' if is_sel else 'normal', va='center')
+        ax.text(0.105, sy + 0.026, starget, color=TEXT_BLACK, fontsize=8.6, fontfamily='monospace', va='center')
+        ax.text(0.215, sy + 0.026, stool, color=TEXT_BLACK, fontsize=8.6, va='center')
+        ax.text(0.325, sy + 0.026, sthreat, color=TEXT_BLACK, fontsize=8.6, fontweight='bold', va='center')
+        ax.text(0.420, sy + 0.026, sdate, color=TEXT_MUTED, fontsize=8.2, va='center')
 
     # Action Buttons under Table
-    btn_y = 0.235
+    btn_y = 0.245
     btn_defs = [
         ("Export MD Dossier", 0.045, 0.135),
         ("Export HTML Dossier", 0.190, 0.135),
         ("Delete Session", 0.335, 0.145)
     ]
     for btext, bx, bw in btn_defs:
-        draw_box(ax, bx, btn_y, bw, 0.045, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.0)
-        ax.text(bx + bw/2.0, btn_y + 0.0225, btext, color=TEXT_BLACK, fontsize=7.5, fontweight='bold', ha='center', va='center')
+        draw_box(ax, bx, btn_y, bw, 0.048, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.0)
+        ax.text(bx + bw/2.0, btn_y + 0.024, btext, color=TEXT_BLACK, fontsize=9.0, fontweight='bold', ha='center', va='center')
 
     # Database Summary Card
-    draw_box(ax, 0.045, 0.125, 0.435, 0.090, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
-    ax.text(0.060, 0.185, "Database Integrity & Storage Health", color=TEXT_BLACK, fontsize=8.0, fontweight='bold')
-    ax.text(0.060, 0.160, "Engine: SQLite 3.37+ (WAL Mode)  |  Path: /var/kalinova/kalinova.db", color=TEXT_MUTED, fontsize=6.8, fontfamily='monospace')
-    ax.text(0.060, 0.140, "Integrity Check: PRAGMA OK  |  Active Sessions: 6  |  Total Events Logged: 142", color=TEXT_BLACK, fontsize=6.8)
+    draw_box(ax, 0.045, 0.120, 0.435, 0.105, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
+    ax.text(0.060, 0.195, "Database Integrity & Storage Health", color=TEXT_BLACK, fontsize=9.6, fontweight='bold')
+    ax.text(0.060, 0.165, "Engine: SQLite 3.37+ (WAL Mode)  |  Path: /var/kalinova/kalinova.db", color=TEXT_MUTED, fontsize=8.2, fontfamily='monospace')
+    ax.text(0.060, 0.140, "Integrity Check: PRAGMA OK  |  Active Sessions: 6  |  Total Events Logged: 142", color=TEXT_BLACK, fontsize=8.2)
 
     # -------------------------------------------------------------
     # Right Split Frame: Session Inspector & Forensic Copilot
     # -------------------------------------------------------------
-    draw_box(ax, 0.505, 0.11, 0.475, 0.725, bg=FILL_WHITE, lw=1.5)
-    draw_box(ax, 0.515, 0.775, 0.455, 0.045, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.530, 0.7975, "Session Inspector & Forensic Copilot", color=TEXT_BLACK, fontsize=9.2, fontweight='bold', va='center')
-    ax.text(0.955, 0.7975, "Selected: Session #001", color=TEXT_BLACK, fontsize=8.2, fontweight='bold', ha='right', va='center')
+    draw_box(ax, 0.505, 0.100, 0.475, 0.795, bg=FILL_WHITE, lw=1.5)
+    draw_box(ax, 0.515, 0.835, 0.455, 0.050, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.2)
+    ax.text(0.530, 0.860, "Session Inspector & Forensic Copilot", color=TEXT_BLACK, fontsize=11.0, fontweight='bold', va='center')
+    ax.text(0.955, 0.860, "Selected: Session #001", color=TEXT_BLACK, fontsize=9.8, fontweight='bold', ha='right', va='center')
 
     # Subcard 1: Session Metadata Dossier
-    draw_box(ax, 0.515, 0.675, 0.455, 0.088, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
-    ax.text(0.530, 0.738, "Target Host: 192.168.1.105 (range-srv01.local)  |  Tool: Nmap 7.94  |  Exit Code: 0", color=TEXT_BLACK, fontsize=7.6, fontweight='bold')
-    ax.text(0.530, 0.715, "Command: nmap -sV -sC -p 21,22,80,443,3306 -T4 192.168.1.105", color=TEXT_MUTED, fontsize=7.0, fontfamily='monospace')
-    ax.text(0.530, 0.692, "Execution: 10:02:34 — 10:02:47 (13.18s)  |  Discovered: 5 Open Ports, 3 CVEs", color=TEXT_BLACK, fontsize=7.0)
+    draw_box(ax, 0.515, 0.725, 0.455, 0.098, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
+    ax.text(0.530, 0.795, "Target Host: 192.168.1.105 (range-srv01.local)  |  Tool: Nmap 7.94  |  Exit Code: 0", color=TEXT_BLACK, fontsize=9.0, fontweight='bold')
+    ax.text(0.530, 0.768, "Command: nmap -sV -sC -p 21,22,80,443,3306 -T4 192.168.1.105", color=TEXT_MUTED, fontsize=8.4, fontfamily='monospace')
+    ax.text(0.530, 0.742, "Execution: 10:02:34 — 10:02:47 (13.18s)  |  Discovered: 5 Open Ports, 3 CVEs", color=TEXT_BLACK, fontsize=8.4)
 
     # Subcard 2: Console Stdout Inspector (Verbatim Stream)
-    draw_box(ax, 0.515, 0.355, 0.455, 0.305, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.2)
-    draw_box(ax, 0.515, 0.625, 0.455, 0.035, bg=FILL_GRAY2, border=BORDER_BLACK, lw=0.9)
-    ax.text(0.530, 0.6425, "Console Stdout Inspector (Archived Execution Telemetry)", color=TEXT_BLACK, fontsize=7.6, fontweight='bold', va='center')
+    draw_box(ax, 0.515, 0.370, 0.455, 0.340, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.2)
+    draw_box(ax, 0.515, 0.672, 0.455, 0.038, bg=FILL_GRAY2, border=BORDER_BLACK, lw=0.9)
+    ax.text(0.530, 0.691, "Console Stdout Inspector (Archived Execution Telemetry)", color=TEXT_BLACK, fontsize=9.0, fontweight='bold', va='center')
 
     stdout_lines = [
         "[10:02:34] Starting Nmap 7.94 ( https://nmap.org ) at 2026-10-09 10:02:34 UTC",
@@ -1024,30 +984,30 @@ def gen_fig4_13():
         "[10:02:47] Nmap done: 1 IP address (1 host up) scanned in 13.18 seconds."
     ]
     for oidx, oline in enumerate(stdout_lines):
-        oy = 0.595 - oidx * 0.029
-        ax.text(0.525, oy, oline, color=TEXT_BLACK, fontsize=6.8, fontfamily='monospace', va='center')
+        oy = 0.635 - oidx * 0.033
+        ax.text(0.525, oy, oline, color=TEXT_BLACK, fontsize=8.2, fontfamily='monospace', va='center')
 
     # Subcard 3: Heuristic Copilot Advisory & Forensic Audit Proof
-    draw_box(ax, 0.515, 0.125, 0.455, 0.215, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
-    draw_box(ax, 0.515, 0.305, 0.455, 0.035, bg=FILL_GRAY1, border=BORDER_BLACK, lw=0.9)
-    ax.text(0.530, 0.3225, "Heuristic Copilot Advisory & Forensic Proof", color=TEXT_BLACK, fontsize=7.8, fontweight='bold', va='center')
+    draw_box(ax, 0.515, 0.120, 0.455, 0.235, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.0)
+    draw_box(ax, 0.515, 0.315, 0.455, 0.040, bg=FILL_GRAY1, border=BORDER_BLACK, lw=0.9)
+    ax.text(0.530, 0.335, "Heuristic Copilot Advisory & Forensic Proof", color=TEXT_BLACK, fontsize=9.2, fontweight='bold', va='center')
 
-    ax.text(0.530, 0.288, "AI Threat Diagnostic: CRITICAL RISK EXPOSURE (Score: 78.4 / 100)", color=TEXT_BLACK, fontsize=7.4, fontweight='bold', va='top')
-    ax.text(0.530, 0.266, "Target host demonstrates severe perimeter compromise across FTP and Database layers.", color=TEXT_MUTED, fontsize=6.6, va='top')
-    ax.text(0.530, 0.245, "Recommended immediate dispatch: SQLi query parameterization and FTP daemon isolation.", color=TEXT_MUTED, fontsize=6.6, va='top')
+    ax.text(0.530, 0.292, "AI Threat Diagnostic: CRITICAL RISK EXPOSURE (Score: 78.4 / 100)", color=TEXT_BLACK, fontsize=8.8, fontweight='bold', va='top')
+    ax.text(0.530, 0.268, "Target host demonstrates severe perimeter compromise across FTP and Database layers.", color=TEXT_MUTED, fontsize=8.0, va='top')
+    ax.text(0.530, 0.245, "Recommended immediate dispatch: SQLi query parameterization and FTP daemon isolation.", color=TEXT_MUTED, fontsize=8.0, va='top')
 
     # Cryptographic Hash Verification Box
-    draw_box(ax, 0.525, 0.135, 0.435, 0.082, bg=FILL_WHITE, border=BORDER_BLACK, lw=0.8)
-    ax.text(0.535, 0.203, "Cryptographic Forensic Audit Proof (Tamper-Proof Ledger)", color=TEXT_BLACK, fontsize=7.2, fontweight='bold', va='top')
-    ax.text(0.535, 0.180, "SHA-256: 8f4e2b9c71a36d5e182098d7f41a8e99bc124d... (IMMUTABLE)", color=TEXT_BLACK, fontsize=6.4, fontfamily='monospace', va='top')
-    ax.text(0.535, 0.158, "Session record sealed and cryptographically verified against kalinova.db master ledger.", color=TEXT_MUTED, fontsize=6.4, va='top')
+    draw_box(ax, 0.525, 0.130, 0.435, 0.095, bg=FILL_WHITE, border=BORDER_BLACK, lw=0.8)
+    ax.text(0.535, 0.205, "Cryptographic Forensic Audit Proof (Tamper-Proof Ledger)", color=TEXT_BLACK, fontsize=8.4, fontweight='bold', va='top')
+    ax.text(0.535, 0.180, "SHA-256: 8f4e2b9c71a36d5e182098d7f41a8e99bc124d... (IMMUTABLE)", color=TEXT_BLACK, fontsize=7.8, fontfamily='monospace', va='top')
+    ax.text(0.535, 0.155, "Session record sealed and cryptographically verified against kalinova.db master ledger.", color=TEXT_MUTED, fontsize=7.8, va='top')
 
     # -------------------------------------------------------------
     # Bottom Note
     # -------------------------------------------------------------
-    draw_box(ax, 0.035, 0.045, 0.945, 0.050, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.0)
-    ax.text(0.50, 0.070, "Session Traceability: Organizes target history, console stdout, and AI remediations systematically for comparative audit reviews.",
-            color=TEXT_BLACK, fontsize=7.8, fontweight='bold', ha='center', va='center')
+    draw_box(ax, 0.035, 0.035, 0.945, 0.052, bg=FILL_GRAY2, border=BORDER_BLACK, lw=1.0)
+    ax.text(0.50, 0.061, "Session Traceability: Organizes target history, console stdout, and AI remediations systematically for comparative audit reviews.",
+            color=TEXT_BLACK, fontsize=9.2, fontweight='bold', ha='center', va='center')
 
     save_fig(fig, "session_result.png")
 
@@ -1061,22 +1021,19 @@ def gen_fig4_14():
     ax.set_ylim(0, 1)
     ax.axis('off')
 
-    ax.text(0.5, 0.97, "Automated Security Assessment & Remediation Report Preview", color=TEXT_BLACK, fontsize=17, fontweight='bold', ha='center')
-    ax.text(0.5, 0.935, "Comprehensive Executive & Technical PDF Documentation Compiled via ReportLab and SQLite Logs", color=TEXT_MUTED, fontsize=11, style='italic', ha='center')
-
-    # Simulated Document Page (Report Card)
-    draw_box(ax, 0.12, 0.04, 0.76, 0.87, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.8)
+    # Simulated Document Page (Report Card) - Expanded vertically into freed top space
+    draw_box(ax, 0.10, 0.025, 0.80, 0.95, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.8)
 
     # Document Header
-    draw_box(ax, 0.15, 0.78, 0.70, 0.10, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.2)
-    ax.text(0.17, 0.845, "KALI-NOVA CYBERSECURITY ASSESSMENT REPORT", color=TEXT_BLACK, fontsize=12.5, fontweight='bold')
-    ax.text(0.17, 0.81, "Assessment Scope: 192.168.1.105 (Enterprise Cyber-Range)  |  Audit Date: October 2026", color=TEXT_MUTED, fontsize=8.5)
-    ax.text(0.83, 0.825, "CONFIDENTIAL\nAUDIT REPORT", color=TEXT_BLACK, fontsize=8.5, fontweight='bold', ha='right', va='center')
+    draw_box(ax, 0.13, 0.855, 0.74, 0.098, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.2)
+    ax.text(0.15, 0.918, "KALI-NOVA CYBERSECURITY ASSESSMENT REPORT", color=TEXT_BLACK, fontsize=14.0, fontweight='bold')
+    ax.text(0.15, 0.880, "Assessment Scope: 192.168.1.105 (Enterprise Cyber-Range)  |  Audit Date: October 2026", color=TEXT_MUTED, fontsize=9.8)
+    ax.text(0.85, 0.898, "CONFIDENTIAL\nAUDIT REPORT", color=TEXT_BLACK, fontsize=9.8, fontweight='bold', ha='right', va='center')
 
     # Section 1: Executive Threat Overview
-    draw_box(ax, 0.15, 0.62, 0.70, 0.14, bg=FILL_WHITE, lw=1.2)
-    ax.text(0.17, 0.73, "1. EXECUTIVE RISK POSTURE SUMMARY", color=TEXT_BLACK, fontsize=9.5, fontweight='bold')
-    ax.plot([0.17, 0.83], [0.715, 0.715], color=BORDER_BLACK, lw=0.6)
+    draw_box(ax, 0.13, 0.675, 0.74, 0.165, bg=FILL_WHITE, lw=1.2)
+    ax.text(0.15, 0.808, "1. EXECUTIVE RISK POSTURE SUMMARY", color=TEXT_BLACK, fontsize=11.5, fontweight='bold')
+    ax.plot([0.15, 0.85], [0.790, 0.790], color=BORDER_BLACK, lw=0.6)
 
     # Metric Badges
     badges = [
@@ -1086,15 +1043,15 @@ def gen_fig4_14():
         ("MEAN REMEDIATION TIME", "1.24s (AI Copilot)", FILL_WHITE)
     ]
     for bidx, (blbl, bval, bbg) in enumerate(badges):
-        bx = 0.17 + bidx * 0.165
-        draw_box(ax, bx, 0.64, 0.155, 0.065, bg=bbg, border=BORDER_BLACK, lw=1)
-        ax.text(bx + 0.0775, 0.68, blbl, color=TEXT_MUTED, fontsize=6.8, ha='center', va='center')
-        ax.text(bx + 0.0775, 0.655, bval, color=TEXT_BLACK, fontsize=7.8, fontweight='bold', ha='center', va='center')
+        bx = 0.15 + bidx * 0.175
+        draw_box(ax, bx, 0.695, 0.165, 0.078, bg=bbg, border=BORDER_BLACK, lw=1)
+        ax.text(bx + 0.0825, 0.745, blbl, color=TEXT_MUTED, fontsize=8.5, ha='center', va='center')
+        ax.text(bx + 0.0825, 0.715, bval, color=TEXT_BLACK, fontsize=9.8, fontweight='bold', ha='center', va='center')
 
     # Section 2: Vulnerability Findings Breakdown Table
-    draw_box(ax, 0.15, 0.32, 0.70, 0.28, bg=FILL_WHITE, lw=1.2)
-    ax.text(0.17, 0.57, "2. KEY VULNERABILITY FINDINGS & CVSS METRICS", color=TEXT_BLACK, fontsize=9.5, fontweight='bold')
-    ax.plot([0.17, 0.83], [0.555, 0.555], color=BORDER_BLACK, lw=0.6)
+    draw_box(ax, 0.13, 0.355, 0.74, 0.305, bg=FILL_WHITE, lw=1.2)
+    ax.text(0.15, 0.628, "2. KEY VULNERABILITY FINDINGS & CVSS METRICS", color=TEXT_BLACK, fontsize=11.5, fontweight='bold')
+    ax.plot([0.15, 0.85], [0.610, 0.610], color=BORDER_BLACK, lw=0.6)
 
     report_table = [
         ("ID", "VULNERABILITY DESCRIPTION", "SERVICE / PORT", "CVSS v3.1", "STATUS"),
@@ -1105,21 +1062,21 @@ def gen_fig4_14():
         ("V-05", "Deprecated TLS 1.0 & Weak Ciphers", "Apache / 443 (SSL)", "6.5 MED", "UPDATE CONFIG")
     ]
     for tidx, (tid, tdesc, tsvc, tcvss, tstat) in enumerate(report_table):
-        ty = 0.51 - tidx * 0.035
+        ty = 0.560 - tidx * 0.038
         is_hdr = (tidx == 0)
         tbg = FILL_GRAY2 if is_hdr else (FILL_LIGHT if tidx%2==1 else FILL_WHITE)
-        draw_box(ax, 0.17, ty, 0.66, 0.032, bg=tbg, border=BORDER_BLACK, lw=0.8)
+        draw_box(ax, 0.15, ty, 0.70, 0.035, bg=tbg, border=BORDER_BLACK, lw=0.8)
         fweight = 'bold' if is_hdr else 'normal'
-        ax.text(0.185, ty + 0.016, tid, color=TEXT_BLACK, fontsize=7.5, fontweight='bold', va='center')
-        ax.text(0.230, ty + 0.016, tdesc, color=TEXT_BLACK, fontsize=7.2, fontweight=fweight, va='center')
-        ax.text(0.530, ty + 0.016, tsvc, color=TEXT_MUTED, fontsize=7.2, va='center')
-        ax.text(0.680, ty + 0.016, tcvss, color=TEXT_BLACK, fontsize=7.2, fontweight='bold', va='center')
-        ax.text(0.815, ty + 0.016, tstat, color=TEXT_BLACK, fontsize=7.0, fontweight='bold', ha='right', va='center')
+        ax.text(0.165, ty + 0.0175, tid, color=TEXT_BLACK, fontsize=9.2, fontweight='bold', va='center')
+        ax.text(0.220, ty + 0.0175, tdesc, color=TEXT_BLACK, fontsize=9.0, fontweight=fweight, va='center')
+        ax.text(0.550, ty + 0.0175, tsvc, color=TEXT_MUTED, fontsize=9.0, va='center')
+        ax.text(0.710, ty + 0.0175, tcvss, color=TEXT_BLACK, fontsize=9.0, fontweight='bold', va='center')
+        ax.text(0.835, ty + 0.0175, tstat, color=TEXT_BLACK, fontsize=8.8, fontweight='bold', ha='right', va='center')
 
     # Section 3: Prioritized Remediation Roadmap & Audit Verification
-    draw_box(ax, 0.15, 0.06, 0.70, 0.24, bg=FILL_WHITE, lw=1.2)
-    ax.text(0.17, 0.27, "3. REMEDIATION TIMETABLE & CRYPTOGRAPHIC AUDIT PROOF", color=TEXT_BLACK, fontsize=9.5, fontweight='bold')
-    ax.plot([0.17, 0.83], [0.255, 0.255], color=BORDER_BLACK, lw=0.6)
+    draw_box(ax, 0.13, 0.045, 0.74, 0.295, bg=FILL_WHITE, lw=1.2)
+    ax.text(0.15, 0.308, "3. REMEDIATION TIMETABLE & CRYPTOGRAPHIC AUDIT PROOF", color=TEXT_BLACK, fontsize=11.5, fontweight='bold')
+    ax.plot([0.15, 0.85], [0.290, 0.290], color=BORDER_BLACK, lw=0.6)
 
     # Remediation phases
     phases = [
@@ -1128,13 +1085,13 @@ def gen_fig4_14():
         ("Phase 3: Hardening (30 Days)", "Deprecate TLS 1.0; enforce strict HSTS and continuous CI/CD security scanning.")
     ]
     for pidx, (ptit, pdesc) in enumerate(phases):
-        py = 0.22 - pidx * 0.045
-        ax.text(0.17, py + 0.018, ptit, color=TEXT_BLACK, fontsize=8, fontweight='bold')
-        ax.text(0.17, py - 0.002, pdesc, color=TEXT_MUTED, fontsize=7.5)
+        py = 0.245 - pidx * 0.054
+        ax.text(0.15, py + 0.022, ptit, color=TEXT_BLACK, fontsize=9.8, fontweight='bold')
+        ax.text(0.15, py - 0.002, pdesc, color=TEXT_MUTED, fontsize=9.0)
 
     # Audit Box
-    draw_box(ax, 0.17, 0.075, 0.66, 0.045, bg=FILL_GRAY1, border=BORDER_BLACK, lw=0.9)
-    ax.text(0.18, 0.0975, "Audit Hash: SHA-256: 8f4e2b9c71a36d5e182098d7f41a8e99bc124d... | Stored in kalinova.db | Verified Tamper-Proof", color=TEXT_BLACK, fontsize=7.2, fontfamily='monospace', va='center')
+    draw_box(ax, 0.15, 0.060, 0.70, 0.052, bg=FILL_GRAY1, border=BORDER_BLACK, lw=0.9)
+    ax.text(0.165, 0.086, "Audit Hash: SHA-256: 8f4e2b9c71a36d5e182098d7f41a8e99bc124d... | Stored in kalinova.db | Verified Tamper-Proof", color=TEXT_BLACK, fontsize=8.8, fontfamily='monospace', va='center')
 
     save_fig(fig, "report_result.png")
 
