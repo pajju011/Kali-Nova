@@ -73,7 +73,7 @@ def gen_fig3_9():
 
     # Box 1: Feature Vector
     draw_box(ax, 0.04, 0.30, 0.28, 0.66, bg=FILL_LIGHT, lw=1.5)
-    ax.text(0.06, 0.925, "1. Feature Vector phi(S_t)", color=TEXT_BLACK, fontsize=14, fontweight='bold')
+    ax.text(0.06, 0.925, "1. Feature Vector phi(S_t)", color=TEXT_BLACK, fontsize=15.5, fontweight='bold')
     ax.plot([0.06, 0.30], [0.898, 0.898], color=BORDER_BLACK, lw=1.2)
     features = [
         "x_1: Discovered Ports",
@@ -85,13 +85,13 @@ def gen_fig3_9():
         "x_7: Composite Risk R_t"
     ]
     for idx, f in enumerate(features):
-        ax.text(0.06, 0.835 - idx * 0.076, f, color=TEXT_BLACK, fontsize=11.5, fontweight='bold')
+        ax.text(0.06, 0.835 - idx * 0.076, f, color=TEXT_BLACK, fontsize=12.5, fontweight='bold')
 
     # Box 2: Classifier
     draw_box(ax, 0.35, 0.30, 0.30, 0.66, bg=FILL_LIGHT, lw=1.5)
-    ax.text(0.50, 0.925, "2. Scenario Model Engine", color=TEXT_BLACK, fontsize=14, fontweight='bold', ha='center')
+    ax.text(0.50, 0.925, "2. Scenario Model Engine", color=TEXT_BLACK, fontsize=15.5, fontweight='bold', ha='center')
     ax.plot([0.38, 0.62], [0.898, 0.898], color=BORDER_BLACK, lw=1.2)
-    ax.text(0.50, 0.825, r"$P(A = a \mid \mathbf{x}_t) = \mathrm{Softmax}(\mathbf{W}\mathbf{x}_t + \mathbf{b})$", color=TEXT_BLACK, fontsize=13.5, ha='center')
+    ax.text(0.50, 0.825, r"$P(A = a \mid \mathbf{x}_t) = \mathrm{Softmax}(\mathbf{W}\mathbf{x}_t + \mathbf{b})$", color=TEXT_BLACK, fontsize=14.8, ha='center')
     ax.plot([0.38, 0.62], [0.770, 0.770], color=BORDER_BLACK, lw=1.2)
     summary_text = (
         "- 500+ Operational Scenarios\n\n"
@@ -99,11 +99,11 @@ def gen_fig3_9():
         "- Prevents Illegal Tool Sequences\n\n"
         "- Top-1 Acc: 96.2% | Top-3: 99.3%"
     )
-    ax.text(0.50, 0.545, summary_text, color=TEXT_MUTED, fontsize=12.2, ha='center', va='center')
+    ax.text(0.50, 0.545, summary_text, color=TEXT_MUTED, fontsize=13.0, ha='center', va='center')
 
     # Box 3: Recommendations
     draw_box(ax, 0.68, 0.30, 0.28, 0.66, bg=FILL_LIGHT, lw=1.5)
-    ax.text(0.70, 0.925, "3. Action Probabilities", color=TEXT_BLACK, fontsize=14, fontweight='bold')
+    ax.text(0.70, 0.925, "3. Action Probabilities", color=TEXT_BLACK, fontsize=15.5, fontweight='bold')
     ax.plot([0.70, 0.94], [0.898, 0.898], color=BORDER_BLACK, lw=1.2)
     actions = [
         ("SQLMap (Audit)", "94.2%", 0.942, FILL_GRAY3),
@@ -114,8 +114,8 @@ def gen_fig3_9():
     ]
     for idx, (tname, tprob, barw, fcol) in enumerate(actions):
         ay = 0.835 - idx * 0.106
-        ax.text(0.70, ay, tname, color=TEXT_BLACK, fontsize=11.8, fontweight='bold')
-        ax.text(0.94, ay, tprob, color=TEXT_BLACK, fontsize=11.8, fontweight='bold', ha='right')
+        ax.text(0.70, ay, tname, color=TEXT_BLACK, fontsize=12.5, fontweight='bold')
+        ax.text(0.94, ay, tprob, color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='right')
         rect = patches.Rectangle((0.70, ay - 0.036), barw * 0.24, 0.018, facecolor=fcol, edgecolor=BORDER_BLACK, lw=1, zorder=5)
         ax.add_patch(rect)
 
@@ -125,10 +125,10 @@ def gen_fig3_9():
 
     # Bottom Guardrail Box
     draw_box(ax, 0.04, 0.04, 0.92, 0.23, bg=FILL_WHITE, lw=1.5)
-    ax.text(0.06, 0.225, "Decision Rule Integration & Safety Guardrails", color=TEXT_BLACK, fontsize=14, fontweight='bold')
+    ax.text(0.06, 0.225, "Decision Rule Integration & Safety Guardrails", color=TEXT_BLACK, fontsize=15.5, fontweight='bold')
     ax.plot([0.06, 0.46], [0.198, 0.198], color=BORDER_BLACK, lw=1.2)
-    ax.text(0.06, 0.135, "- Logical Preconditions: SQL injection audits are suppressed until active HTTP/HTTPS endpoints are verified.", color=TEXT_BLACK, fontsize=11.2)
-    ax.text(0.06, 0.075, "- Autonomous Guidance: Replaces trial-and-error CLI workflows with automated, evidence-backed next actions.", color=TEXT_BLACK, fontsize=11.2)
+    ax.text(0.06, 0.135, "- Logical Preconditions: SQL injection audits are suppressed until active HTTP/HTTPS endpoints are verified.", color=TEXT_BLACK, fontsize=12.2)
+    ax.text(0.06, 0.075, "- Autonomous Guidance: Replaces trial-and-error CLI workflows with automated, evidence-backed next actions.", color=TEXT_BLACK, fontsize=12.2)
 
     save_fig(fig, "ml_advisor.png")
 
@@ -151,9 +151,9 @@ def gen_fig3_10():
 
     for stitle, sdesc, sx in steps:
         draw_box(ax, sx, 0.52, 0.20, 0.44, bg=FILL_LIGHT, border=BORDER_BLACK, lw=1.5)
-        ax.text(sx + 0.10, 0.88, stitle, color=TEXT_BLACK, fontsize=12.5, fontweight='bold', ha='center', va='center')
+        ax.text(sx + 0.10, 0.88, stitle, color=TEXT_BLACK, fontsize=13.5, fontweight='bold', ha='center', va='center')
         ax.plot([sx + 0.02, sx + 0.18], [0.805, 0.805], color=BORDER_BLACK, lw=1.0)
-        ax.text(sx + 0.10, 0.645, sdesc, color=TEXT_MUTED, fontsize=10.5, ha='center', va='center')
+        ax.text(sx + 0.10, 0.645, sdesc, color=TEXT_MUTED, fontsize=11.5, ha='center', va='center')
 
     for i in range(len(steps) - 1):
         x1 = steps[i][2] + 0.20 + 0.005
@@ -162,7 +162,7 @@ def gen_fig3_10():
 
     # Bottom remediation code drawer
     draw_box(ax, 0.04, 0.04, 0.92, 0.44, bg=FILL_WHITE, border=BORDER_BLACK, lw=1.5)
-    ax.text(0.06, 0.435, "Generated Remediation Code Artifact (Embedded in Sliding Drawer)", color=TEXT_BLACK, fontsize=14, fontweight='bold')
+    ax.text(0.06, 0.435, "Generated Remediation Code Artifact (Embedded in Sliding Drawer)", color=TEXT_BLACK, fontsize=15.5, fontweight='bold')
     ax.plot([0.06, 0.58], [0.410, 0.410], color=BORDER_BLACK, lw=1.2)
 
     draw_box(ax, 0.05, 0.06, 0.90, 0.33, bg=FILL_GRAY1, border=BORDER_BLACK, lw=1.2)
@@ -176,7 +176,7 @@ def gen_fig3_10():
         "    return cursor.fetchone()  # Parameterized query eliminates injection\n\n"
         "# WAF Rule (Bash): iptables -A INPUT -p tcp --dport 80 -m string --string \"UNION SELECT\" -j DROP"
     )
-    ax.text(0.07, 0.362, code_text, color=TEXT_BLACK, fontsize=10.5, family='monospace', va='top')
+    ax.text(0.07, 0.362, code_text, color=TEXT_BLACK, fontsize=11.2, family='monospace', va='top')
 
     save_fig(fig, "ai_copilot.png")
 
